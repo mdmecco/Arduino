@@ -94,7 +94,6 @@ void loop() {
   
   
 //************************************************* Lettura GPS  ********************************  
-  //while (ss.available() > 0){
     if (ss.available() > 0){
       if (gps.encode(ss.read())){
         lcd.setCursor (4,0);
@@ -120,16 +119,6 @@ void loop() {
       }
   }
       
-
-//  if (millis() > MSecCampionamento && gps.charsProcessed() < 10)
-//  {
-//    lcd.setCursor ( 0, 3 );
-//    lcd.println(F("No GPS detected: check wiring."));
-//    while(true);
-//  }
-
- // if ((millis()-T1) > MSecCampionamento){
-  //if ((NrSample-1) == Cl){
   if (C2 != Cl){
     C2 = Cl;
     T2=millis();
@@ -172,9 +161,9 @@ void loop() {
 
     lcd.setCursor (0,3);
     lcd.print(SPEED,1);
-    lcd.print("    ");
+    lcd.print("   ");
     lcd.print(DIST,2);
-    lcd.print("    ");
+    lcd.print("   ");
     //lcd.setCursor (18,3);
   // lcd.print(P_S,1);
   // lcd.print(Cl);
