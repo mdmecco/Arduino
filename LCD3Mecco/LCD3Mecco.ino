@@ -83,7 +83,7 @@ void setup() {
   attachInterrupt(INTERRUPT_INPUT - 2, interrupt_handler, RISING);
   
 }
-
+//*************************************************** LOOP Main *******************************
 void loop() {
   // This sketch displays information every time a new sentence is correctly encoded.
   LBZ=digitalRead(Btn_Z);
