@@ -19,6 +19,9 @@ double LatA[NrSample] = {};
 double LngA[NrSample] = {};
 int Cl =0 ;
 int C2 =0 ;
+int iMenu=0 ;
+int BtnA = 0;
+int BtnB = 0;
 
 
 #define I2C_ADDR    0x27  // Define I2C Address where the PCF8574A is
@@ -35,10 +38,6 @@ int C2 =0 ;
 #define D6_pin  6
 #define D7_pin  7
 #define INTERRUPT_INPUT 2
-#define Btn_Z 6 // reset il total counter
-#define Btn_C 7 // cambia visualizzazione
-int attesaDebounce = 50;
-
 #define MSecCampionamento 5000 //Definisce ogni quanto tempo fare il refresh delle misure
 
 
@@ -56,8 +55,10 @@ double P_S;
 double Total;
 unsigned long PULST;
 double TrCal;
+unsigned long LtCal;
 double Lt_min;
-double Lt_mt; // indicazione dei lt per metro percorso
+double Lt_mt; //indicazione dei lt per metro percorso
+unsigned long LtT1=0, LtT2=0, LtPC=0; //Usate per il calcolo di portata Lt/min
 
 // Pulsanti
 int LBZ, LBC,BBZ, BBC;
@@ -66,17 +67,12 @@ unsigned long TBZ, TBC;
 
 void setup() {
   TrCal= 0.1 / 1000 ;    // ml/pulse  / 1000  ottengo i litri per impulso ,settaggio dello strumento hendress+hauser
+  LtCal= 1/TrCal;        // Questo indica quanti impulsi servono per fare 1 litro
   ss.begin(GPSBaud);
-
-  pinMode(Btn_Z, INPUT);
-  pinMode(Btn_C, INPUT);
   
   lcd.begin(20,4);        // 20 columns by 4 rows on display
 
   lcd.setBacklight(HIGH); // Turn on backlight, LOW for off
-
-  lcd.setCursor ( 0, 0 );            // go to the top left corner
-  lcd.print("GPS"); // write this string on the top row
 
   //Interrupt del contatore
   digitalWrite(INTERRUPT_INPUT, HIGH);
@@ -85,40 +81,58 @@ void setup() {
 }
 //*************************************************** LOOP Main *******************************
 void loop() {
-  // This sketch displays information every time a new sentence is correctly encoded.
-  LBZ=digitalRead(Btn_Z);
-  if (LBZ != BBZ and millis() > TBZ){
-      TBZ=millis()+attesaDebounce;
-      BBZ=LBZ;
-    }
-  
   
 //************************************************* Lettura GPS  ********************************  
     if (ss.available() > 0){
       if (gps.encode(ss.read())){
-        lcd.setCursor (4,0);
         if (gps.location.isValid()){
-          lcd.print(gps.location.lat(), 4);
+          lcd.setCursor ( 0, 0 );            // go to the top left corner
+          //lcd.print("GPS"); // write this string on the top row
+          lcd.print(gps.location.lat(), 5);
           lcd.print(F(","));
-          lcd.print(gps.location.lng(), 4);
-          LatA[Cl]=gps.location.lat();
-          LngA[Cl]=gps.location.lng();
-          Cl +=1;
-          Cl= Cl % NrSample;
-          lcd.setCursor (18,2);
-          if (Cl >9) {
-            lcd.print(Cl);
-          }else{
-            lcd.print(" ");
-            lcd.print(Cl);
-          }
-        }else{
-          lcd.print(F("INVALID"));
+          lcd.print(gps.location.lng(), 5);
+
+          //LatA[Cl]=gps.location.lat();
+          //LngA[Cl]=gps.location.lng();
+          //Cl +=1;
+          //Cl= Cl % NrSample;
+          //lcd.setCursor (18,2);
+          //if (Cl >9) {
+          //  lcd.print(Cl);
+          //}else{
+          //  lcd.print(" ");
+          //  lcd.print(Cl);
+          //}
         }
-        displayDT();
-      }
-  }
-      
+        if (iMenu==0){              
+          //******************************** DATA ******************************************
+            lcd.setCursor (0,1);
+            if (gps.date.isValid()){
+              if (gps.date.day() < 10) lcd.print(F("0"));
+              lcd.print(gps.date.day());
+              lcd.print(F("/"));
+              if (gps.date.month() < 10) lcd.print(F("0"));
+              lcd.print(gps.date.month());
+              lcd.print(F("/"));
+              lcd.print(gps.date.year());
+              lcd.print(F("  "));
+            }else{
+              lcd.print(F("ETAD  "));
+            }
+          //********************************   TIME  *****************************************
+            if (gps.time.isValid()){
+              if (gps.time.hour() < 10) lcd.print(F("0"));
+              lcd.print(gps.time.hour());
+              lcd.print(F(":"));
+              if (gps.time.minute() < 10) lcd.print(F("0"));
+              lcd.print(gps.time.minute());
+              lcd.print(F(":"));
+              if (gps.time.second() < 10) lcd.print(F("0"));
+              lcd.print(gps.time.second());
+            } 
+        }
+    }
+  }      
   if (C2 != Cl){
     C2 = Cl;
     T2=millis();
@@ -136,7 +150,6 @@ void loop() {
     LNG1=LNG1/NrSample;
     TD=(T2-T1)/1000;
     T1=millis();
-    
     DIST=Distanza(LAT1,LNG1,LAT2,LNG2);
     if (DIST > 500){
       DIST=502;
@@ -155,53 +168,90 @@ void loop() {
     P_S=PULSD/TD;
 
     Lt_mt= TrCal * PULSD / DIST;
-    
-  //Cl +=1 ;
-  //Cl= Cl % 100;
+  }
 
+//**********************************************************************************************************
+//**********************************************************************************************************
+//************************** Calcolo Portata  **************************************************************
+//Eseguo il calcolo ogni variazione di almeno 1Lt di prodotto o meglio di LtCal, quindi ogni qualvolta il 
+//contatore ha una variazione di almeno LtCal fa il calcolo della portata 
+//Quando viene calcolata la nuova portata viene anche inserita nel display, se siamo nel giusto menu
+
+  if ((pulse_counter - LtPC)> LtCal){
+    LtT2=millis();
+    TD=(LtT2-LtT1)/1000;
+    PULSD=pulse_counter - LtPC;
+    LtPC=pulse_counter;
+    LtT1=millis(); 
+    Lt_min= TrCal * PULSD * 60 / TD;
+  }
+  
+
+
+
+
+  
+//**********************************************************************************************************
+//**********************************************************************************************************
+//************************** iMenu  ********** Gestione delle funzioni display e tast **********************
+  
+  BtnA= analogRead(0) ;
+  //lcd.setCursor (0,1);
+  //lcd.print(BtnA);
+  //lcd.setCursor (0,2);
+  
+  if ((BtnA>=0) && (BtnA<100) && (BtnB==0) ) { //Pressione pulsante Giallo
+    BtnB=1;
+    //lcd.print(F("Prova Giallo"));
+    iMenu +=1 ;
+    iMenu = iMenu & 3;
+    lcd.setCursor (0,0);
+    lcd.print(F("                    "));
+    lcd.setCursor (0,1);
+    lcd.print(F("                    "));
+    lcd.setCursor (0,2);
+    lcd.print(F("                    "));
     lcd.setCursor (0,3);
-    lcd.print(SPEED,1);
-    lcd.print("   ");
-    lcd.print(DIST,2);
-    lcd.print("   ");
-    //lcd.setCursor (18,3);
-  // lcd.print(P_S,1);
-  // lcd.print(Cl);
-   
+    lcd.print(F("                    "));
+    
   }
-}
 
+  if ((BtnA>200) && (BtnA<300) && (BtnB==0) ) { //Pressione pulsante Rosso
+    BtnB=1;
+    //lcd.print(F("Prova Rosso "));
 
+    if (iMenu==0){
+      pulse_counter=0;
+    }
+    lcd.setCursor (0,3);
+    lcd.print(F("                    "));
 
-void displayDT(){
-//******************************** DATA ******************************************
-  lcd.setCursor (0,1);
-  lcd.print(F("Date:"));
-  if (gps.date.isValid()){
-    if (gps.date.day() < 10) lcd.print(F("0"));
-    lcd.print(gps.date.day());
-    lcd.print(F("/"));
-    if (gps.date.month() < 10) lcd.print(F("0"));
-    lcd.print(gps.date.month());
-    lcd.print(F("/"));
-    lcd.print(gps.date.year());
-  }else{
-    lcd.print(F("INVALID"));
   }
-//********************************   TIME  *****************************************
-  lcd.setCursor (0,2);
-  lcd.print(F("Time:"));
-  if (gps.time.isValid()){
-    if (gps.time.hour() < 10) lcd.print(F("0"));
-    lcd.print(gps.time.hour());
-    lcd.print(F(":"));
-    if (gps.time.minute() < 10) lcd.print(F("0"));
-    lcd.print(gps.time.minute());
-    lcd.print(F(":"));
-    if (gps.time.second() < 10) lcd.print(F("0"));
-    lcd.print(gps.time.second());
-  }else{
-    lcd.print(F("INVALID"));
+
+  if (BtnA > 300) {
+    BtnB=0;
+  }
+//*****************************  Menu *********************
+//lcd.setCursor (0,3);
+//lcd.print(iMenu);
+  if (iMenu==0){ // Menu 0
+    lcd.setCursor (0,2);
+    lcd.print (F(" Litri/Minuto:"));
+    lcd.print (Lt_min);    
+    
+    lcd.setCursor (0,3);
+    lcd.print (F("Totalizzatore:"));
+    lcd.print (pulse_counter);    
+
+  
+  }else if (iMenu==1) {
+
+    
+  }else if (iMenu==2) {
+  
+  
+  }else if (iMenu==3) {
+ 
   }
 }
 
