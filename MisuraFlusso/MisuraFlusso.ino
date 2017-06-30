@@ -243,14 +243,18 @@ void loop() {
     lcd.print (pulse_counter);    
 
   
-  }else if (iMenu==1) {
+  }
+  if (iMenu==1) {
 
     
-  }else if (iMenu==2) {
+  }
+  if (iMenu==2) {
   
   
-  }else if (iMenu==3) {
+  }
+  if (iMenu==3) {
  
+  
   }
 }
 
