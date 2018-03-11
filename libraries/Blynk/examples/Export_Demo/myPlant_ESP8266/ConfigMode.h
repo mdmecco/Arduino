@@ -37,8 +37,8 @@ void restartMCU() {
 
 void enterConfigMode()
 {
-  WiFi.disconnect();
-  WiFi.enableSTA(false);
+  WiFi.mode(WIFI_OFF);
+  delay(100);
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(WIFI_AP_IP, WIFI_AP_IP, WIFI_AP_Subnet);
   WiFi.softAP(PRODUCT_WIFI_SSID);
@@ -102,7 +102,7 @@ void enterConfigMode()
       statusCode = 200;
       server.send(statusCode, "application/json", content);
 
-      BlynkState::set(MODE_CONNECTING_NET);
+      BlynkState::set(MODE_SWITCH_TO_STA);
     } else {
       DEBUG_PRINT("Configuration invalid");
       content = R"json({"status":"error","msg":"Configuration invalid"})json";
@@ -113,16 +113,17 @@ void enterConfigMode()
   server.on("/board_info.json", []() {
     char buff[256];
     snprintf(buff, sizeof(buff),
-      R"json({"board":"%s","vendor":"%s","fw_ver":"%s","hw_ver":"%s"})json",
+      R"json({"board":"%s","vendor":"%s","tmpl_id":"%s","fw_ver":"%s","hw_ver":"%s"})json",
       BOARD_NAME,
       BOARD_VENDOR,
+      BOARD_TEMPLATE_ID,
       BOARD_FIRMWARE_VERSION,
       BOARD_HARDWARE_VERSION
     );
     server.send(200, "application/json", buff);
   });
   server.on("/reset", []() {
-    config_reset();
+    BlynkState::set(MODE_RESET_CONFIG);
     server.send(200, "application/json", R"json({"status":"ok","msg":"Configuration reset"})json");
   });
   server.on("/reboot", []() {
@@ -148,7 +149,6 @@ void enterConnectNet() {
   BlynkState::set(MODE_CONNECTING_NET);
   DEBUG_PRINT(String("Connecting to WiFi: ") + configStore.wifiSSID);
   
-  WiFi.disconnect();
   WiFi.mode(WIFI_STA);
   if (!WiFi.begin(configStore.wifiSSID, configStore.wifiPass))
     return;
@@ -199,6 +199,18 @@ void enterConnectCloud() {
   } else {
     BlynkState::set(MODE_ERROR);
   }
+}
+
+void enterSwitchToSTA() {
+  BlynkState::set(MODE_SWITCH_TO_STA);
+
+  DEBUG_PRINT("Switching to STA...");
+
+  WiFi.mode(WIFI_OFF);
+  delay(1000);
+  WiFi.mode(WIFI_STA);
+
+  BlynkState::set(MODE_CONNECTING_NET);
 }
 
 void enterError() {

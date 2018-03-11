@@ -1,9 +1,4 @@
 
-
-
-static const int RXPin = 4, TXPin = 3;
-static const uint32_t GPSBaud = 9600;
-
 #include <TinyGPS++.h>
 //#include <SoftwareSerial.h>
 
@@ -33,14 +28,9 @@ static const uint32_t GPSBaud = 9600;
 
 
 
-LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin, BACKLIGHT_PIN, POSITIVE);
-
-
 // The TinyGPS++ object
 TinyGPSPlus gps;
-// The serial connection to the GPS device
-//SoftwareSerial ss(RXPin, TXPin);
-
+LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin, BACKLIGHT_PIN, POSITIVE);
 
 long C1 = 0;
 int T1 = 0;
@@ -49,15 +39,17 @@ long T3 = 0;
 long T4=0;
 long T5=0;
 long T6=0;
+String UnaSt="";
+
 
 void setup() {
-  //ss.begin(GPSBaud);
   Serial.begin(9600);
   Wifi.begin();
   Wifi.println("Web Server is up");
   lcd.begin(20,4);        // 20 columns by 4 rows on display
   lcd.setBacklight(HIGH); // Turn on backlight, LOW for off
 }
+
 void loop() {
 
   while(Wifi.available()){
@@ -88,7 +80,11 @@ if (T1<100) {
 
   
 if (Serial.available() > 0){ // any data coming in?
+    
+    //UnaSt=Serial.read();
+    //Wifi.println(UnaSt);
     if (gps.encode(Serial.read())){
+      
       lcd.setCursor (0,0);
       if (gps.date.isValid()){
         if (gps.date.day() < 10) lcd.print(F("0"));
@@ -131,12 +127,17 @@ void process(WifiData client) {
   }
 
   if (command == "NEO") {
-    WebServer(client);
+    WTransmit(client);
   }
 
 
   
 }
+
+void WTransmit(WifiData client){
+   
+}
+
 void WebServer(WifiData client) {
   C1 = C1 + 1;
   lcd.setCursor (0,1);

@@ -21,6 +21,10 @@ Community Forum: http://community.blynk.cc
 Examples Browser: http://examples.blynk.cc  
 Blynk for Business: http://www.blynk.io
 
+## Contributing
+We accept contributions from our community: stability bugfixes, new hardware support, or any other improvements.  
+[Here](https://github.com/blynkkk/blynk-library/labels/help%20wanted) is a list of what you could help with.
+
 __________
 
 # What is Blynk?
@@ -61,6 +65,7 @@ __________
 * [MBED](https://developer.mbed.org/users/vshymanskyy/code/Blynk/)
 * [Node-RED](https://github.com/tzapu/node-red-contrib-blynk-websockets)
 * [LabVIEW](https://github.com/juncaofish/NI-LabVIEWInterfaceforBlynk)
+* [C#](https://github.com/sverrefroy/BlynkLibrary)
 
 ### License
 This project is released under The MIT License (MIT)
