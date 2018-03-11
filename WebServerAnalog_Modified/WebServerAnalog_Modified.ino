@@ -5,7 +5,7 @@ static const int RXPin = 4, TXPin = 3;
 static const uint32_t GPSBaud = 9600;
 
 #include <TinyGPS++.h>
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
 
 #include <Wire.h>
 #include <UnoWiFiDevEd.h>
@@ -39,18 +39,20 @@ LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin
 // The TinyGPS++ object
 TinyGPSPlus gps;
 // The serial connection to the GPS device
-SoftwareSerial ss(RXPin, TXPin);
+//SoftwareSerial ss(RXPin, TXPin);
 
 
 long C1 = 0;
 int T1 = 0;
 int T2 = 0;
 long T3 = 0;
-
+long T4=0;
+long T5=0;
+long T6=0;
 
 void setup() {
-  ss.begin(GPSBaud);
-  
+  //ss.begin(GPSBaud);
+  Serial.begin(9600);
   Wifi.begin();
   Wifi.println("Web Server is up");
   lcd.begin(20,4);        // 20 columns by 4 rows on display
@@ -85,8 +87,8 @@ if (T1<100) {
 
 
   
-if (ss.available() > 0){ // any data coming in?
-    if (gps.encode(ss.read())){
+if (Serial.available() > 0){ // any data coming in?
+    if (gps.encode(Serial.read())){
       lcd.setCursor (0,0);
       if (gps.date.isValid()){
         if (gps.date.day() < 10) lcd.print(F("0"));
@@ -122,7 +124,7 @@ if (ss.available() > 0){ // any data coming in?
 void process(WifiData client) {
   // read the command
   String command = client.readStringUntil('/');
-  String miocmd= client.  
+    
 
   if (command == "webserver") {
     WebServer(client);
@@ -162,8 +164,12 @@ void WebServer(WifiData client) {
     client.print(C1);
     client.print("<br/>");
 
+    
+    T4=millis();
+    T5=T4-T6;
+    T6=T4;
     client.print("analog input  6 is:");
-    client.print(T3);
+    client.print(T5);
     client.print("<br/>");
 
 

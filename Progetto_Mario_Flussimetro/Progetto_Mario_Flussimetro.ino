@@ -1,9 +1,13 @@
 
-static const int RXPin = 4, TXPin = 3;
+#include <UnoWiFiDevEd.h>
+
+
+//static const int RXPin = 4, TXPin = 3;
 static const uint32_t GPSBaud = 9600;
 
 #include <TinyGPS++.h>
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
+
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
@@ -11,7 +15,7 @@ static const uint32_t GPSBaud = 9600;
 TinyGPSPlus gps;
 
 // The serial connection to the GPS device
-SoftwareSerial ss(RXPin, TXPin);
+//SoftwareSerial ss(RXPin, TXPin);
 
 #define NrSample 30
 
@@ -78,7 +82,8 @@ unsigned long TBZ, TBC;
 
 void setup() {
   TrCal= 0.1 / 1000 ;    // ml/pulse  / 1000  ottengo i litri per impulso ,settaggio dello strumento hendress+hauser
-  ss.begin(GPSBaud);
+  //ss.begin(GPSBaud);
+  Serial.begin(9600);
 
   pinMode(Btn_Z, INPUT);
   pinMode(Btn_C, INPUT);
@@ -102,8 +107,8 @@ void loop() {
  
 //************************************************* Lettura GPS  ********************************  
   //while (ss.available() > 0){
-    if (ss.available() > 0){
-      if (gps.encode(ss.read())){
+    if (Serial.available() > 0){
+      if (gps.encode(Serial.read())){
         lcd.setCursor (0,0);
         if (gps.location.isValid()){
           lcd.print(gps.location.lat(), 4);
