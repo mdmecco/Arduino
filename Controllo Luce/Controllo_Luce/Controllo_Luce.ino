@@ -7,6 +7,8 @@ unsigned long TG02;
 String txtMsg = "";
 String FileIn ="";
 String mdInSt="";
+boolean currentLineIsBlank = true;
+unsigned long MAS2T =0;
 
 unsigned long DayTimeI =0;
 unsigned long DayTimeO =0;
@@ -38,6 +40,8 @@ EthernetServer server(80);
 // with the IP address and port of the server
 // that you want to connect to (port 80 is default for HTTP):
 EthernetClient client1;
+EthernetClient mdmecco;
+EthernetClient ghelfa;
 
 int ret=0;
 int red=0;
@@ -178,31 +182,40 @@ unsigned long DayTime(){
 
 void listenForEthernetClients() {
   // listen for incoming clients
-  EthernetClient client1 = server.available();
-  if (client1) {
-    Serial.println("Got a client");
-    // an http request ends with a blank line
-    boolean currentLineIsBlank = true;
-    while (client1.connected()) {
-      if (client1.available()) {
-        char c = client1.read();
+  
+  if (MAS[2]==0){
+    EthernetClient ghelfa = server.available();
+    if (ghelfa){
+      Serial.println("Got a client");
+      MAS[2]=1;    
+      currentLineIsBlank=true;
+    }
+  }else if (MAS[2]==1){
+    Serial.println("MAS=1");
+    //ret=ghelfa;
+    if (ghelfa.connected()) {
+      Serial.println("CONNECTED");
+      if (ghelfa.available()) {
+        Serial.println("AVAILABLE");
+        char c = ghelfa.read();
         Serial.println(c);
         // if you've gotten to the end of the line (received a newline
         // character) and the line is blank, the http request has ended,
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
           // send a standard http response header
-          client1.println("HTTP/1.1 200 OK");
-          client1.println("Content-Type: text/html");
-          client1.println();
+          ghelfa.println("HTTP/1.1 200 OK");
+          ghelfa.println("Content-Type: text/html");
+          ghelfa.println();
+          
           // print the current readings, in HTML format:
-          client1.print("Temperature: ");
-          client1.print(" degrees C");
-          client1.println("<br />");
-          client1.print("Pressure: ");
-          client1.print(" Pa");
-          client1.println("<br />");
-          break;
+          ghelfa.print("Temperature: ");
+          ghelfa.print(" degrees C");
+          ghelfa.println("<br />");
+          ghelfa.print("Pressure: ");
+          ghelfa.print(" Pa");
+          ghelfa.println("<br />");
+          MAS[2]=2;          
         }
         if (c == '\n') {
           // you're starting a new line
@@ -212,16 +225,20 @@ void listenForEthernetClients() {
           currentLineIsBlank = false;
         }
       }
+    }else{
+      Serial.println("NON CONNESSO");
+      MAS[2]=2;
     }
-    // give the web browser time to receive the data
-    delay(1);
-    // close the connection:
-    client1.stop();
+  }else if (MAS[2]==2){
+    Serial.println("MAS=2");
+    MAS2T=millis()+1500;
+    MAS[2]=3;
+  }else if (MAS[2]==3){
+    if (millis() > MAS2T){
+       Serial.println("MAS STOP");
+       ghelfa.stop();
+       MAS[2]=0;
+    }
   }
 }
-
-//************************************************************************************ Client comunication ************************
-
-void Getmdmecco(String PhpProc) {    
-  }
 
