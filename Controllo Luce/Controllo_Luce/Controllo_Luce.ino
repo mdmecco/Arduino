@@ -9,6 +9,7 @@ String FileIn ="";
 String mdInSt="";
 boolean currentLineIsBlank = true;
 unsigned long MAS2T =0;
+unsigned int D;
 
 unsigned long DayTimeI =0;
 unsigned long DayTimeO =0;
@@ -26,8 +27,10 @@ IPAddress ip(192, 168, 1, 9);
 //Come sapere che ore sono in char
 char serverOra[] = "www.mdmecco.it";
 IPAddress ETH(192,168,1,6);
+IPAddress mdm(31,11,33,162);
 
 IPAddress G02(192,168,1,202);
+IPAddress MyDNS(8,8,8,8);
 
 
 // Initialize the Ethernet server library
@@ -39,13 +42,15 @@ EthernetServer server(80);
 // Initialize the Ethernet client library
 // with the IP address and port of the server
 // that you want to connect to (port 80 is default for HTTP):
-EthernetClient client1;
 EthernetClient mdmecco;
+EthernetClient client1;
 EthernetClient ghelfa;
 
 int ret=0;
+int rem=0;
 int red=0;
 unsigned long rt;
+unsigned long gt;
 int LD=0;
 
 //lista delle macchine a stati usate per il programma
@@ -64,10 +69,10 @@ void setup() {
 //  if (Ethernet.begin(mac) == 0) {
 //    Serial.println("Failed to configure Ethernet using DHCP");
 //    // try to congifure using IP address instead of DHCP:
-    Ethernet.begin(mac, ip);
+    Ethernet.begin(mac, ip, MyDNS);
 //  }
 //  // give the Ethernet shield a second to initialize:
-  server.begin();
+  //server.begin();
   delay(1000);
   time=20000-millis();
   TG02=0;
@@ -87,7 +92,7 @@ void setup() {
 void loop() {
 
   // listen for incoming Ethernet connections:
-  listenForEthernetClients();
+  //listenForEthernetClients();
 
   if ((millis()-time)>500){
     time=millis();
@@ -112,65 +117,111 @@ void loop() {
   if ((TG02==0) && (millis()>10000)){
     Serial.println("Sono dentro");
     MAS[0]=1;
-    MAS[1]=2;
+    MAS[1]=0;
     TG02=millis();
     
   }
 
   if (MAS[0]==1){
-      if (MAS[1]==2){
-        ret=client1.connect(G02, 2002);
-      }else{
-        ret=client1.connect(serverOra, 80);
+      // *********************************************************************************************Processo stato 1
+      if (MAS[1]==0){ //********************************************* Query 0
+        ret=mdmecco.connect(serverOra, 80);
+        //ret=mdmecco.connect(mdm, 80);
         Serial.println("retmdmecco:" + String(ret));
+        rem=1;
+        
+      }else if (MAS[1]==2){ //********************************************* Query 2
+        ret=client1.connect(G02, 2002);
+        rem=mdmecco.connect(serverOra, 80);
       }
-      
-      if (ret) {
+      if ((ret)&& (rem)) {
         // Make a HTTP request:
         MAS[0]=2;
         rt=millis();
-        
-        if (MAS[1]==0){ 
-          client1.println("GET /Ghelfa/time.php HTTP/1.1");
-        }else if (MAS[1]==2) {
+        if (MAS[1]==0){  //********************************************* Query 0
+          //Leggi ora
+          Serial.println("chiedi ora");
+          mdmecco.println("GET /ghelfa/time.php HTTP/1.1");
+          mdmecco.println("Host: www.mdmecco.it");
+          mdmecco.println("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+          mdmecco.println("Connection: keep-alive");
+          mdmecco.println("");
+          //mdmecco.println("GET / HTTP/1.1");
+          
+        }else if (MAS[1]==2) { //********************************************* Query 2
+          //Scrivi camera sul web
+          //headers = {"Content-type": "JPEG", "Accept": "text/plain", "CamName":"G01", "FileName": NomeFile, "IMAGEPATH": PathNow}
+          mdmecco.println("POST /ghelfa/SaveImage.php HTTP/1.1");
+          mdmecco.println("Host: www.mdmecco.it");
+          mdmecco.println("CamName: G01");
+          mdmecco.println("FILENAME: NomeFileJPG");
+          mdmecco.println("IMAGEPATH: 2018_04_01");
           Serial.println("chiedi immagine");
           client1.println("GET /jpg/image.jpg HTTP/1.1");
           client1.println("Authorization: Basic YWRtaW46Ym9yZGVy");
-        } 
-        
-        //client1.println("Host: ");
-        client1.println("Connection: close");
-        client1.println();
-      } else {
+          client1.println("");
+          D=0;    
+      }
+     } else {
         // if you didn't get a connection to the server:
         Serial.println("connection failed");
         MAS[0]=0;
         mdInSt="";
+     }
+  } else if (MAS[0]==2){
+    // *********************************************************************************************Processo stato 2
+    
+    if (MAS[1]==0){ //********************************************* Query 0
+      if (mdmecco.available()) {
+        rt=millis();
+        char c = mdmecco.read();
+        Serial.print(c);
       }
-  }
-  if (MAS[0]==2){
-    if (client1.available()) {
-      rt=millis();
-      char c = client1.read();
-      //mdInSt +=c;
-      Serial.print(c);      
-    }else{
-      if ((millis()-rt)>5000){
-        Serial.println("");
-        client1.stop();
-        MAS[0]=3;
-        Serial.println("Close Client");  
+    }else if (MAS[1]==2){ //********************************************* Query 2
+      if (client1.available()) {
+        rt=millis();
+        char c = client1.read();
+        if (D<=1){
+          Serial.print(c);
+          if (c==10){
+            D=D+1;
+          }
+        }else{
+          //Serial.print(c);
+          mdmecco.print(c);
+        }
+      }
+      if (mdmecco.available()) {
+        rt=millis();
+        char c = mdmecco.read();
+        Serial.print(c);
       }
     }
-  }
+    if ((millis()-rt)>5000){
+      if (MAS[1]==0){
+        Serial.println("Server ora chiuso");
+        mdmecco.stop();
 
-  if (MAS[0]==3){
-   if (MAS[1]==1){
+      }else if (MAS[1]==2){
+        Serial.println("Get CAM chiuso");
+        client1.stop();
+        mdmecco.stop();
+      }
+      MAS[0]=3;
+      Serial.println("Close Client");  
+    }
+  
+  }else if (MAS[0]==3){
+    // *********************************************************************************************Processo stato 3
+   if (MAS[1]==0){ //********************************************* Query 0
       DayTimeI=atoi(mdInSt.c_str());
       DayTimeO=millis()/1000;
-   }
- MAS[0]==0;
- MAS[1]==0;
+  }
+  MAS[0]==0;
+  MAS[1]==0;
+ }else{
+  MAS[0]==0;
+  MAS[1]==0;
  }
 }
 
@@ -189,13 +240,11 @@ void listenForEthernetClients() {
       Serial.println("Got a client");
       MAS[2]=1;    
       currentLineIsBlank=true;
+      gt=millis()+2500;
     }
   }else if (MAS[2]==1){
-    Serial.println("MAS=1");
-    //ret=ghelfa;
-    if (ghelfa.connected()) {
-      Serial.println("CONNECTED");
       if (ghelfa.available()) {
+        gt=millis()+2500;
         Serial.println("AVAILABLE");
         char c = ghelfa.read();
         Serial.println(c);
@@ -224,11 +273,12 @@ void listenForEthernetClients() {
           // you've gotten a character on the current line
           currentLineIsBlank = false;
         }
+      }else{
+        if (millis()>gt){
+          Serial.println("NON CONNESSO");
+          MAS[2]=2;
+        }
       }
-    }else{
-      Serial.println("NON CONNESSO");
-      MAS[2]=2;
-    }
   }else if (MAS[2]==2){
     Serial.println("MAS=2");
     MAS2T=millis()+1500;
