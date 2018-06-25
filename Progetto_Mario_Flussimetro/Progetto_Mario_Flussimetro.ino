@@ -59,6 +59,9 @@ int attesaDebounce = 50;
 LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin, BACKLIGHT_PIN, POSITIVE);
 
 unsigned long pulse_counter = 0;
+unsigned long pulse_counter2 = 0;
+unsigned long pulse_counterT = 0;
+unsigned long lt_mt=0;
 //int n = 1; // a global variable to track number of display refreshes
 unsigned long    T1=0, T2=0, T3=0, T4=0;
 //double TD;
@@ -140,94 +143,10 @@ void loop() {
       Wifi.print("<body>");
       Wifi.println("<br/>");
       if (BCK=="GPS"){
-        //Wifi.print("Latitude in degrees (double):");
-        //Wifi.println( gps.location.lat(), 6); // Latitude in degrees (double)
-        //Wifi.println("<br/>");
-        //Wifi.print("Longitude in degrees (double):");
-        //Wifi.println( gps.location.lng(), 6); // Longitude in degrees (double)
-        //Wifi.println("<br/>");
-        //Wifi.print("");
-        //Wifi.print(gps.location.rawLat().negative ? "-" : "+");
-        //Wifi.println("<br/>");
-        //Wifi.print("Raw latitude in whole degrees:");
-        //Wifi.println( gps.location.rawLat().deg); // Raw latitude in whole degrees
-        //Wifi.println("<br/>");
-        //Wifi.print("and billionths (u16/u32):");
-        //Wifi.println( gps.location.rawLat().billionths);// ... and billionths (u16/u32)
-        //Wifi.println("<br/>");
-        //Wifi.print("");
-        //Wifi.print(gps.location.rawLng().negative ? "-" : "+");
-        //Wifi.println("<br/>");
-        //Wifi.print("Raw longitude in whole degrees:");
-        //Wifi.println(gps.location.rawLng().deg); // Raw longitude in whole degrees
-        //Wifi.println("<br/>");
-        //Wifi.print("billionths (u16/u32)");
-        //Wifi.println( gps.location.rawLng().billionths);// ... and billionths (u16/u32)
-        //Wifi.println("<br/>");
-        //Wifi.print("Raw date in DDMMYY format (u32):");
-        //Wifi.println(gps.date.value()); // Raw date in DDMMYY format (u32)
-        //Wifi.println("<br/>");
-        //Wifi.print("Year (2000+) (u16)");
-        //Wifi.println(gps.date.year()); // Year (2000+) (u16)
-        //Wifi.println("<br/>");
-        //Wifi.print("Month (1-12) (u8)");
-        //Wifi.println(gps.date.month()); // Month (1-12) (u8)
-        //Wifi.println("<br/>");
-        //Wifi.print("Day (1-31) (u8)");
-        //Wifi.println(gps.date.day()); // Day (1-31) (u8)
         Wifi.println("<br/>");
         Wifi.print("Raw time in HHMMSSCC format (u32)");
         Wifi.println(gps.time.value()); // Raw time in HHMMSSCC format (u32)
-        //Wifi.print("");
-        //Wifi.println("<br/>");
-        //Wifi.print("Hour (0-23) (u8)");
-        //Wifi.println(gps.time.hour()); // Hour (0-23) (u8)
-        //Wifi.println("<br/>");
-        //Wifi.print("Minute (0-59) (u8)");
-        //Wifi.println(gps.time.minute()); // Minute (0-59) (u8)
-        //Wifi.println("<br/>");
-        //Wifi.print("Second (0-59) (u8)");
-        //Wifi.println(gps.time.second()); // Second (0-59) (u8)
-        //Wifi.println("<br/>");
-        //Wifi.print("100ths of a second (0-99) (u8)");
-        //Wifi.println(gps.time.centisecond()); // 100ths of a second (0-99) (u8)
-        //Wifi.println("<br/>");
-        //Wifi.print("Raw speed in 100ths of a knot (i32)");
-        //Wifi.println(gps.speed.value()); // Raw speed in 100ths of a knot (i32)
-        //Wifi.println("<br/>");
-        //Wifi.print("Speed in knots (double)");
-        //Wifi.println(gps.speed.knots()); // Speed in knots (double)
-        //Wifi.println("<br/>");
-        //Wifi.print("Speed in miles per hour (double)");
-        //Wifi.println(gps.speed.mph()); // Speed in miles per hour (double)
-        //Wifi.println("<br/>");
-        //Wifi.print("Speed in meters per second (double)");
-        //Wifi.println(gps.speed.mps()); // Speed in meters per second (double)
-        //Wifi.println("<br/>");
-        //Wifi.print("Speed in kilometers per hour (double)");
-        //Wifi.println(gps.speed.kmph()); // Speed in kilometers per hour (double)
-        //Wifi.println("<br/>");
-        //Wifi.print("Raw course in 100ths of a degree (i32)");
-        //Wifi.println(gps.course.value()); // Raw course in 100ths of a degree (i32)
-        //Wifi.println("<br/>");
-        //Wifi.print("Course in degrees (double)");
-        //Wifi.println(gps.course.deg()); // Course in degrees (double)
-        Wifi.println("<br/>");
-        Wifi.print("Raw altitude in centimeters (i32)");
-        Wifi.println(gps.altitude.value()); // Raw altitude in centimeters (i32)
-        Wifi.println("<br/>");
-        //Wifi.print("Altitude in meters (double)");
-        //Wifi.println(gps.altitude.meters()); // Altitude in meters (double)
-        //Wifi.println("<br/>");
-        //Wifi.print("Altitude in miles (double)");
-        //Wifi.println(gps.altitude.miles()); // Altitude in miles (double)
-        //Wifi.println("<br/>");
-        //Wifi.print("Altitude in kilometers (double)");
-        //Wifi.println(gps.altitude.kilometers()); // Altitude in kilometers (double)
-        //Wifi.println("<br/>");
-        //Wifi.print("Altitude in feet (double)");
-        //Wifi.println(gps.altitude.feet()); // Altitude in feet (double)
-        //Wifi.println("<br/>");
+        
         Wifi.print("Number of satellites in use (u32)");
         Wifi.println(gps.satellites.value()); // Number of satellites in use (u32)
         Wifi.println("<br/>");
@@ -246,14 +165,15 @@ void loop() {
 
   //******************************************* Gestione DISPLAY *******************************
   if (T3<millis()){
-    T3=millis()+1000;
-    lcd.setCursor (0,2);
-    lcd.print(BCK);
+      T3=millis()+1000;
+//    lcd.setCursor (0,2);
+//    lcd.print(BCK);
     //lcd.print("--");
     //lcd.print(BCI);
     //BCI=0;
     
-    pulse_counter+=1; // *******************************simulazione contalitri
+    //pulse_counter+=1; // *******************************simulazione contalitri
+    
     if (gps.location.isValid()){
       //lcd.setCursor (0,2);
       //lcd.print(gps.satellites.value());
@@ -264,8 +184,8 @@ void loop() {
       //LatA+= gps.location.lat();
       //LngA+= gps.location.lng();
       lcd.print(F(","));
-      Speed=gps.speed.mps()*60;
-      lcd.print(Speed);
+      Speed=gps.speed.mps();
+      lcd.print(Speed*60);
      }
     //******************************** DATA ******************************************
     if (gps.date.isValid()){
@@ -294,7 +214,17 @@ void loop() {
   //********************************* Informazioni da display ****************************
   lcd.setCursor (0,1);
   lcd.print (F("Tot:"));
-  lcd.print (pulse_counter);
+  lcd.print ((pulse_counter));
+  lt_mt= ((pulse_counter-pulse_counter2)/(millis()-pulse_counterT))/Speed;
+  
+  pulse_counterT=millis();
+  pulse_counter2=pulse_counter;
+
+  lcd.setCursor (0,2);
+  lcd.print (F("Lt/mt*100:"));
+  lcd.print (lt_mt);
+  
+
 
   //lcd.setCursor (0,2);
   //lcd.print (F("Analog::"));
@@ -377,6 +307,8 @@ void loop() {
     if (millis() > BtnDB){
       if (iMenu==0){
         pulse_counter=0;
+        lcd.setCursor (0,1);
+        lcd.print (F("Tot:          "));
       }
     }
     BtnDB=millis()+attesaDebounce;
