@@ -52,9 +52,9 @@ unsigned long Analog[]= {0,0,0};
 unsigned long NrAnalog=0;
 unsigned int AnalogM[]= {0,0,0};
 unsigned long AnalogT =0;
-#define AnalogRefresh  2000
+#define AnalogRefresh  = 2000
 unsigned long AnalogWeb = 0;
-#define AnalogWebRefresh 600000
+#define AnalogWebRefresh=600000;
 
 //****************************Variabili Gestione Porta Polli
 //unsigned long POApertura=450; //tempo in secondi
