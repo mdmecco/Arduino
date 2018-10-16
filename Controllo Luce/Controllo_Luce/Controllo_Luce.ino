@@ -16,7 +16,7 @@ unsigned int D, E, F, G, H;
 
 unsigned long DayTimeI =0;
 unsigned long DayTimeO =0;
-Global unsigned long DayTimeT =0;
+unsigned long DayTimeT =0;
 
 unsigned int I1[]= { 0,0,0,0};
 const char D1[]= {13,10,13,10};
@@ -183,9 +183,9 @@ if (millis() > AnalogWeb ){
   if (MAS[0]==0){
     IdWeb=-1;
     for (int i=0; i <= 5; i++){
-      if (StWeb[i]){
-        IdWeb=i;
-        break;
+      //if (StWeb[i]){
+      //  IdWeb=i;
+      //  break;
       }
     }
     if (IdWeb != -1) {
@@ -511,7 +511,7 @@ void ProcBtn (int Ib, unsigned long TAct){
           bitClear(VBool,Ib+8);  
         }
         digitalWrite(Ib, bitRead(VBool,(Ib+8)));
-        StWeb[Ib]=true;
+        //StWeb[Ib]=true;
         if (bitRead(VBool,Ib+8)==false){
           PC[Ib]=millis()+TAct;    
         }
@@ -522,7 +522,7 @@ void ProcBtn (int Ib, unsigned long TAct){
   if ((millis()> PC[Ib]) && (bitRead(VBool,Ib)==false)){
     bitSet(VBool,Ib+8);
     digitalWrite(Ib, bitRead(VBool,Ib+8));
-    StWeb[Ib]=true;
+    //StWeb[Ib]=true;
   }
 }
 

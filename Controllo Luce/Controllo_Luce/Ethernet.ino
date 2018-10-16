@@ -52,7 +52,7 @@ EthernetClient ghelfa;
 EthernetClient GenWeb; //collegamento generico da utlizzare
 
 
-void EtherSetup (){
+Global void EtherSetup (){
   Ethernet.begin(mac, ip, MyDNS);
   
 }
