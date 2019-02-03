@@ -1,26 +1,3 @@
-// SoftwareWire.cpp
-//
-// 2008, Raul wrote a I2C with bit banging as an exercise.
-// http://codinglab.blogspot.nl/2008/10/i2c-on-avr-using-bit-banging.html
-//
-// 2010-2012, Tod E. Kurt takes some tricks from Raul,
-// and wrote the SoftI2CMaster library for the Arduino environment.
-// https://github.com/todbot/SoftI2CMaster
-// http://todbot.com/blog/
-//
-// 2014-2015, Testato updates the SoftI2CMaster library to make it faster
-// and to make it compatible with the Arduino 1.x API
-// Also changed I2C waveform and added speed selection.
-//
-// 2015, Peter_n renames the library into "SoftwareWire",
-// and made it a drop-in replacement for the Wire library.
-//
-// 21 sep 2015: 
-//  added code to i2c_stop(), since a problem was reported here: 
-//  http://forum.arduino.cc/index.php?topic=348337.0
-//  Added lines have keyword "ADDED1".
-
-
 
 // Signal differences
 // ------------------
@@ -71,7 +48,12 @@
 //    Every software i2c bus requires 2 pins, 
 //    and every SoftwareWire object requires 59 bytes at the moment.
 //
-//
+
+
+
+//  added code to i2c_stop(), since a problem was reported here: 
+//  http://forum.arduino.cc/index.php?topic=348337.0
+//  Added lines have keyword "ADDED1".
 
 
 // Use the next define to run a i2c_scanner inside the printStatus() function.
@@ -124,6 +106,10 @@
 //
 // The pins are not activated until begin() is called.
 //
+SoftwareWire::SoftwareWire() 
+{
+}
+
 SoftwareWire::SoftwareWire(uint8_t sdaPin, uint8_t sclPin, boolean pullups, boolean detectClockStretch)
 {
   _sdaPin = sdaPin;
@@ -182,6 +168,7 @@ void SoftwareWire::end()
 }
 
 
+// begin(void) - enter master mode
 // The pins are not changed until begin() is called.
 void SoftwareWire::begin(void)
 {
@@ -199,18 +186,6 @@ void SoftwareWire::begin(void)
   if( _pullups)
     delay(2);           // 1ms didn't always work.
 }
-
-
-void SoftwareWire::begin(uint8_t address)
-{
-  begin();              // ignore the address parameter, the Slave part is not implemented.
-}
-
-void SoftwareWire::begin(int address)
-{
-  begin();              // ignore the address parameter, the Slave part is not implemented.
-}
-
 
 //
 // beginTransmission starts the I2C transmission immediate.
@@ -329,7 +304,7 @@ uint8_t SoftwareWire::requestFrom(int address, int size, boolean sendStop)
 // must be called in:
 // slave tx event callback
 // or after beginTransmission(address)
-uint8_t SoftwareWire::write(uint8_t data)
+size_t SoftwareWire::write(uint8_t data)
 {
   // When there was an error during the transmission, no more bytes are transmitted.
   if( _transmission == SOFTWAREWIRE_NO_ERROR)
@@ -349,7 +324,7 @@ uint8_t SoftwareWire::write(uint8_t data)
 
 
 //
-uint8_t SoftwareWire::write(const uint8_t* data, uint8_t quantity)
+size_t SoftwareWire::write(const uint8_t* data, uint8_t quantity)
 {
   for (uint8_t i=0; i<quantity; i++) 
   {
@@ -361,7 +336,7 @@ uint8_t SoftwareWire::write(const uint8_t* data, uint8_t quantity)
 
 
 //
-uint8_t SoftwareWire::write(char* data)
+size_t SoftwareWire::write(char* data)
 {
   int n = strlen(data);
   write((uint8_t*)data, n);
@@ -487,11 +462,13 @@ void SoftwareWire::setClock(uint32_t clock)
 //
 void SoftwareWire::setTimeout(long timeout)    
 {
-  _timeout = timeout;
+  // 2017, fix issue #6. 
+  // A signed long as parameter to be compatible with Arduino libraries.
+  // A unsigned long internal to avoid compiler warnings.
+  _timeout = (unsigned long) timeout;
 }
 
 
-//
 // printStatus
 // -----------
 // Print information to the Serial port
@@ -501,7 +478,7 @@ void SoftwareWire::setTimeout(long timeout)
 // This function is not compatible with the Wire library.
 // When this function is not called, it does not use any memory.
 //
-void SoftwareWire::printStatus( HardwareSerial& Ser)
+void SoftwareWire::printStatus( Print& Ser)
 {
   Ser.println(F("-------------------"));
   Ser.println(F("SoftwareWire Status"));
@@ -810,11 +787,6 @@ void SoftwareWire::i2c_repstart(void)
         break;
     };
   }
-  
-  if (_i2cdelay != 0)
-    delayMicroseconds(_i2cdelay);
-
-  i2c_sda_lo();                        // force SDA low
   
   if (_i2cdelay != 0)
     delayMicroseconds(_i2cdelay);
