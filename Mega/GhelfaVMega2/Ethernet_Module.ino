@@ -1,11 +1,5 @@
 #include <SPI.h>
-#include <WiFiNINA.h>
-
-//#include <SPI.h>
-
-
-IPAddress myDns(8, 8, 8, 8);
-IPAddress ETH(192,168,1,6);
+#include <Ethernet.h>
 
 
 byte ArServerStateMachine=0;
@@ -30,10 +24,13 @@ unsigned long DelayServer=0;
 boolean currentLineIsBlank = true;
 String GetCmdWeb="";
 
-//byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 //char server[] = "www.google.com";    // name address for Google (using DNS)
 
 // Set the static IP address to use if the DHCP fails to assign
+IPAddress ip(192, 168, 1, 10);
+IPAddress myDns(8, 8, 8, 8);
+IPAddress ETH(192,168,1,6);
 #define serverOra "www.mdmecco.it"
 
 
@@ -41,10 +38,10 @@ String GetCmdWeb="";
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
 // (port 80 is default for HTTP):
-WiFiServer server(80);
-WiFiClient ArServer;
-WiFiClient Arduino;
-WiFiClient mdmecco;
+EthernetServer server(80);
+EthernetClient ArServer;
+EthernetClient Arduino;
+EthernetClient mdmecco;
 
 
 // Variables to measure the speed
@@ -52,10 +49,21 @@ unsigned long beginMicros, endMicros;
 unsigned long byteCount = 0;
 bool printWebData = true;  // set to false for better speed measurement
 
+void EthernetSetup (){
+  Ethernet.init(10);  // Most Arduino shields
+  // start the Ethernet connection:
+  Serial.println("Initialize Ethernet:");
+  Ethernet.begin(mac, ip, myDns);
+  Serial.print("  DHCP assigned IP ");
+  Serial.println(Ethernet.localIP());
+  // give the Ethernet shield a second to initialize:
+  delay(1000);
+    
+}
+
 
 int FunzioneOrario(int TD, int ETHs){
   if (ArWebSM==0){
-    Serial.println("************** Seconda funzione ********");
     ArWebTD=TD;
     ArETHSt=ETHs;
     ArWebSM=1;  
@@ -64,7 +72,6 @@ int FunzioneOrario(int TD, int ETHs){
     return 1;
   }
 }
-
 int FunzioneOrarioCheck(byte ToDo){
   if (ArWebSM==0){
     //Stato di riposo, ho finito
@@ -82,7 +89,8 @@ int FunzioneOrarioCheck(byte ToDo){
 }
 
 
-void MainClient(){
+
+void EthernetMainClient(){
   if (ArWebSM==0){
     
   }else if(ArWebSM==1){
@@ -108,16 +116,13 @@ void MainClient(){
       }
     }else if (ArWebTD==1){  //**************ETH
       if (mdmecco.connect(ETH,80)){
-        
+        Serial.println("Chiedo ETH Stato");
         if (ArETHSt==0){
-          Serial.println("Chiedo ETH Stato");
           mdmecco.println("GET /status.xml HTTP/1.1");
         }else{
-          Serial.print("Set ETH:");
           String f="GET /io.cgi?led=";
-          f.concat(byte(ArETHSt-1));
+          f.concat(char(ArETHSt-1));
           f.concat(" HTTP/1.1");
-          Serial.println(f);
           mdmecco.println(f);  
         }
         //mdmecco.println("Host: );
@@ -139,22 +144,16 @@ void MainClient(){
       CMdmecco=mdmecco.read();
       if ((CMdmecco!=10)&&(CMdmecco!=13)) {
         InMdmecco.concat(CMdmecco);
-        if (InMdmecco.endsWith("Success!")) {
-          ArWebSM=3;
-          
-        }
-
         LBmdmecco =0;
         if (HeaderMdmecco==true){
           if (ArWebTD==0){    // ************************* Server Ora
             if (InMdmecco.length()== Lmdmecco){
               //Serial.print("Get Ora:");
               Serial.println(InMdmecco);
-              //TimeSetUp(atol(InMdmecco.c_str()));
+              TimeSetUp(atol(InMdmecco.c_str()));
               ArWebSM=3;
             }  
           }else if (ArWebTD==1){ //********************* ETH Risposta
-            
             BodyMdmecco=true;
           }
         }
@@ -168,8 +167,6 @@ void MainClient(){
               int d=InMdmecco.indexOf(":");
               InMdmecco=InMdmecco.substring(d+1);
               Lmdmecco=InMdmecco.toInt()-2;
-              //Serial.print("**************************Lunghezza**************");
-              //Serial.println(Lmdmecco);
             }
             InMdmecco="";
           }
@@ -178,12 +175,8 @@ void MainClient(){
             InMdmecco="";
           }
         }
-            
         if (BodyMdmecco==true){
           if (ArWebTD==1){  //********************* Get ETH senza lunghezza dichiarata
-            
-            //Serial.println("***************** nessuna Lunghezza *******");
-            
             if (ArETHSt!=0){
               ArWebSM=3;  
             }
@@ -191,27 +184,16 @@ void MainClient(){
               int d=InMdmecco.indexOf("<led3>");
               int e=InMdmecco.indexOf("</led3>");
               Serial.print("Char String:");
+              Serial.println(InMdmecco.substring(d+6,e));
+              MainStF(1,(InMdmecco.substring(d+6,e)=="1"));
+              MSetDigital(8, (InMdmecco.substring(d+6,d+7)=="1"));
               
-              if (InMdmecco.substring(d+6,e)=="1"){
-                SetOut(1,1);
-                Serial.println("1");\
-              }else{
-                SetOut(1,0);
-                Serial.println("0");
-              }
-              
-              //Serial.println(InMdmecco.substring(d+6,e));
-              
-              
-              //MainStF(1,(InMdmecco.substring(d+6,e)=="1"));
-              //MSetDigital(8, (InMdmecco.substring(d+6,d+7)=="1"));
-              
-              //d=InMdmecco.indexOf("<adc1>");
-              //e=InMdmecco.indexOf("</adc1>");
-              //Serial.println(InMdmecco.substring(d+6,e)); 
-              //char carray[InMdmecco.substring(d+6,e).length() + 1]; 
-              //InMdmecco.substring(d+6,e).toCharArray(carray, sizeof(carray));
-              //TEValueIn(atoi(carray));
+              d=InMdmecco.indexOf("<adc1>");
+              e=InMdmecco.indexOf("</adc1>");
+              Serial.println(InMdmecco.substring(d+6,e)); 
+              char carray[InMdmecco.substring(d+6,e).length() + 1]; 
+              InMdmecco.substring(d+6,e).toCharArray(carray, sizeof(carray));
+              TEValueIn(atoi(carray));
               //Serial.println(InMdmecco);
               ArWebSM=3;  
             }
@@ -220,7 +202,6 @@ void MainClient(){
       }
     }
     if (millis()> TOmdmecco){
-      Serial.println("************************************");
       Serial.print("TimeOut:");
       Serial.println(InMdmecco);
       Serial.print("Lunghezza2:");
@@ -232,12 +213,12 @@ void MainClient(){
    ArWebSM=0;
   }else if(ArWebSM==5){
    mdmecco.stop();   
-   ArWebSM=0; 
+   ArWebSM=100; 
    Serial.println("Funzione orario Errore");
   }else{
     
   }
-  if((ArWebSM==100) && (ArWebSM!=0)){ //questa condizione serve per misurare il tempo di connessione ed eventualmente dare un timeout
+  if((ArWebSM!=100) && (ArWebSM!=0)){ //questa condizione serve per misurare il tempo di connessione ed eventualmente dare un timeout
     if (millis() > TConnection ){
       ArWebSM=5;    //vado nello stato di chiusura e termine del processo con errore 
       TConnection=millis()+ TConnLimit;
@@ -280,16 +261,16 @@ void EthernetMainServer(){
           ArServer.println("<p align=\"center\">Ghelfa</p>");
           ArServer.println("<table width=\"100%\" border=\"20\" align=\"center\" cellpadding=\"20\" cellspacing=\"20\">");
           ArServer.print("<tr>  <td width=\"50%\" height=\"108\" align=\"center\" valign=\"middle\" bgcolor=\"#");
-          //int d=GetStF(1);
-          //if (d==1){
-          //  ArServer.print("FF0000");
-          //}else{
+          int d=GetStF(1);
+          if (d==1){
+            ArServer.print("FF0000");
+          }else{
             ArServer.print("00FF66");
-          //}
+          }
           ArServer.println("\"><a href=\"SWFUORI\"><font face=\"Verdana\" size=\"+5\" color=\"black\">_______ACCESA_______</font></a></td>  </tr>");
           ArServer.print("<tr>  <td width=\"50%\" height=\"108\" align=\"center\" valign=\"middle\" bgcolor=\"#FFFFFF\"><font face=\"Verdana\" size=\"+5\" color=\"black\">");
           float f=0;
-          //GetTEValue(f);
+          GetTEValue(f);
           ArServer.println(String(f));
           ArServer.println("</font></a></td>  </tr>");
           ArServer.println("</table>");

@@ -1,7 +1,6 @@
 
-#define P1 0
-#define P2 1
-#define PA10 2
+#define P1 30
+#define P2 31
 #define Tar 100
 
 unsigned long TP1=0;
@@ -14,44 +13,44 @@ byte BP2=0;
 void InitDigitalIn(){
   pinMode(P1, INPUT);
   pinMode(P2, INPUT);
-  pinMode(PA10, OUTPUT);
+  
 }
 
 void SetOut (int IdO , int WtD){
   if (IdO==1){
     if (WtD==0){
-      digitalWrite(PA10,false);
+      bitWrite(BP1,1,false);
     }else if (WtD==1){
-      digitalWrite(PA10,true);
+      bitWrite(BP1,1,true);
     }else if (WtD==2){
-      //digitalWrite(PA10,1,!bitRead(PA10,1));
+      bitWrite(BP1,1,!bitRead(BP1,1));
     }
   }
+  
 }
 
 
 void ProcDigitaIn(){
     bitWrite(BP1,0,digitalRead(P1));
     ProcBtn(BP1,TP1);
-    //MSetDigital(1,bitRead(BP1,1));
+    MSetDigital(1,bitRead(BP1,1));
     
     bitWrite(BP2,0,digitalRead(P2));
     ProcBtn(BP2,TP2);
-    //MSetDigital(2,bitRead(BP2,1));
-    //MSetDigital(3,bitRead(BP2,2));
+    MSetDigital(2,bitRead(BP2,1));
+    MSetDigital(3,bitRead(BP2,2));
 
     if (bitRead(BP2,6)==1){
-      if (FunzioneOrario(1,4)==0){
-        bitWrite(BP2,6,0);
-        Serial.println("******************************** Pulsante");
-      }
+      bitWrite(BP2,6,0);
+      Serial.println("******************************** Pulsante");
     }
+
 }
 
 void ProcPButton(int Nb){
     if (Nb==1){
       bitWrite(BP1,1,!bitRead(BP1,1));
-      //MSetDigital(1,bitRead(BP1,1));
+      MSetDigital(1,bitRead(BP1,1));
     }
 
   

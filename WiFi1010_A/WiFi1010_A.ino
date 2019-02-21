@@ -1,4 +1,7 @@
 
+unsigned long GetETH =0;
+#define ETHT 1000
+
 
 void setup() {
   //Initialize serial and wait for port to open:
@@ -17,5 +20,10 @@ void loop() {
       digitalWrite(LED_BUILTIN, HIGH);
       MainClient();
       ProcDigitaIn();
+      if (millis() > GetETH){
+        if (FunzioneOrario(1,0) ==0) {
+          GetETH=millis()+ ETHT;
+        }
+      }
    }
 }
