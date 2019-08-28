@@ -21,10 +21,8 @@ void SetOut (int IdO , int WtD){
   if (IdO==1){
     if (WtD==0){
       digitalWrite(PA10,false);
-      digitalWrite(LED_BUILTIN,LOW);
     }else if (WtD==1){
       digitalWrite(PA10,true);
-      digitalWrite(LED_BUILTIN,HIGH);
     }else if (WtD==2){
       //digitalWrite(PA10,1,!bitRead(PA10,1));
     }

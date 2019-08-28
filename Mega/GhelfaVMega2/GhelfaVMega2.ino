@@ -8,9 +8,10 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-  EthernetSetup();
+  //EthernetSetup();
   DigitalSetup();
   InitDigitalIn();
+  WifiConnection();
 }
 
 void loop() {

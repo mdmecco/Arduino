@@ -1,10 +1,10 @@
 
 #include <SPI.h>
-#include <WiFiNINA.h>
+//#include <WiFiNINA.h>
 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 
-#define NMWiFi 3
+#define NMWiFi 4
 String SSF="";
 String DDF="";
 
@@ -14,6 +14,8 @@ char ssid0[] = "TIM-02522746";        // your network SSID (name)
 char pass0[] = "6YapbMqbYNnYczXV";    // your network password (use for WPA, or use as key for WEP)
 char ssid1[] = "WGhelfa";        // your network SSID (name)
 char pass1[] = "Lamborghini";    // your network password (use for WPA, or use as key for WEP)
+char ssid3[] = "dlink";        // your network SSID (name)
+char pass3[] = "Supergino";    // your network password (use for WPA, or use as key for WEP)
 char SSIDT[] = "";
 
 int NetId =10;
@@ -62,6 +64,8 @@ bool WifiConnection() {
       WFStat=GetConnection(ssid1, pass1);      
     }else if (NetId==2){
       WFStat=GetConnection(ssid2, pass2);      
+    }else if (NetId==3){
+      WFStat=GetConnection(ssid3, pass3);      
     }
 
     if (WFStat==1){ //Errore Firmware
@@ -125,7 +129,7 @@ byte GetConnection (char  ssid[], char pass[]){
         break;
     case 4:
         WiFi.setDNS(dns_server1,dns_server2);
-        Serial.println(String ("Connected to wifi ") + ssid );
+        Serial.println("Connected to wifi");
         //digitalWrite(LED_BUILTIN, HIGH);
         return 3; //connesso
         break;
@@ -151,8 +155,7 @@ void listNetworks() {
   // scan for nearby networks:
   Serial.println("** Scan Networks **");
   int numSsid = WiFi.scanNetworks();
-  if (numSsid == -1)
-  {
+  if (numSsid == -1){
     Serial.println("Couldn't get a WiFi connection");
     while (true);
   }
@@ -160,6 +163,7 @@ void listNetworks() {
   // print the network number and name for each network found:
   for (int thisNet = 0; thisNet < numSsid; thisNet++) {
     SSF=WiFi.SSID(thisNet);
+    Serial.println(SSF);
     DDF=ssid0;
     if (SSF==DDF){
       if (NetSignal < WiFi.RSSI(thisNet)){
@@ -182,5 +186,5 @@ void listNetworks() {
       }
     }
   }
-  Serial.println();
+  Serial.println("***END SCANNER****");
 }

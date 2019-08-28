@@ -125,7 +125,7 @@ byte GetConnection (char  ssid[], char pass[]){
         break;
     case 4:
         WiFi.setDNS(dns_server1,dns_server2);
-        Serial.println(String ("Connected to wifi ") + ssid );
+        Serial.println("Connected to wifi");
         //digitalWrite(LED_BUILTIN, HIGH);
         return 3; //connesso
         break;
@@ -184,3 +184,4 @@ void listNetworks() {
   }
   Serial.println();
 }
+
