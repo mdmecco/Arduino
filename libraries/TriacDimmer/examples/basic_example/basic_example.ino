@@ -6,8 +6,9 @@
 
   This sketch is meant to be used with one of these boards, or 
   something similar:
-      http://a.co/iy2r6Gq
-      http://a.co/30mKbq8
+      https://www.amazon.com/Dimmer-Module-Controller-Arduino-Raspberry/dp/B06Y1GVG26
+      https://mdwdz.en.alibaba.com/product/60670737878-804998378/2CH_AC_LED_Light_Dimmer_Module_Controller_Board.html
+      http://www.inmojo.com/store/krida-electronics/item/2-channel-ac-led-bulb-dimmer-module-v2/
 
   While this sketch is meant to be used with a dual-channel dimmer,
   it can also control just a single channel (just leave the second
@@ -37,31 +38,31 @@ unsigned char channel_1 = 9; // channel 1 pin
 unsigned char channel_2 = 10; // channel 2 pin
 
 void setup() {
-  //initialize the dimmer library. We want 
+  // initialize the dimmer library.
   TriacDimmer::begin();
 }
 
 void loop() {
-  //gradually increase brightness over time
-  for(float brightness = 0.01; brightness < 0.99; brightness += 0.01){
+  // gradually increase brightness over time
+  for(float brightness = 0.00; brightness < 1.00; brightness += 0.01){
   
-    //set channel 1 to the brightness value:
+    // set channel 1 to the brightness value:
     TriacDimmer::setBrightness(channel_1, brightness); 
 
-    //invert brightness for channel 2:
+    // invert brightness for channel 2:
     TriacDimmer::setBrightness(channel_2, 1 - brightness); 
     
     delay(20);
   }
   
-  //and back down - decrease brightness over time
-  for(float brightness = 0.99; brightness > 0.01; brightness -= 0.01){
+  // and back down - decrease brightness over time
+  for(float brightness = 1.00; brightness > 0.00; brightness -= 0.01){
       
-    //set channel 1 to the brightness value:
+    // set channel 1 to the brightness value:
     TriacDimmer::setBrightness(channel_1, brightness);
 
-    //invert brightness for channel 2:
-    TriacDimmer::setBrightness(channel_2, brightness);
+    // invert brightness for channel 2:
+    TriacDimmer::setBrightness(channel_2, 1 - brightness);
     
     delay(20);
   }

@@ -30,7 +30,7 @@ WebServer webserver;
 	#include <WebbinoInterfaces/WIZ5x00.h>
 	NetworkInterfaceWIZ5x00 netint;
 #elif defined (WEBBINO_USE_ESP8266)
-	#include <WebbinoInterfaces/AllWiFi.h>
+	#include <WebbinoInterfaces/WiFi.h>
 
 	#include <SoftwareSerial.h>
 	SoftwareSerial swSerial (7, 8);
@@ -40,9 +40,8 @@ WebServer webserver;
 	#define WIFI_PASSWORD    "password"
 
 	NetworkInterfaceWiFi netint;
-#elif defined (WEBBINO_USE_WIFI) || defined (WEBBINO_USE_WIFI101) || \
-	  defined (WEBBINO_USE_ESP8266_STANDALONE)
-	#include <WebbinoInterfaces/AllWiFi.h>
+#elif defined (WEBBINO_USE_WIFI101)
+	#include <WebbinoInterfaces/WiFi.h>
 
 	// Wi-Fi parameters
 	#define WIFI_SSID        "ssid"
@@ -54,7 +53,7 @@ WebServer webserver;
 	NetworkInterfaceDigiFi netint;
 #endif
 
-// Pin to control, make sure this makes sense (i.e.: Use D0 on NodeMCU)!
+// Pin to control
 const byte ledPin = 7;
 
 // Pin state (True -> ON)
@@ -146,8 +145,7 @@ void setup () {
 #elif defined (WEBBINO_USE_ESP8266)
 	swSerial.begin (9600);
 	bool ok = netint.begin (swSerial, WIFI_SSID, WIFI_PASSWORD);
-#elif defined (WEBBINO_USE_WIFI) || defined (WEBBINO_USE_WIFI101) || \
-	  defined (WEBBINO_USE_ESP8266_STANDALONE)
+#elif defined (WEBBINO_USE_WIFI101)
 	bool ok = netint.begin (WIFI_SSID, WIFI_PASSWORD);
 #elif defined (WEBBINO_USE_DIGIFI)
 	bool ok = netint.begin ();

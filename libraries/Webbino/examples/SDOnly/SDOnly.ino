@@ -18,6 +18,7 @@
  ***************************************************************************/
 
 #include <Webbino.h>
+#include <avr/pgmspace.h>
 
 /* SS pin for the SD card reader. Pin 4 is used for the reader included
  * on most WIZ5100-based Ethernet shields
@@ -35,7 +36,7 @@ WebServer webserver;
 	#include <WebbinoInterfaces/WIZ5x00.h>
 	NetworkInterfaceWIZ5x00 netint;
 #elif defined (WEBBINO_USE_ESP8266)
-	#include <WebbinoInterfaces/AllWiFi.h>
+	#include <WebbinoInterfaces/WiFi.h>
 
 	#include <SoftwareSerial.h>
 	SoftwareSerial swSerial (7, 8);
@@ -45,9 +46,8 @@ WebServer webserver;
 	#define WIFI_PASSWORD    "password"
 
 	NetworkInterfaceWiFi netint;
-#elif defined (WEBBINO_USE_WIFI) || defined (WEBBINO_USE_WIFI101) || \
-	  defined (WEBBINO_USE_ESP8266_STANDALONE)
-	#include <WebbinoInterfaces/AllWiFi.h>
+#elif defined (WEBBINO_USE_WIFI101)
+	#include <WebbinoInterfaces/WiFi.h>
 
 	// Wi-Fi parameters
 	#define WIFI_SSID        "ssid"
@@ -205,8 +205,7 @@ void setup () {
 #elif defined (WEBBINO_USE_ESP8266)
 	swSerial.begin (9600);
 	bool ok = netint.begin (swSerial, WIFI_SSID, WIFI_PASSWORD);
-#elif defined (WEBBINO_USE_WIFI) || defined (WEBBINO_USE_WIFI101) || \
-	  defined (WEBBINO_USE_ESP8266_STANDALONE)
+#elif defined (WEBBINO_USE_WIFI101)
 	bool ok = netint.begin (WIFI_SSID, WIFI_PASSWORD);
 #endif
 

@@ -12,7 +12,7 @@ import argparse
 parser = argparse.ArgumentParser (description = 'Convert a website to be put into flash memory for use with Webbino')
 parser.add_argument ('webroot', metavar = "WEBROOT", help = "Path to website root directory")
 parser.add_argument ('--nostrip', "-n", action = 'store_true', default = False,
-                     help = "Do not strip CR/LF/TABs")
+                     help = "Do not strip CR/LF")
 
 args = parser.parse_args ()
 
@@ -53,7 +53,7 @@ def process_file (filename):
 			i = 0
 			b = fp.read (1)
 			while b:
-				if args.nostrip or (b != '\n' and b != '\r' and b != '\t'):
+				if args.nostrip or (b != '\n' and b != '\r'):
 					if i % 8 == 0:
 						print "\t",
 					print "0x%02x, " % ord (b),
@@ -76,7 +76,7 @@ def process_file (filename):
 def process_dir (dirpath):
 	print >> sys.stderr, "Processing directory: %s" % dirpath
 	idents = []
-	for filename in sorted (os.listdir (dirpath)):
+	for filename in os.listdir (dirpath):
 		fullfile = os.path.join (dirpath, filename)
 		if os.path.isfile (fullfile):
 			ident = process_file (fullfile)
@@ -104,11 +104,11 @@ if n_pages > 0:
 	print >> sys.stderr, '#include "html.h"'
 	print >> sys.stderr
 	for n, ident in enumerate (idents):
-		print >> sys.stderr, "const Page page%02d PROGMEM = {%s_name, %s, NULL};" % (n + 1, ident, ident)
+		print >> sys.stderr, "static const Page page%02d PROGMEM = {%s_name, %s, NULL};" % (n + 1, ident, ident)
 
 	print >> sys.stderr
 
-	print >> sys.stderr, "const Page* const pages[] PROGMEM = {"
+	print >> sys.stderr, "static const Page* const pages[] PROGMEM = {"
 	for n in xrange (1, n_pages + 1):
 		print >> sys.stderr, "\t&page%02d," % n
 

@@ -30,7 +30,7 @@ WebServer webserver;
 	#include <WebbinoInterfaces/WIZ5x00.h>
 	NetworkInterfaceWIZ5x00 netint;
 #elif defined (WEBBINO_USE_ESP8266)
-	#include <WebbinoInterfaces/AllWiFi.h>
+	#include <WebbinoInterfaces/WiFi.h>
 
 	#include <SoftwareSerial.h>
 	SoftwareSerial swSerial (7, 8);
@@ -40,9 +40,8 @@ WebServer webserver;
 	#define WIFI_PASSWORD    "password"
 
 	NetworkInterfaceWiFi netint;
-#elif defined (WEBBINO_USE_WIFI) || defined (WEBBINO_USE_WIFI101) || \
-	  defined (WEBBINO_USE_ESP8266_STANDALONE)
-	#include <WebbinoInterfaces/AllWiFi.h>
+#elif defined (WEBBINO_USE_WIFI101)
+	#include <WebbinoInterfaces/WiFi.h>
 
 	// Wi-Fi parameters
 	#define WIFI_SSID        "ssid"
@@ -78,21 +77,21 @@ static char replaceBuffer[REP_BUFFER_LEN];
 PString subBuffer (replaceBuffer, REP_BUFFER_LEN);
 
 static PString& evaluate_ip (void *data __attribute__ ((unused))) {
-	 subBuffer.print (netint.getIP ());
+   subBuffer.print (netint.getIP ());
 
-	return subBuffer;
+  return subBuffer;
 }
 
 static PString& evaluate_netmask (void *data __attribute__ ((unused))) {
-	subBuffer.print (netint.getNetmask ());
+  subBuffer.print (netint.getNetmask ());
 
-	return subBuffer;
+  return subBuffer;
 }
 
 static PString& evaluate_gw (void *data __attribute__ ((unused))) {
-	subBuffer.print (netint.getGateway ());
+  subBuffer.print (netint.getGateway ());
 
-	return subBuffer;
+  return subBuffer;
 }
 
 static PString& evaluate_mac_addr (void *data __attribute__ ((unused))) {
@@ -137,24 +136,24 @@ static PString& evaluate_uptime (void *data __attribute__ ((unused))) {
 	uptime %= 60;
 	s = uptime;
 
-	if (d > 0) {
-		subBuffer.print (d);
-		subBuffer.print (d == 1 ? F(" day, ") : F(" days, "));
-	}
+  if (d > 0) {
+    subBuffer.print (d);
+    subBuffer.print (d == 1 ? F(" day, ") : F(" days, "));
+  }
 
-	if (h < 10)
-		subBuffer.print ('0');
-	subBuffer.print (h);
-	subBuffer.print (':');
-	if (m < 10)
-		subBuffer.print ('0');
-	subBuffer.print (m);
-	subBuffer.print (':');
-	if (s < 10)
-		subBuffer.print ('0');
-	subBuffer.print (s);
+  if (h < 10)
+    subBuffer.print ('0');
+  subBuffer.print (h);
+  subBuffer.print (':');
+  if (m < 10)
+    subBuffer.print ('0');
+  subBuffer.print (m);
+  subBuffer.print (':');
+  if (s < 10)
+    subBuffer.print ('0');
+  subBuffer.print (s);
 
-	return subBuffer;
+  return subBuffer;
 }
 
 static PString& evaluate_free_ram (void *data __attribute__ ((unused))) {
@@ -209,8 +208,7 @@ void setup () {
 #elif defined (WEBBINO_USE_ESP8266)
 	swSerial.begin (9600);
 	bool ok = netint.begin (swSerial, WIFI_SSID, WIFI_PASSWORD);
-#elif defined (WEBBINO_USE_WIFI) || defined (WEBBINO_USE_WIFI101) || \
-	  defined (WEBBINO_USE_ESP8266_STANDALONE)
+#elif defined (WEBBINO_USE_WIFI101)
 	bool ok = netint.begin (WIFI_SSID, WIFI_PASSWORD);
 #elif defined (WEBBINO_USE_DIGIFI)
 	bool ok = netint.begin ();

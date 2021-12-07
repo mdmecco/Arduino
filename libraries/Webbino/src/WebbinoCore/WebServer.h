@@ -47,16 +47,16 @@ struct Page {
 	PageFunction function;
 
 	// Methods that (try to) hide the complexity of accessing PROGMEM data
-	PGM_P getName () const {
-		return reinterpret_cast<PGM_P> (pgm_read_ptr (&(this -> name)));
+	PGM_P getName () {
+		return reinterpret_cast<PGM_P> (pgm_read_word (&(this -> name)));
 	}
 
-	PageFunction getFunction () const {
-		return reinterpret_cast<PageFunction> (pgm_read_ptr (&(this -> function)));
+	PageFunction getFunction () {
+		return reinterpret_cast<PageFunction> (pgm_read_word (&(this -> function)));
 	}
 
-	PGM_P getContent () const {
-		return reinterpret_cast<PGM_P> (pgm_read_ptr (&(this -> content)));
+	PGM_P getContent () {
+		return reinterpret_cast<PGM_P> (pgm_read_word (&(this -> content)));
 	}
 };
 
@@ -77,7 +77,7 @@ private:
 	PGM_P next;
 
 public:
-	FlashContent (const Page* p);
+	FlashContent (Page* p);
 
 	char getNextByte () override;
 };
@@ -113,16 +113,16 @@ struct ReplacementTag {
 	void *data;
 
 	// Methods that (try to) hide the complexity of accessing PROGMEM data
-	PGM_P getName () const {
-		return reinterpret_cast<PGM_P> (pgm_read_ptr (&(this -> name)));
+	PGM_P getName () {
+		return reinterpret_cast<PGM_P> (pgm_read_word (&(this -> name)));
 	}
 
-	TagEvaluateFn getFunction () const {
-		return reinterpret_cast<TagEvaluateFn> (pgm_read_ptr (&(this -> function)));
+	TagEvaluateFn getFunction () {
+		return reinterpret_cast<TagEvaluateFn> (pgm_read_word (&(this -> function)));
 	}
 
-	void *getData () const {
-		return reinterpret_cast<void *> (const_cast<void *> (pgm_read_ptr (&(this -> data))));
+	void *getData () {
+		return reinterpret_cast<void *> (pgm_read_word (&(this -> data)));
 	}
 };
 
@@ -165,10 +165,10 @@ private:
 
 	void sendContent (WebClient* client, PageContent* content);
 
-	const Page *getPage (const char* name) const;
+	Page *getPage (const char* name);
 
 #ifdef ENABLE_TAGS
-	PString* findSubstitutionTag (const char* tag) const;
+	PString* findSubstitutionTag (const char* tag);
 
 	char *findSubstitutionTagGetParameter (HTTPRequestParser& request, const char* tag);
 #endif

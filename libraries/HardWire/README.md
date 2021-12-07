@@ -1,4 +1,4 @@
-# HardWire Arduino Library V1.0.2
+# HardWire Arduino Library V1.0.3
 
 *Licensing information is attached on the header of each file.*
 
@@ -34,7 +34,7 @@ Here will be described only the differences between the original *Wire* and the 
 ### Handlers
 This "hardened" (or more "hardware", "hardwired") version also supports the following handlers assigned during the initialization (are listed also the official ones). **Note that the use of the additional HardWire handlers is *never*  mandatory.**
 
-- ***Officials from original Wire***
+ ***Officials from original Wire***
 
  - **Wire.onReceive(myHandler)** -> handler takes the number of bytes received and returns void. In the handler the data buffer can be read, since the master has terminated the communication
  ```
@@ -44,7 +44,7 @@ This "hardened" (or more "hardware", "hardwired") version also supports the foll
  ```
  i.e. void myHandler()
  ```
-- ***New in the HardWire***
+ ***New in the HardWire***
 
  - **Wire.onReceiveData(myHandler)** -> handler takes as a parameter the last received byte and returns void. It is used for the slave runtime computation, but the data buffer is still filled with that byte, as the official Wire does this transparently
  ```
@@ -62,17 +62,17 @@ This "hardened" (or more "hardware", "hardwired") version also supports the foll
  ```
  i.e. unsigned char myHandler()
  ```
- - **Wire.onRequestDataNack(handler)** -> handler takes not parameters and returns void. Used when the master still requires data which is not available from the shared buffer. It is done transparently in the official Wire.
+ - **Wire.onRequestDataNack(handler)** -> handler takes no parameters and returns void. Used when the master still requires data which is not available from the shared buffer. It is done transparently in the official Wire.
  ```
  i.e. void myHandler()
  ```
- 
+
 
 ### Initialization
  
  This version supports a particular mode that shall be notified in the init. If omitted, it is initialized as the normal Wire.
 
-- ***New in the HardWire***
+ ***New in the HardWire***
 
  - **Wire.begin(slaveAddress, mode)** -> join the bus as a Slave and
  
@@ -80,9 +80,10 @@ This "hardened" (or more "hardware", "hardwired") version also supports the foll
  
      -> if **mode = NORMAL_MODE**, will be supported all the additional handlers, but when the shared buffer is full, it needs to be flushed or read before accepting any new incoming byte: this behavior is the same as the Wire library.
      
+ - **Wire.addressBitMask(mask)** -> takes the mask as byte or int, same format of I2C address (7 bit). Used to set which bit will be ignored by the I2C hardware when evaluating the address match. I.e.: if address is 0x09 and mask is 0x04, slave I2C will acknowledge both 0x09 and 0x0D, because the bit in the value 0x04 allow to be valid either values of the bits in the third position from the LSB (bit in third position is 0x04).
 
 
-- ***Officials from original Wire***
+ ***Officials from original Wire***
 
  - **Wire.begin()** -> join the bus as a Master
  - **Wire.begin(slaveAddress)** -> join the bus as a Slave (additional HardWire handlers are still supported as in **NORMAL_MODE**)
