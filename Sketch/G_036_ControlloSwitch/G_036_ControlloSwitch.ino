@@ -8,6 +8,7 @@
 #include "a:\libmie\mecco1.h"
 
 
+
 bool Snd = false;
 unsigned long Tom1=0;
 
