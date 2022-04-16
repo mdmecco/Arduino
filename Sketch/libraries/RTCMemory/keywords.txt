@@ -1,5 +1,0 @@
-RtcMemory	KEYWORD1
-begin	KEYWORD2
-save	KEYWORD2
-persist	KEYWORD2
-getRtcData	KEYWORD2

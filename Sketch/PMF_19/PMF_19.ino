@@ -1,15 +1,15 @@
-#include "A:\libraries\AAMecco\pulsanti.h"
+#include "A:\LibMie\pulsanti.h"
 
 #include <ArduinoOTA.h>
-#include "A:\libraries\ESP8266WiFi\src\ESP8266WiFi.h"
+#include "A:\Arduino\Sketch\libraries\ESP8266WiFi\src\ESP8266WiFi.h"
 //#include <LiquidCrystal_I2C.h>
 //#include <TinyGPS++.h>
 #include <Wire.h>
 
-#include "A:\libraries\New-LiquidCrystal-master\LiquidCrystal_I2C.h"
-#include "A:\libraries\TinyGPS\TinyGPS++.h"
+#include "A:\Arduino\Sketch\libraries\New-LiquidCrystal-master\LiquidCrystal_I2C.h"
+#include "A:\Arduino\Sketch\libraries\TinyGPS\TinyGPS++.h"
 
-//#include "A:\libraries\LiquidCrystal_I2C\LiquidCrystal_I2C.h"
+//#include "A:\Arduino\Sketch\libraries\LiquidCrystal_I2C\LiquidCrystal_I2C.h"
 
 
 TinyGPSPlus gps;

@@ -128,6 +128,14 @@ unsigned long TOnPMau=0;
 float TCMax=70;
 float TRMin=30;
 
+
+float MaCTMax=0;
+float MaCTMin=0;
+byte MaCf=0;
+float MaCPerc=80;
+float MaCTP=0;
+
+
 // The value of the Rref resistor. Use 430.0 for PT100 and 4300.0 for PT1000
 #define RREF      430.0
 // The 'nominal' 0-degrees-C resistance of the sensor
@@ -370,7 +378,7 @@ void loop() {
       io1=NetCMDS.indexOf("/SPEGNIMAURIZIO?");
       io2=0;
       if (io1 > 0){
-        rp=true;
+               rp=true;
         StMau=!StMau;
       }
 
@@ -394,7 +402,7 @@ void loop() {
         client.println(F("Refresh: 0;url=/"));  // reset the pages
         rp=false;
       }else{
-        client.println(F("Refresh: 5"));
+        //client.println(F("Refresh: 5"));
       }
       client.println();
       client.println(F("<!DOCTYPE HTML>"));
@@ -453,6 +461,23 @@ void loop() {
       client.print(F("<tr><th width=50% align=""right"">Temperatura Caldaia</th><th width=50% align=""left"">"));
       client.print(String(Temp,1));
       client.println(F("</th></tr>"));
+
+      
+      client.print(F("<tr> <th width=50% align=""right"">Temperatura Max Riscaldamento Sanitario:</th>\r\n"));
+      client.print(F(" <th width=50% align=""left"">"));
+      client.print(String(MaCTMax,1));
+      client.println(F("</th></tr>"));
+
+      client.print(F("<tr> <th width=50% align=""right"">Temperatura Min Riscaldamento Sanitario:</th>\r\n"));
+      client.print(F(" <th width=50% align=""left"">"));
+      client.print(String(MaCTMin,1));
+      client.println(F("</th></tr>"));
+
+
+
+
+
+      
       client.print(F("<tr><th width=50% align=""right"">Pompa riscaldamento Mario</th>"));
       if (PMar){
         client.println(F("<th width=50% align=""left"">ACCESA</th>"));
@@ -530,7 +555,7 @@ void loop() {
       client.print(F("<tr><th width=50% align=""right"">Orario ultima accensione Impianto Mario:</th><th width=50% align=""left"">"));
       HH=TOnPMar / 3600;
       MM=(TOnPMar % 3600)/60;
-      client.print(String(HH));
+      client.print(String(HH));                                                                                                                                                                                                                                                                                                                        
       client.print(F(":"));
       client.print(String(MM));
       client.println(F("</th></tr>"));
@@ -626,45 +651,8 @@ void loop() {
 //**************************************************************************************  
   } //**********************************************************************************
 // ************************   Codice fuori rete ****************************************
-  //uint16_t rtd = max31.readRTD();
-  //float ratio = rtd;
-  //ratio /= 32768;
-  /*
-  uint8_t fault = max31.readFault();
-  if (fault) {
-    Serial.print("Fault 0x"); Serial.println(fault, HEX);
-    if (fault & MAX31865_FAULT_HIGHTHRESH) {
-      Serial.println("RTD High Threshold");
-    }
-    if (fault & MAX31865_FAULT_LOWTHRESH) {
-      Serial.println("RTD Low Threshold");
-    }
-    if (fault & MAX31865_FAULT_REFINLOW) {
-      Serial.println("REFIN- > 0.85 x Bias");
-    }
-    if (fault & MAX31865_FAULT_REFINHIGH) {
-      Serial.println("REFIN- < 0.85 x Bias - FORCE- open");
-    }
-    if (fault & MAX31865_FAULT_RTDINLOW) {
-      Serial.println("RTDIN- < 0.85 x Bias - FORCE- open");
-    }
-    if (fault & MAX31865_FAULT_OVUV) {
-      Serial.println("Under/Over voltage");
-    }
-    max31.clearFault();
-  }
 
-  */
   Temp=max31.temperature(RNOMINAL, RREF);
-
-/*
-#define ArrayLenght 255
-float TmpArray[ArrayLenght]={0};
-unsigned long ArrayTime=0;
-byte ArrayI=0;
-#define ArrayRefresh 600000
-*/
-
 
   if (Temp > MarA){
     PMar=true;
@@ -686,24 +674,49 @@ byte ArrayI=0;
   PMar= PMar && HomeMar;
  //********************************************************
   
+
+// questa parte serve per bloccare la pompa quando la temperatura è abbastanza alta da tenere l'acqua sanitaria calda (solo per Mario)
+ if (Temp > MaCTMax){
+  MaCTMax=Temp;
+  MaCf=0;
+ }
+
+if (MaCf==0){
+  MaCTMin=MaCTMax * MaCPerc / 100 ;
+  if (Temp > MaCTMin) {
+    StMar=false;
+  }else{
+    StMar=true;
+    MaCf=1;
+  }
+}
+
+  
+  
+  
   PMau= PMau && !StMau;
   PMar= PMar && !StMar;
 
   
-  
+// nel caso si scenda sotto la temperatura minima si resetta tutto  
   if (Temp < TRMin){
     HomeMau=true;
     HomeMar=true;
     PMar=false;
     PMau=false;
+    MaCTMax=0;
   }
   
-  
+   
+  // questa parte serve per la sicurezza che se la temperatura è troppo elevata, le pompe girano senza blocchi
   if (Temp > TCMax){
     PMar=true;
     PMau=true;
+    StMar=false;
+    StMau=false;
   }
- 
+
+
 
   if (PMar != BMar){  
     if ((PMar)&&(!StMar)) { 
@@ -722,6 +735,7 @@ byte ArrayI=0;
     digitalWrite(rMar, PMar);
   }
 
+  
   if (PMau != BMau){  
     if ((PMau)&&(!StMau)) {
       TimePMau=millis();
