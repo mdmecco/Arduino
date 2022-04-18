@@ -396,6 +396,8 @@ void loop() {
           client.print(F("</tr></table>"));
           //************************************************* Fine Header ******************************************************
     
+        //tabelle inizio
+          
           client.println(F("<hr width=100% size=4 color=FF0000>"));
           
           client.println(F("<table style=""width:100%"" border=1>"));
