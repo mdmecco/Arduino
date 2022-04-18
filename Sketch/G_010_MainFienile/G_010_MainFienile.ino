@@ -1,11 +1,13 @@
+#include <DHT.h>
 
-#include <ESP_EEPROM.h>
+
+//#include <ESP_EEPROM.h>
 #include <ArduinoOTA.h>
-#include "A:\libmie\pulsanti.h"
+//#include "A:\libmie\pulsanti.h"
 #include <ESP8266WiFi.h>
-#include "A:\Arduino\libraries\DHT\DHT.h"
+//#include "A:\libraries\DHT\DHT.h"
 
-#define DHTPIN 2
+#define DHTPIN 2                                                              
 #define DHTTYPE DHT21
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -85,7 +87,7 @@ unsigned long M1StatusT=0;
 
 void setup() {
   // put your setup code here, to run once:
-  EEPROM.begin(512);
+  //EEPROM.begin(512);
   Serial.begin(9600);
   delay(200);
   dht.begin();
@@ -344,33 +346,44 @@ void loop() {
             GetStatus();
             
             client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            
             client.println(F("<tr><td style=\"text-align: center; background-color:"));
             client.println(BtnColor(0));
             client.println(F(";\">    <a href=\"/LUCEPOMPANAFTAXX\" > <img src=\"http://www.mdmecco.it/ghelfa/button/Luce%20nafta.gif\"   alt=\"Luce Nafta\"       style=\"width: 150px;\"></a></td>"));
+            
             client.println(F("<td style=\"text-align: center; background-color:"));
             client.println(BtnColor(bitRead(ETHLed,2)));
             client.println(F(";\">        <a href=\"/LUCEPOLLIXX\">       <img src=\"http://www.mdmecco.it/ghelfa/button/Luce%20polli.gif\"   alt=\"Luce Polli\"       style=\"width: 150px;\"></a></td>"));
+            
             client.println(F("<td style=\"text-align: center; background-color:"));
             client.println(BtnColor(bitRead(ETHLed,3)));
             client.println(F(";\">    <a href=\"/LAMPIONEXX\">        <img src=\"http://www.mdmecco.it/ghelfa/button/Lampione.gif\"       alt=\"Lampione\"         style=\"width: 150px;\"></a></td></tr>"));
+
+            
             client.println(F("<tr><td style=\"text-align: center; background-color:"));
             client.println(BtnColor(StringToInt(M1Status.substring(5,6))));
             client.println(F(";\"><a href=\"/FIENILE4XX\">        <img src=\"http://www.mdmecco.it/ghelfa/button/fienile%202.gif\"    alt=\"Fuori 2\"          style=\"width: 150px;\"></a><br></td>"));
+            
             client.println(F("<td style=\"text-align: center; background-color:"));
             client.println(BtnColor(StringToInt(M1Status.substring(2,3))));
             client.println(F(";\">    <a href=\"/FIENILE2XX\">        <img src=\"http://www.mdmecco.it/ghelfa/button/fienile%203.gif\"    alt=\"Fuori 1\"          style=\"width: 150px;\"></a><br></td>"));
+            
             client.println(F("<td style=\"background-color:"));
             client.println(BtnColor(0));
             client.println(F("; text-align: center;\">    <a href=\"/POMPAACQUAXX\">      <img src=\"http://www.mdmecco.it/ghelfa/button/Pompa%20acqua.gif\"  alt=\"Pompa Acqua\"      style=\"width: 150px;\"></a><br></td></tr>"));
+            
             client.println(F("<tr><td style=\"text-align: center; background-color:"));
             client.println(BtnColor(StringToInt(M1Status.substring(4,5))));
             client.println(F(";\"><a href=\"/FIENILE3XX\">        <img src=\"http://www.mdmecco.it/ghelfa/button/feinile%201.gif\"    alt=\"Officina\"         style=\"width: 150px;\"></a><br></td>"));
+            
             client.println(F("<td style=\"text-align: center; background-color:"));
             client.println(BtnColor(StringToInt(M1Status.substring(1,2))));
             client.println(F(";\">    <a href=\"/FIENILE1XX\">        <img src=\"http://www.mdmecco.it/ghelfa/button/fienile%204.gif\"    alt=\"Ingresso Stalla\"  style=\"width: 150px;\"></a><br></td>"));
+            
             client.println(F("<td style=\"text-align: center; background-color:"));
             client.println(BtnColor(0));
             client.println(F(";\">    <a href=\"/POMPANAFTAXX\">      <img src=\"http://www.mdmecco.it/ghelfa/button/Pompa%20Nafta.gif\"  alt=\"Pompa Nafta\"      style=\"width: 150px;\"></a><br></td></tr>"));
+            
             client.print(F("<tr><td style=\"text-align: center;\">Temperatura:"));
             client.print(String(Tem,1));
             client.print("°C Humidita':");

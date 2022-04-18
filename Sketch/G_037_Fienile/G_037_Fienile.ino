@@ -7,7 +7,7 @@
 
 
 #define WEBTITPAGE "Fienile"
-#define PRGVER "2022-04-14 V1.0"
+#define PRGVER "2022-04-18 V1.0"
 #define MySIp 37
 
 // ********************** DEFINIZIONE MODULO *************************************
