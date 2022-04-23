@@ -732,7 +732,7 @@ if (MaCf==0){
       EEPROM.commit();
     }
     BMar=PMar;
-    digitalWrite(rMar, PMar);
+    digitalWrite(rMar, !PMar);
   }
 
   
@@ -750,7 +750,7 @@ if (MaCf==0){
       EEPROM.commit();
     }
     BMau=PMau;
-    digitalWrite(rMau, PMau);
+    digitalWrite(rMau, !PMau);
   }
 
   if (Temp > TMax){
