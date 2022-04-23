@@ -272,6 +272,18 @@ void loop() {
             rp=true;
             OTAActive= (!OTAActive);
             ArduinoOTA.begin(OTAActive);
+          }else if (NetCMDS=="L1"){
+            SendGMA(37,"<L1-10000>");
+            rp=true;
+          }else if (NetCMDS=="L2"){
+            SendGMA(37,"<L2-10000>");
+            rp=true;
+          }else if (NetCMDS=="L3"){
+            SendGMA(37,"<L3-10000>");
+            rp=true;
+          }else if (NetCMDS=="L4"){
+            SendGMA(37,"<L4-10000>");
+            rp=true;
           }
 
           if (NetCMDS=="CFG"){
@@ -303,8 +315,6 @@ void loop() {
             if (rp){
               client.println(F("Refresh: 0;url=/"));  // reset the pages
               rp=false;
-            }else{
-              client.println(F("Refresh: 5"));
             }
             client.println();
             client.println(F("<!DOCTYPE HTML>"));
@@ -314,11 +324,11 @@ void loop() {
             client.print(PRGVER);
             client.print(F("</b>"));
             client.println(F("<table style=""width:100%"" border=1>"));
-            client.print(F("<tr> <th width=50% align=""center"">"));
-            client.print(WiFi.SSID());
-            client.print(F(":"));
-            client.print(WiFi.RSSI());
-            client.println(F("</th>"));
+            //client.print(F("<tr> <th width=50% align=""center"">"));
+            //client.print(WiFi.SSID());
+            //client.print(F(":"));
+            //client.print(WiFi.RSSI());
+            //client.println(F("</th>"));
             client.print(F("<th width=50% align=""center"">"));
             client.print(STime(DaySec()));
             client.println(F("</th>"));
@@ -402,6 +412,49 @@ void loop() {
             client.print(M1Status);
             client.println(F("</td></tr></tbody></table>"));
             client.println(F("</body>\r\n</html>"));
+            
+            
+          //**********************************************  L2  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody><tr>"));
+            client.println(F("<td style=\"text-align: center; background-color:"));
+            //if (BL2==5) {
+            //  client.println(BtnColor(1));
+            //}else{
+              client.println(BtnColor(0));
+            //}
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L1\" >___L1___</a></td>"));
+            client.println(F("<td style=\"text-align: center; background-color:"));
+            //if (BL2==5) {
+            //  client.println(BtnColor(1));
+            //}else{
+              client.println(BtnColor(0));
+            //}
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L2\" >___L2___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+          //**********************************************  L2  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody><tr>"));
+            client.println(F("<td style=\"text-align: center; background-color:"));
+            //if (BL2==5) {
+            //  client.println(BtnColor(1));
+            //}else{
+              client.println(BtnColor(0));
+            //}
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L3\" >___L3___</a></td>"));
+            client.println(F("<td style=\"text-align: center; background-color:"));
+            //if (BL2==5) {
+            //  client.println(BtnColor(1));
+            //}else{
+              client.println(BtnColor(0));
+            //}
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L4\" >___L4___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+            
+            
+            
             delay(100);
             NetMas=0; // funzione del timeout di ricezione
             client.stop();
@@ -558,6 +611,18 @@ void MyPublicIP(){
   //Serial.println("---END---");
   WcGMA.stop();
 }
+
+byte GetStatusR(byte LIp){
+  WiFiClient WcGMA;
+                                                                                                                                                                                                                                                                                                                                 nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn  IPAddress LIp[192,168,1,0];
+  String Ln1="";
+  if (WcGMA.connect(LIp, 80)){
+    
+
+  }
+}
+
+
 
 void GetStatus(){
   byte Id=0;

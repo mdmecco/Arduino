@@ -64,17 +64,29 @@ String S3;
 bool rp=false;
 bool OTAActive=false;
 
-
+/*
   #define L1 15
   #define L2 13
   #define L3 12
   #define L4 14
-  
+*/
+
+  #define L1 2
+  #define L2 0
+  #define L3 4
+  #define L4 5
+
+
 
 unsigned long TL1 =0;
 unsigned long TL2 =0;
 unsigned long TL3 =0;
 unsigned long TL4 =0;
+
+byte BL1=0;
+byte BL2=0;
+byte BL3=0;
+byte BL4=0;
 
 
 void setup() { 
@@ -203,31 +215,56 @@ void loop() {
         NetMas=20;
         break;
       case 20:
+        if (NetCMDS=="STATUS"){
+          byte ST=0;
+          if (BL1!=0){
+            ST=ST+1;
+          }
+          if (BL2!=0){
+            ST=ST+2;
+          }
+          if (BL3!=0){
+            ST=ST+4;
+          }
+          if (BL4!=0){
+            ST=ST+8;
+          }
+          client.print("<STATUS-");
+          String dd = String(ST);
+          client.print(dd);
+          client.print(">");
+          
+        }else if (NetCMDS=="L1"){
+          if (BL1!=0){
+            BL1=7;
+          }else{
+            TL1=GetValue(NetPARS)+millis();
+            BL1=6;
+          }
+        }else if (NetCMDS=="L2"){
+          if (BL2!=0){
+            BL2=7;
+          }else{
+            TL2=GetValue(NetPARS)+millis();
+            BL2=6;
+          }
+        }else if (NetCMDS=="L3"){
+          if (BL3!=0){
+            BL3=7;
+          }else{
+            TL3=GetValue(NetPARS)+millis();
+            BL3=6;
+          }
+        }else if (NetCMDS=="L4"){
+          if (BL4!=0){
+            BL4=7;
+          }else{
+            TL4=GetValue(NetPARS)+millis();
+            BL4=6;
+          }
+        }
         NetMas=0;
         client.stop();
-        if (NetCMDS=="L1"){
-          digitalWrite(L1, LOW);
-          TL1=GetValue(NetPARS);
-        }else if (NetCMDS=="L2"){
-          digitalWrite(L2, LOW);
-          TL2=GetValue(NetPARS);
-        }else if (NetCMDS=="L3"){
-          digitalWrite(L3, LOW);
-          TL3=GetValue(NetPARS);
-        }else if (NetCMDS=="L4"){
-          digitalWrite(L4, LOW);
-          TL4=GetValue(NetPARS);
-        }else if (NetCMDS=="LAMP"){
-          //ETH484Sw(3);
-        }else if (NetCMDS=="APRI"){
-          //ETH484Sw(0);  
-        }else if (NetCMDS=="CHIUDI"){
-          //ETH484Sw(1);  
-        }else if (NetCMDS=="LUCEP"){
-          //ETH484Sw(2);  
-        }else if (NetCMDS=="MyIP"){
-          //MyPublicIP();  
-        }
         break;
       case 50:
         {
@@ -266,83 +303,57 @@ void loop() {
             ArduinoOTA.begin(OTAActive);
           }
     //**********************************************************************************************      
-          //***************************************TCova
-          io1=NetCMDS.indexOf("/TCOVA?");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-            io1=NetCMDS.indexOf("?",io1-1)+1;
-            io2=NetCMDS.indexOf(" ",io1);
-            S1=NetCMDS.substring(io1, io2);
-            io1=0;
-            io2=S1.indexOf("=", io1);
-            S2=S1.substring(io1,io2);
-            io1=S1.indexOf("&", io2);
-            if (io1>0){
-              S3=S1.substring(io2+1,io1);
-              io1=io1+1;
-            }else{
-              S3=S1.substring(io2+1);
-            }
-          } // ******************************************************************
 
-          //***************************************HCova
-          io1=NetCMDS.indexOf("/HCOVA?");
+          //***************************************L1
+          io1=NetCMDS.indexOf("/L1 ");
           io2=0;
           if (io1 > 0){
             rp=true;
-            io1=NetCMDS.indexOf("?",io1-1)+1;
-            io2=NetCMDS.indexOf(" ",io1);
-            S1=NetCMDS.substring(io1, io2);
-            io1=0;
-            io2=S1.indexOf("=", io1);
-            S2=S1.substring(io1,io2);
-            io1=S1.indexOf("&", io2);
-            if (io1>0){
-              S3=S1.substring(io2+1,io1);
-              io1=io1+1;
+            if (BL1!=0){
+              BL1=7;
             }else{
-              S3=S1.substring(io2+1);
+              TL1=10000 + millis();
+              BL1=6;
             }
           } // ******************************************************************
           
-          //***************************************dTCova
-          io1=NetCMDS.indexOf("/DTCOVA?");
+          //***************************************L2
+          io1=NetCMDS.indexOf("/L2 ");
           io2=0;
           if (io1 > 0){
             rp=true;
-            io1=NetCMDS.indexOf("?",io1-1)+1;
-            io2=NetCMDS.indexOf(" ",io1);
-            S1=NetCMDS.substring(io1, io2);
-            io1=0;
-            io2=S1.indexOf("=", io1);
-            S2=S1.substring(io1,io2);
-            io1=S1.indexOf("&", io2);
-            if (io1>0){
-              S3=S1.substring(io2+1,io1);
-              io1=io1+1;
+            if (BL2!=0){
+              BL2=7;
             }else{
-              S3=S1.substring(io2+1);
+              TL2=10000 + millis();
+              BL2=6;
             }
           } // ******************************************************************
 
-          //***************************************dHCova
-          io1=NetCMDS.indexOf("/DHCOVA?");
+
+          //***************************************L3
+          io1=NetCMDS.indexOf("/L3 ");
           io2=0;
           if (io1 > 0){
             rp=true;
-            io1=NetCMDS.indexOf("?",io1-1)+1;
-            io2=NetCMDS.indexOf(" ",io1);
-            S1=NetCMDS.substring(io1, io2);
-            io1=0;
-            io2=S1.indexOf("=", io1);
-            S2=S1.substring(io1,io2);
-            io1=S1.indexOf("&", io2);
-            if (io1>0){
-              S3=S1.substring(io2+1,io1);
-              io1=io1+1;
+            if (BL3!=0){
+              BL3=7;
             }else{
-              S3=S1.substring(io2+1);
+              TL3=10000 + millis();
+              BL3=6;
+            }
+          } // ******************************************************************
+
+          //***************************************L4
+          io1=NetCMDS.indexOf("/L4 ");
+          io2=0;
+          if (io1 > 0){
+            rp=true;
+            if (BL4!=0){
+              BL4=7;
+            }else{
+              TL4=10000 + millis();
+              BL4=6;
             }
           } // ******************************************************************
 
@@ -356,16 +367,10 @@ void loop() {
           client.println(F("Content-Type: text/html"));
           client.println(F("Connection: close"));  // the connection will be closed after completion of the response
     
-          //-------------------------------------------Parte serve per OTA ***********************************************************
+          //------------------------------------------- Refresh  ***********************************************************
           if (rp){
-            if (!OTAActive){
               client.println(F("Refresh: 0;url=/"));  // reset the pages
-            }
             rp=false;
-          }else{
-            if (!OTAActive){
-              //client.println(F("Refresh: 5"));
-            }
           }
           //****************************************************************************************************************************
           
@@ -397,126 +402,66 @@ void loop() {
           //************************************************* Fine Header ******************************************************
     
         //tabelle inizio
-          
-          client.println(F("<hr width=100% size=4 color=FF0000>"));
-          
-          client.println(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""> Temperatura:</th><th width=50% align=""left"">"));
-          //client.print(String(Tem,1));
-          client.println(F("</th></tr>"));
-          client.print(F("<tr> <th width=50% align=""right""> Umidita':</th><th width=50% align=""left"">"));
-          //client.print(String(Hum,1));
-          client.println(F("</th>"));
-          client.print(F("</tr></table>"));
-    
-    
-          //************************************************ input TCOVA
-          client.print(F("<form action=""TCOVA"">\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""><label for=""-TCOVA-"">Temperatura Incubatrice:</label></th>\r\n"));
-          client.print(F(" <th width=50% align=""left""><input type=""text"" id=""-TCOVA-"" name=""-TCOVA-"" value="""));
-          //client.print(String(TCova,1));
-          client.print(F(""" ></th></tr></table><br>\r\n"));
-          client.print(F("<input type=""submit"" value=""Submit"">\r\n"));
-          client.print(F("</form>\r\n")); 
-          //**********************************************************
-    
-          //************************************************ input HCOVA
-          client.print(F("<form action=""HCOVA"">\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""><label for=""-HCOVA-"">Umidita' Incubatrice:</label></th>\r\n"));
-          client.print(F(" <th width=50% align=""left""><input type=""text"" id=""-HCOVA-"" name=""-HCOVA-"" value="""));
-          //client.print(String(HCova,1));
-          client.print(F(""" ></th></tr></table><br>\r\n"));
-          client.print(F("<input type=""submit"" value=""Submit"">\r\n"));
-          client.print(F("</form>\r\n")); 
-          //**********************************************************
 
-          //************************************************ input DTCOVA
-          client.print(F("<form action=""DTCOVA"">\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""><label for=""-DTCOVA-"">delta regolazione Temperatura Incubatrice:</label></th>\r\n"));
-          client.print(F(" <th width=50% align=""left""><input type=""text"" id=""-DTCOVA-"" name=""-DTCOVA-"" value="""));
-          //client.print(String(dTCova,1));
-          client.print(F(""" ></th></tr></table><br>\r\n"));
-          client.print(F("<input type=""submit"" value=""Submit"">\r\n"));
-          client.print(F("</form>\r\n")); 
-          //**********************************************************
- 
-          
-          //************************************************ input DHCOVA
-          client.print(F("<form action=""DHCOVA"">\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""><label for=""-DHCOVA-"">Delta Regolazione Umidita' Incubatrice:</label></th>\r\n"));
-          client.print(F(" <th width=50% align=""left""><input type=""text"" id=""-DHCOVA-"" name=""-DHCOVA-"" value="""));
-          //client.print(String(dHCova,1));
-          client.print(F(""" ></th></tr></table><br>\r\n"));
-          client.print(F("<input type=""submit"" value=""Submit"">\r\n"));
-          client.print(F("</form>\r\n")); 
-          //**********************************************************
+          //**********************************************  L1  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL1==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L1\" >___L1___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
 
-          //************************************************ input TIMEHR1
-          client.print(F("<form action=""TIMEHR1"">\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""><label for=""-TIMEHR1-"">Secondi partenza riscaldatore umidita' 1:</label></th>\r\n"));
-          client.print(F(" <th width=50% align=""left""><input type=""text"" id=""-TIMEHR1-"" name=""-TIMEHR1-"" value="""));
-          //client.print(String((TimeHR1/1000)));
-          client.print(F(""" ></th></tr></table><br>\r\n"));
-          client.print(F("<input type=""submit"" value=""Submit"">\r\n"));
-          client.print(F("</form>\r\n")); 
-          //**********************************************************
+          //**********************************************  L2  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL2==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L2\" >___L2___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
 
-          //************************************************ input TIMEHR2
-          client.print(F("<form action=""TIMEHR2"">\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""><label for=""-TIMEHR2-"">Secondi partenza riscaldatore umidita' 2:</label></th>\r\n"));
-          client.print(F(" <th width=50% align=""left""><input type=""text"" id=""-TIMEHR2-"" name=""-TIMEHR2-"" value="""));
-          //client.print(String((TimeHR2/1000)));
-          client.print(F(""" ></th></tr></table><br>\r\n"));
-          client.print(F("<input type=""submit"" value=""Submit"">\r\n"));
-          client.print(F("</form>\r\n")); 
-          //**********************************************************
-    
+
+          //**********************************************  L3  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL3==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L3\" >___L3___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+          //**********************************************  L4  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL4==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L4\" >___L4___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
 
           
-          //************************************************ input TIMERO  periodo di rotazione uova
-          client.print(F("<form action=""TIMERO"">\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""><label for=""-TIMERO-"">Minuti rotazione uova:</label></th>\r\n"));
-          client.print(F(" <th width=50% align=""left""><input type=""text"" id=""-TIMERO-"" name=""-TIMERO-"" value="""));
-          //client.print(String((TimeRo/60000)));
-          client.print(F(""" ></th></tr></table><br>\r\n"));
-          client.print(F("<input type=""submit"" value=""Submit"">\r\n"));
-          client.print(F("</form>\r\n")); 
-          //**********************************************************
-          
 
-          //************************************************ input TIMERA  Secondi attivazione motore rotazione
-          client.print(F("<form action=""TIMERA"">\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""><label for=""-TIMERA-"">Secondi ti attivazione motore rotazione:</label></th>\r\n"));
-          client.print(F(" <th width=50% align=""left""><input type=""text"" id=""-TIMERA-"" name=""-TIMERA-"" value="""));
-          //client.print(String((TimeRa/1000)));
-          client.print(F(""" ></th></tr></table><br>\r\n"));
-          client.print(F("<input type=""submit"" value=""Submit"">\r\n"));
-          client.print(F("</form>\r\n")); 
-          //**********************************************************
 
-          
-          client.println(F("<hr width=100% size=4 color=FF0000>"));
-          client.println(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""> Tempo lettura sensore ms</th><th width=50% align=""left"">"));
-          //client.print(ReadTempTime);
-          client.println(F("</th></tr>"));
-          client.print(F("</table>"));
-    
-      
-    
-          // chiudi BODY e HTML
-          client.println(F("\r\n</body>\r\n</html>"));
-          delay(100);
-          NetMas=0; // funzione del timeout di ricezione
-          client.stop();
+
+
+            
+            client.println(F("</body>\r\n</html>"));
+            delay(100);
+            NetMas=0; // funzione del timeout di ricezione
+            client.stop();
         }
         break;
       case 200:
@@ -541,25 +486,66 @@ void loop() {
 //**************************************************************************************  
   } //**********************************************************************************
 // ************************   Codice fuori rete ****************************************
-
-
-  if ( millis() > TL1 ){
+//L1
+  if (BL1==5){ //controlla se spegnere
+    if ( millis() > TL1 ){
+      digitalWrite(L1, LOW);
+      BL1=0;
+    }
+  }else if (BL1==6){  // Accendi la luce
+    digitalWrite(L1, HIGH);
+    BL1=5;
+  }else if (BL1==7){  // Spegni Subito
     digitalWrite(L1, LOW);
+    BL1=0;
   }
-  if ( millis() > TL2 ){
+
+//L2
+  if (BL2==5){ //controlla se spegnere
+    if ( millis() > TL2 ){
+      digitalWrite(L2, LOW);
+      BL2=0;
+    }
+  }else if (BL2==6){  // Accendi la luce
+    digitalWrite(L2, HIGH);
+    BL2=5;
+  }else if (BL2==7){  // Spegni Subito
     digitalWrite(L2, LOW);
+    BL2=0;
   }
-  if ( millis() > TL3 ){
+
+
+//L3
+  if (BL3==5){ //controlla se spegnere
+    if ( millis() > TL3 ){
+      digitalWrite(L3, LOW);
+      BL3=0;
+    }
+  }else if (BL3==6){  // Accendi la luce
+    digitalWrite(L3, HIGH);
+    BL3=5;
+  }else if (BL3==7){  // Spegni Subito
     digitalWrite(L3, LOW);
+    BL3=0;
   }
-  if ( millis() > TL4 ){
+
+//L4
+  if (BL4==5){ //controlla se spegnere
+    if ( millis() > TL4 ){
+      digitalWrite(L4, LOW);
+      BL4=0;
+    }
+  }else if (BL4==6){  // Accendi la luce
+    digitalWrite(L4, HIGH);
+    BL4=5;
+  }else if (BL4==7){  // Spegni Subito
     digitalWrite(L4, LOW);
+    BL4=0;
   }
-  //if ( millis() > TL5 ){
-  //  digitalWrite(L5, LOW);
-  //}
 
 
+
+ 
 //**************************************************************************************
 }
 //********** fine MAIN  ***************************************************************
@@ -710,4 +696,14 @@ unsigned long GetValue (String Vs){
   dd= Vs.toInt();
   dd=dd*1000;
   return dd;
+}
+
+
+
+String BtnColor (int idCol){
+  if (idCol == 0){
+    return "#22ff22";
+  }else{
+    return "red";
+  }
 }
