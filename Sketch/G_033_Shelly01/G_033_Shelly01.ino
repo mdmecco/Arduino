@@ -1,22 +1,18 @@
-#include <ESP_EEPROM.h>
-#include <ArduinoOTA.h>
+#include <ESP_EEPROM.h> //https://github.com/esp8266/Arduino/blob/master/libraries/EEPROM/EEPROM.h
+
 #include <ESP8266WiFi.h>
-#include "a:\libmie\mecco1.h"
+#include <ArduinoOTA.h>
+
+
 #include "a:\libmie\pulsanti.h"
+#include "a:\libmie\mecco1.h"
 
 
-#define IPFienile 10
-#define IPNafta 27
-
-#define OFFPOMPADEF "<OFFMAURIZIO-00>"
-#define ONPOMPADEF "<ONMAURIZIO-00>"
-#define WEBTITPAGE "Shelly 033"
-#define PRGVER "2021-01-16 V1.0"
-#define LogFile "GET /ghelfa/log.php?FileTS=Shelly033&StatoR="
+#define WEBTITPAGE "Fienile"
+#define PRGVER "2022-04-24 V1.2"
 #define MySIp 33
-#define HOSTNAME "Shelly_033"
 
-
+// ********************** DEFINIZIONE MODULO *************************************
 const IPAddress staticIP(192, 168, 1, MySIp);
 const char* ssid1 = "GGhelfa";
 const char* password1 = "Supergino";
@@ -38,10 +34,14 @@ unsigned long WifiT1 = 0;
 unsigned int WId = 0;
 byte WiFiClMAS = 0;
 unsigned long WiFiClTo = 0;
-bool WiFiBo = false;
+bool VHeater = false;
+bool VHumid =false;
+
 String WiFiSt = "";
 char WiFiCh = 0;
 
+
+// Variabili per gestione rete ed ambiente
 byte NetMas = 0;
 unsigned long NetTo = 0;
 char NetRdC = 0;
@@ -52,6 +52,13 @@ String NetPARS = "";
 unsigned long DayTimeS = 0;
 bool DayTimeB = false;
 unsigned long DayTimeR = 0;
+unsigned long DayDate=0;
+
+#define ArrayLenght 255
+float TmpArray[ArrayLenght]={0};
+unsigned long ArrayTime=0;
+unsigned int ArrayI=0;
+#define ArrayRefresh 600000
 
 String S1;
 String S2;
@@ -59,21 +66,59 @@ String S3;
 bool rp=false;
 bool OTAActive=false;
 
+/*
+  #define L1 15
+  #define L2 13
+  #define L3 12
+  #define L4 14
+*/
 
-unsigned long TP1=0;              //tempo antirimbalzo
-byte BP1=B00100000;                       //Stato 
-unsigned long TOnActP1=1800000;   //Tempo massimo acceso
-unsigned long TOnP1=3000;            //Tempo start attivazione
+  #define L1 2
+  #define L2 0
+  #define L3 4
+  #define L4 5
 
-//void ProcBtn (BP1, TP1, TOnActP1, TOnP1)
+  #define Bl 15
+
+
+
+unsigned long TL1 =0;
+unsigned long TL2 =0;
+unsigned long TL3 =0;
+unsigned long TL4 =0;
+unsigned long TBl =0; //delay lampeggi
+
+
+
+
+byte BL1=0;
+byte BL2=0;
+byte BL3=0;
+byte BL4=0;
+
+unsigned long tBl=0;  //delay lampeggi programmato
+byte mBl=0; // macchina a stati dei lampeggi
+byte nBl=0; // numero di lampeggi da fare
 
 void setup() { 
-  EEPROM.begin(512);
   OTAActive=false;
-  WiFi.hostname(HOSTNAME);
-  pinMode(4, OUTPUT);
-  pinMode(5, INPUT);  
+  WiFi.hostname(WEBTITPAGE);
+//  Serial.begin(9600);
+
+  pinMode(L1, OUTPUT);
+  pinMode(L2, OUTPUT);
+  pinMode(L3, OUTPUT);
+  pinMode(L4, OUTPUT);
+  pinMode(Bl, OUTPUT);
+
+  digitalWrite(L1, LOW);
+  digitalWrite(L2, LOW);
+  digitalWrite(L3, LOW);
+  digitalWrite(L4, LOW);
+  digitalWrite(Bl, HIGH);  // Si spegne quando si fa il collegamento con la wifi
 }
+
+
 
 void loop() {
   //***************** CONNESSIONE WIFI ******************************************************
@@ -127,6 +172,7 @@ void loop() {
       server.begin();
       WifiMas = 100;
       GetTime();
+      digitalWrite(Bl, LOW);   // da qui sono collegato con la wifi
       break;
     case 7:
       server.begin(false);
@@ -143,6 +189,7 @@ void loop() {
       break;
     default:
       WifiMas = 0;
+      digitalWrite(Bl, HIGH);      
   }
   //**********************************************************************************
 
@@ -182,27 +229,68 @@ void loop() {
         NetMas=20;
         break;
       case 20:
+        if (NetCMDS=="STATUS"){
+          byte ST=0;
+          if (BL1!=0){
+            ST=ST+1;
+          }
+          if (BL2!=0){
+            ST=ST+2;
+          }
+          if (BL3!=0){
+            ST=ST+4;
+          }
+          if (BL4!=0){
+            ST=ST+8;
+          }
+          client.print("<STATUS-");
+          String dd = String(ST);
+          client.print(dd);
+          client.print(">");
+          
+        }else if (NetCMDS=="L1"){
+          mBl=2;
+          nBl=3;
+          tBl=50;
+          if (BL1!=0){
+            BL1=7;
+          }else{
+            TL1=GetValue(NetPARS)+millis();
+            BL1=6;
+          }
+        }else if (NetCMDS=="L2"){
+          mBl=2;
+          nBl=3;
+          tBl=50;
+          if (BL2!=0){
+            BL2=7;
+          }else{
+            TL2=GetValue(NetPARS)+millis();
+            BL2=6;
+          }
+        }else if (NetCMDS=="L3"){
+          mBl=2;
+          nBl=3;
+          tBl=50;
+          if (BL3!=0){
+            BL3=7;
+          }else{
+            TL3=GetValue(NetPARS)+millis();
+            BL3=6;
+          }
+        }else if (NetCMDS=="L4"){
+          mBl=2;
+          nBl=3;
+          tBl=50;
+          if (BL4!=0){
+            BL4=7;
+          }else{
+            TL4=GetValue(NetPARS)+millis();
+            BL4=6;
+          }
+        }
         NetMas=0;
         client.stop();
-        if (NetCMDS=="F1"){
-          Serial.print(F("<M1-ACT-01>"));
-        }else if (NetCMDS=="F2"){
-          Serial.print(F("<M1-ACT-02>"));
-        }else if (NetCMDS=="F3"){
-          Serial.print(F("<M1-ACT-03>"));
-        }else if (NetCMDS=="F4"){
-          Serial.print(F("<M1-ACT-04>"));
-        }else if (NetCMDS=="LAMP"){
-          //ETH484Sw(3);
-        }else if (NetCMDS=="APRI"){
-          //ETH484Sw(0);  
-        }else if (NetCMDS=="CHIUDI"){
-          //ETH484Sw(1);  
-        }else if (NetCMDS=="LUCEP"){
-          //ETH484Sw(2);  
-        }else if (NetCMDS=="MyIP"){
-          //MyPublicIP();  
-        }
         break;
       case 50:
         {
@@ -241,49 +329,73 @@ void loop() {
             ArduinoOTA.begin(OTAActive);
           }
     //**********************************************************************************************      
-          
-    
-          
-          io1=NetCMDS.indexOf("/THOME?");
+
+          //***************************************L1
+          io1=NetCMDS.indexOf("/L1 ");
+          mBl=2;
+          nBl=5;
+          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
-            io1=NetCMDS.indexOf("?",io1-1)+1;
-            io2=NetCMDS.indexOf(" ",io1);
-            S1=NetCMDS.substring(io1, io2);
-            io1=0;
-            io2=S1.indexOf("=", io1);
-            S2=S1.substring(io1,io2);
-            io1=S1.indexOf("&", io2);
-            if (io1>0){
-              S3=S1.substring(io2+1,io1);
-              io1=io1+1;
+            if (BL1!=0){
+              BL1=7;
             }else{
-              S3=S1.substring(io2+1);
+              TL1=10000 + millis();
+              BL1=6;
             }
-//            THome=S3.toFloat();
-//            EEPROM.write(0,THome);
-//            EEPROM.commit();
-    
-//            SendGMA(30,"<OFFMAURIZIO-000>");
-          }
+          } // ******************************************************************
           
-          io1=NetCMDS.indexOf("/CLEAR?");
+          //***************************************L2
+          io1=NetCMDS.indexOf("/L2 ");
+          mBl=2;
+          nBl=5;
+          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
-          }
-          
-          io1=NetCMDS.indexOf("/CLEARSTAT?");
+            if (BL2!=0){
+              BL2=7;
+            }else{
+              TL2=10000 + millis();
+              BL2=6;
+            }
+          } // ******************************************************************
+
+
+          //***************************************L3
+          io1=NetCMDS.indexOf("/L3 ");
+          mBl=2;
+          nBl=5;
+          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
-            //LifePMar=0;
-            //LifePMau=0;
-            //TimePMar=millis();
-            //TimePMau=millis();
-          }
-    
+            if (BL3!=0){
+              BL3=7;
+            }else{
+              TL3=10000 + millis();
+              BL3=6;
+            }
+          } // ******************************************************************
+
+          //***************************************L4
+          io1=NetCMDS.indexOf("/L4 ");
+          mBl=2;
+          nBl=5;
+          tBl=50;
+          io2=0;
+          if (io1 > 0){
+            rp=true;
+            if (BL4!=0){
+              BL4=7;
+            }else{
+              TL4=10000 + millis();
+              BL4=6;
+            }
+          } // ******************************************************************
+
+
           while (client.available()){
             char c = client.read();
           }
@@ -293,16 +405,10 @@ void loop() {
           client.println(F("Content-Type: text/html"));
           client.println(F("Connection: close"));  // the connection will be closed after completion of the response
     
-          //-------------------------------------------Parte serve per OTA ***********************************************************
+          //------------------------------------------- Refresh  ***********************************************************
           if (rp){
-            if (!OTAActive){
               client.println(F("Refresh: 0;url=/"));  // reset the pages
-            }
             rp=false;
-          }else{
-            if (!OTAActive){
-              client.println(F("Refresh: 5"));
-            }
           }
           //****************************************************************************************************************************
           
@@ -326,75 +432,74 @@ void loop() {
           client.print(WiFi.RSSI());
           client.println(F("</th>"));
           client.print(F("<th width=50% align=""center"">"));
+          client.print(DayDate);
+          client.print(" - " );
           client.print(STime(DaySec()));
           client.println(F("</th>"));
           client.print(F("</tr></table>"));
           //************************************************* Fine Header ******************************************************
     
-          client.println(F("<hr width=100% size=4 color=FF0000>"));
-          
-          client.println(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""> Temperatura:</th><th width=50% align=""left"">"));
+        //tabelle inizio
 
-          //client.print(String(Tem,1));
-          //client.print("    Index:");
-          //client.print(String(ArrayI));
+          //**********************************************  L1  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL1==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L1\" >___L1___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+          //**********************************************  L2  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL2==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L2\" >___L2___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+
+          //**********************************************  L3  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL3==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L3\" >___L3___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+          //**********************************************  L4  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL4==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L4\" >___L4___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
 
           
-          client.println(F("</th></tr>"));
-          client.print(F("<tr> <th width=50% align=""right""> Umidita':</th><th width=50% align=""left"">"));
-          
-//          client.print(String(Hum,1));
 
-          client.println(F("</th>"));
-          client.print(F("</tr></table>"));
-    
-    
-          //************************************************ input
-          client.print(F("<form action=""THOME"">\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""><label for=""-TCMAX-"">Temperatura casa:</label></th>\r\n"));
-          client.print(F(" <th width=50% align=""left""><input type=""text"" id=""-THOME-"" name=""-THOME-"" value="""));
-//          client.print(String(THome,0));
-          client.print(F(""" ></th></tr></table><br>\r\n"));
-          client.print(F("<input type=""submit"" value=""Submit"">\r\n"));
-          client.print(F("</form>\r\n")); 
-          //**********************************************************
-    
-    
-    
-          client.println(F("<hr width=100% size=4 color=FF0000>"));
-          client.println(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""> Orario spedizione pompa ON</th><th width=50% align=""left"">"));
-          //client.print(STime(LstSentON));
-          client.println(F("</th></tr>"));
-          client.print(F("<tr> <th width=50% align=""right""> Orario spedizione pompa OFF</th><th width=50% align=""left"">"));
-          //client.print(STime(LstSentOFF));
-          client.println(F("</th></tr>"));
-          client.print(F("<tr> <th width=50% align=""right""> Stato pompa lato ambiente</th><th width=50% align=""left"">"));
-          //if (PompaOn){
-          //  client.print("ACCESA");
-          //}else{
-          //  client.print("SPENTA");
-          //}
-          client.println(F("</th></tr>"));
-          client.print(F("</table>"));
-    
-    
-          client.println(F("<hr width=100% size=4 color=FF0000>"));
-          client.println(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""> BIT </th><th width=50% align=""left"">"));
-          //client.print(STime(LstON));
-          client.println(String(BP1, BIN));
-          client.println(F("</th></tr>"));
-          client.print(F("</table>"));
-    
-    
-          // chiudi BODY e HTML
-          client.println(F("\r\n</body>\r\n</html>"));
-          delay(100);
-          NetMas=0; // funzione del timeout di ricezione
-          client.stop();
+
+
+
+            
+            client.println(F("</body>\r\n</html>"));
+            delay(100);
+            NetMas=0; // funzione del timeout di ricezione
+            client.stop();
         }
         break;
       case 200:
@@ -407,24 +512,105 @@ void loop() {
 //***********************************************************************
 //*********************** codice dentro rete  ***************************
 //***********************************************************************
+
     
     if (millis() > DayTimeR) {
       GetTime();
+      GetDate();
     }
-
-
+    
 
   
 //**************************************************************************************  
   } //**********************************************************************************
 // ************************   Codice fuori rete ****************************************
+//L1
+  if (BL1==5){ //controlla se spegnere
+    if ( millis() > TL1 ){
+      digitalWrite(L1, LOW);
+      BL1=0;
+    }
+  }else if (BL1==6){  // Accendi la luce
+    digitalWrite(L1, HIGH);
+    BL1=5;
+  }else if (BL1==7){  // Spegni Subito
+    digitalWrite(L1, LOW);
+    BL1=0;
+  }
+
+//L2
+  if (BL2==5){ //controlla se spegnere
+    if ( millis() > TL2 ){
+      digitalWrite(L2, LOW);
+      BL2=0;
+    }
+  }else if (BL2==6){  // Accendi la luce
+    digitalWrite(L2, HIGH);
+    BL2=5;
+  }else if (BL2==7){  // Spegni Subito
+    digitalWrite(L2, LOW);
+    BL2=0;
+  }
 
 
-  bitWrite(BP1,0,digitalRead(5));
-  ProcBtn (BP1, TP1, TOnActP1, TOnP1);
-  digitalWrite(4,bitRead(BP1,1));
+//L3
+  if (BL3==5){ //controlla se spegnere
+    if ( millis() > TL3 ){
+      digitalWrite(L3, LOW);
+      BL3=0;
+    }
+  }else if (BL3==6){  // Accendi la luce
+    digitalWrite(L3, HIGH);
+    BL3=5;
+  }else if (BL3==7){  // Spegni Subito
+    digitalWrite(L3, LOW);
+    BL3=0;
+  }
+
+//L4
+  if (BL4==5){ //controlla se spegnere
+    if ( millis() > TL4 ){
+      digitalWrite(L4, LOW);
+      BL4=0;
+    }
+  }else if (BL4==6){  // Accendi la luce
+    digitalWrite(L4, HIGH);
+    BL4=5;
+  }else if (BL4==7){  // Spegni Subito
+    digitalWrite(L4, LOW);
+    BL4=0;
+  }
 
 
+
+// gestore del lampeggio del led di servizio
+  if (mBl != 0){
+    if (millis() > TBl){
+        if (mBl==2){
+          digitalWrite(Bl, HIGH);
+          if (nBl > 0){
+            nBl= nBl-1;
+          }
+          mBl=1;
+          TBl=millis()+tBl;
+        }else if (mBl==1){
+          digitalWrite(Bl, LOW);
+          TBl=millis()+tBl;
+          mBl=2;
+          if (nBl == 0){
+            mBl=0;
+          }
+        }else{
+          mBl=0;
+          nBl=0;
+          tBl=1000;
+        }
+    }
+  }
+
+
+
+ 
 //**************************************************************************************
 }
 //********** fine MAIN  ***************************************************************
@@ -443,22 +629,11 @@ bool SendGMA(byte IpA, String MyCmd){
   if (WcGMA){
     while (WcGMA.connected()){
       SS=WcGMA.readStringUntil('>');//
-      return (SS='<OK-00');
+      return (SS=="<OK-00");
     }
     WcGMA.flush();
     WcGMA.stop();
   }
-}
-
-void LogCaldaia(String TT){
-  WiFiClient WcGMA;
-  if (WcGMA.connect("www.mdmecco.it", 80)) {
-    WcGMA.print(LogFile);
-    WcGMA.print(TT);
-    WcGMA.print(F(" HTTP/1.1 \r\nHost: www.mdmecco.it\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n"));
-    WcGMA.flush();
-  }
-  WcGMA.stop();
 }
 
 
@@ -492,6 +667,25 @@ void GetTime() {
   WcGMA.stop();
   DayTimeS = TT - ((millis() / 1000) % 86400);
 }
+
+
+
+void GetDate() {
+  WiFiClient WcGMA;
+  String Ln1 = "";
+  unsigned long TT = 0;
+  if (WcGMA.connect("www.mdmecco.it", 80)) {
+    WcGMA.print(F("GET /ghelfa/day.php HTTP/1.1 \r\nHost: www.mdmecco.it\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n"));
+    WcGMA.flush();
+    //delay(150);
+    Ln1 = WcGMA.readStringUntil('<');
+    Ln1 = WcGMA.readStringUntil('>');
+    TT = atol(Ln1.c_str());
+    DayDate=TT;
+  }
+}
+
+
 
 unsigned long DaySec() {
   if (DayTimeB) {
@@ -542,4 +736,39 @@ int WIFIScan() {                                                                
   }
  
   return WId;
+}
+
+
+
+word EEPR(byte Id){
+  byte Eby1=0;
+  byte Eby2=0;
+  unsigned int Ev=0;
+  Ev=word(Eby2,Eby1);
+  return Ev;  
+}
+
+void EEPW(byte Id, word EvV){
+  byte Eby1=0;
+  byte Eby2=0;
+  Eby1=lowByte(EvV);
+  Eby2=highByte(EvV);
+}
+
+
+unsigned long GetValue (String Vs){
+  unsigned long dd=0;
+  dd= Vs.toInt();
+  dd=dd*1000;
+  return dd;
+}
+
+
+
+String BtnColor (int idCol){
+  if (idCol == 0){
+    return "#22ff22";
+  }else{
+    return "red";
+  }
 }

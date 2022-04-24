@@ -1,3 +1,5 @@
+#include <ESP_EEPROM.h> //https://github.com/esp8266/Arduino/blob/master/libraries/EEPROM/EEPROM.h
+
 #include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
 
@@ -7,7 +9,7 @@
 
 
 #define WEBTITPAGE "Fienile"
-#define PRGVER "2022-04-18 V1.0"
+#define PRGVER "2022-04-24 V1.2"
 #define MySIp 37
 
 // ********************** DEFINIZIONE MODULO *************************************
@@ -76,18 +78,27 @@ bool OTAActive=false;
   #define L3 4
   #define L4 5
 
+  #define Bl 15
+
 
 
 unsigned long TL1 =0;
 unsigned long TL2 =0;
 unsigned long TL3 =0;
 unsigned long TL4 =0;
+unsigned long TBl =0; //delay lampeggi
+
+
+
 
 byte BL1=0;
 byte BL2=0;
 byte BL3=0;
 byte BL4=0;
 
+unsigned long tBl=0;  //delay lampeggi programmato
+byte mBl=0; // macchina a stati dei lampeggi
+byte nBl=0; // numero di lampeggi da fare
 
 void setup() { 
   OTAActive=false;
@@ -98,12 +109,13 @@ void setup() {
   pinMode(L2, OUTPUT);
   pinMode(L3, OUTPUT);
   pinMode(L4, OUTPUT);
+  pinMode(Bl, OUTPUT);
 
   digitalWrite(L1, LOW);
   digitalWrite(L2, LOW);
   digitalWrite(L3, LOW);
   digitalWrite(L4, LOW);
-  
+  digitalWrite(Bl, HIGH);  // Si spegne quando si fa il collegamento con la wifi
 }
 
 
@@ -160,6 +172,7 @@ void loop() {
       server.begin();
       WifiMas = 100;
       GetTime();
+      digitalWrite(Bl, LOW);   // da qui sono collegato con la wifi
       break;
     case 7:
       server.begin(false);
@@ -176,6 +189,7 @@ void loop() {
       break;
     default:
       WifiMas = 0;
+      digitalWrite(Bl, HIGH);      
   }
   //**********************************************************************************
 
@@ -235,6 +249,9 @@ void loop() {
           client.print(">");
           
         }else if (NetCMDS=="L1"){
+          mBl=2;
+          nBl=3;
+          tBl=50;
           if (BL1!=0){
             BL1=7;
           }else{
@@ -242,6 +259,9 @@ void loop() {
             BL1=6;
           }
         }else if (NetCMDS=="L2"){
+          mBl=2;
+          nBl=3;
+          tBl=50;
           if (BL2!=0){
             BL2=7;
           }else{
@@ -249,6 +269,9 @@ void loop() {
             BL2=6;
           }
         }else if (NetCMDS=="L3"){
+          mBl=2;
+          nBl=3;
+          tBl=50;
           if (BL3!=0){
             BL3=7;
           }else{
@@ -256,6 +279,9 @@ void loop() {
             BL3=6;
           }
         }else if (NetCMDS=="L4"){
+          mBl=2;
+          nBl=3;
+          tBl=50;
           if (BL4!=0){
             BL4=7;
           }else{
@@ -306,6 +332,9 @@ void loop() {
 
           //***************************************L1
           io1=NetCMDS.indexOf("/L1 ");
+          mBl=2;
+          nBl=5;
+          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
@@ -319,6 +348,9 @@ void loop() {
           
           //***************************************L2
           io1=NetCMDS.indexOf("/L2 ");
+          mBl=2;
+          nBl=5;
+          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
@@ -333,6 +365,9 @@ void loop() {
 
           //***************************************L3
           io1=NetCMDS.indexOf("/L3 ");
+          mBl=2;
+          nBl=5;
+          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
@@ -346,6 +381,9 @@ void loop() {
 
           //***************************************L4
           io1=NetCMDS.indexOf("/L4 ");
+          mBl=2;
+          nBl=5;
+          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
@@ -541,6 +579,33 @@ void loop() {
   }else if (BL4==7){  // Spegni Subito
     digitalWrite(L4, LOW);
     BL4=0;
+  }
+
+
+
+// gestore del lampeggio del led di servizio
+  if (mBl != 0){
+    if (millis() > TBl){
+        if (mBl==2){
+          digitalWrite(Bl, HIGH);
+          if (nBl > 0){
+            nBl= nBl-1;
+          }
+          mBl=1;
+          TBl=millis()+tBl;
+        }else if (mBl==1){
+          digitalWrite(Bl, LOW);
+          TBl=millis()+tBl;
+          mBl=2;
+          if (nBl == 0){
+            mBl=0;
+          }
+        }else{
+          mBl=0;
+          nBl=0;
+          tBl=1000;
+        }
+    }
   }
 
 
