@@ -284,6 +284,9 @@ void loop() {
           }else if (NetCMDS=="L4"){
             SendGMA(37,"<L4-10000>");
             rp=true;
+          }else if (NetCMDS=="LUCEFOSSA"){
+            SendGMA(11,"<L1-10000>");
+            rp=true;
           }
 
           if (NetCMDS=="CFG"){
@@ -414,7 +417,7 @@ void loop() {
             client.println(F("</body>\r\n</html>"));
             
             
-          //**********************************************  L2  ****************************************************************
+          //**********************************************  R1  ****************************************************************
             client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody><tr>"));
             client.println(F("<td style=\"text-align: center; background-color:"));
             //if (BL2==5) {
@@ -433,7 +436,7 @@ void loop() {
             client.println(F("</tr></tbody></table>"));
           //*********************************************************************************************************************            
 
-          //**********************************************  L2  ****************************************************************
+          //**********************************************  R2  ****************************************************************
             client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody><tr>"));
             client.println(F("<td style=\"text-align: center; background-color:"));
             //if (BL2==5) {
@@ -451,6 +454,20 @@ void loop() {
             client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L4\" >___L4___</a></td>"));
             client.println(F("</tr></tbody></table>"));
           //*********************************************************************************************************************            
+
+          //**********************************************  R3  Luce Fossa ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody><tr>"));
+            client.println(F("<td style=\"text-align: center; background-color:"));
+            //if (BL2==5) {
+            //  client.println(BtnColor(1));
+            //}else{
+              client.println(BtnColor(0));
+            //}
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/LUCEFOSSA\" >___Luce Fossa___</a></td>"));
+            
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
 
             
             
@@ -612,16 +629,16 @@ void MyPublicIP(){
   WcGMA.stop();
 }
 
-byte GetStatusR(byte LIp){
+/*byte GetStatusR(byte MyLIp){
   WiFiClient WcGMA;
-                                                                                                                                                                                                                                                                                                                                 nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn  IPAddress LIp[192,168,1,0];
+  //IPAddress LIp[192,168,1,0];
   String Ln1="";
   if (WcGMA.connect(LIp, 80)){
     
 
   }
 }
-
+*/
 
 
 void GetStatus(){

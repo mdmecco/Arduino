@@ -1,4 +1,4 @@
-#include "A:\libraries\AAMecco\pulsanti.h"
+d#include "A:\libraries\AAMecco\pulsanti.h"
 
 #include <ArduinoOTA.h>
 #include "A:\libraries\ESP8266WiFi\src\ESP8266WiFi.h"
