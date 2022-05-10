@@ -63,9 +63,7 @@ unsigned int ETHAdc[4];
 
 unsigned long DayTimeS = 0;
 bool DayTimeB = false;
-unsigned long DayTimeR = 0;
-
-
+unsigned long DayTimeR = 10000;
 
 float MarA=35.0;
 float MarB=30.0;
@@ -143,34 +141,34 @@ Adafruit_MAX31865 max31 = Adafruit_MAX31865(16, 5, 4, 0);
 
 
 void setup() { 
+  pinMode(rMar, OUTPUT);
+  pinMode(rMau, OUTPUT);
 
-EEPROM.begin(512);
-Serial.begin(115200);
+  digitalWrite(rMau, HIGH);
+  digitalWrite(rMar, HIGH);
 
-max31.begin(MAX31865_3WIRE);  // set to 2WIRE or 4WIRE as necessary
-
-
-MarA = EEPROM.read(0);
-MarB = EEPROM.read(4);
-MauA = EEPROM.read(8);
-MauB = EEPROM.read(12);
-TMin = EEPROM.read(16);
-TMax = EEPROM.read(20);
-LifePMar = EEPROM.read(24);
-LifePMau = EEPROM.read(28);
-TOffPMar = EEPROM.read(32);
-TOffPMau = EEPROM.read(36);
-TOnPMar = EEPROM.read(40);
-TOnPMau = EEPROM.read(44);
-TCMax = EEPROM.read(48);
-
-
-pinMode(rMar, OUTPUT);
-pinMode(rMau, OUTPUT);
-
-OTAActive=false;
-
-WiFi.hostname("G030");
+  EEPROM.begin(512);
+  Serial.begin(115200);
+  
+  max31.begin(MAX31865_3WIRE);  // set to 2WIRE or 4WIRE as necessary
+  
+  MarA = EEPROM.read(0);
+  MarB = EEPROM.read(4);
+  MauA = EEPROM.read(8);
+  MauB = EEPROM.read(12);
+  TMin = EEPROM.read(16);
+  TMax = EEPROM.read(20);
+  LifePMar = EEPROM.read(24);
+  LifePMau = EEPROM.read(28);
+  TOffPMar = EEPROM.read(32);
+  TOffPMau = EEPROM.read(36);
+  TOnPMar = EEPROM.read(40);
+  TOnPMau = EEPROM.read(44);
+  TCMax = EEPROM.read(48);
+  
+  OTAActive=false;
+  
+  WiFi.hostname("G030");
 
 }
 
@@ -214,7 +212,7 @@ void loop() {
     server.begin();
     WifiMas = 100;
     //ArduinoOTA.begin();
-    GetTime();
+    //GetTime();
   } else if (WifiMas == 10) {
     WifiT0 = millis() + 5000;
     WifiMas = 11;
@@ -548,11 +546,7 @@ void loop() {
 
       client.println(F("<table style=""width:100%""  border=1>"));
       client.print(F("<tr><th width=50% align=""right"">Orario ultima accensione Impianto Mario:</th><th width=50% align=""left"">"));
-      HH=TOnPMar / 3600;
-      MM=(TOnPMar % 3600)/60;
-      client.print(String(HH));                                                                                                                                                                                                                                                                                                                        
-      client.print(F(":"));
-      client.print(String(MM));
+      client.print(STime(DaySec()));
       client.println(F("</th></tr>"));
       client.print(F("<tr> <th width=50% align=""right"">Orario ultima accensione Impianto Maurizio:</th><th width=50% align=""left"">"));
       HH=TOnPMau / 3600;
@@ -727,7 +721,7 @@ if (MaCf==0){
       EEPROM.commit();
     }
     BMar=PMar;
-    digitalWrite(rMar, PMar);
+    digitalWrite(rMar, !PMar);
   }
 
   
@@ -746,7 +740,7 @@ if (MaCf==0){
       EEPROM.commit();
     }
     BMau=PMau;
-    digitalWrite(rMau, PMau);
+    digitalWrite(rMau, !PMau);
   }
 
   if (Temp > TMax){
@@ -831,12 +825,13 @@ void LogCaldaia(String TT){
 void GetTime() {
   String Ln1 = "";
   unsigned long TT = 0;
-  if (client.connect("www.mdmecco.it", 80)) {
-    client.print(F("GET /ghelfa/time.php HTTP/1.1 \r\nHost: www.mdmecco.it\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n"));
-    client.flush();
+  WiFiClient GTime; 
+  if (GTime.connect("www.mdmecco.it", 80)) {
+    GTime.print(F("GET /ghelfa/time.php HTTP/1.1 \r\nHost: www.mdmecco.it\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n"));
+    GTime.flush();
     //delay(150);
-    Ln1 = client.readStringUntil('<');
-    Ln1 = client.readStringUntil('>');
+    Ln1 = GTime.readStringUntil('<');
+    Ln1 = GTime.readStringUntil('>');
     TT = atol(Ln1.c_str());
     if (TT > 0) {
       DayTimeB = true;
@@ -854,7 +849,8 @@ void GetTime() {
       DayTimeR = millis() + 600000;
     }
   }
-  client.stop();
+  GTime.stop();
+  //GTime.close();
   DayTimeS = TT - ((millis() / 1000) % 86400);
 }
 
