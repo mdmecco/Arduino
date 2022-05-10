@@ -23,11 +23,6 @@ EEPROM.commit() salva i dati.
 EEPROM.end() salva i dati ed elimina l'array. Dopo questo comando non � pi� possibile usare la eeprom fino a quando non si riusi il comando begin().
 */
 
-//#include <EEPROM.h>
-
-#define IPFienile 10
-#define IPNafta 27
-
 
 const IPAddress staticIP(192, 168, 1, 30);
 const char* ssid1 = "GGhelfa";
@@ -343,8 +338,8 @@ void loop() {
       io2=0;
       if (io1 > 0){
         rp=true;
-        ArduinoOTA.begin();
-        OTAActive=true;
+        OTAActive=!OTAActive;
+        ArduinoOTA.begin(OTAActive);
       }
 //**********************************************************************************************      
 
@@ -717,7 +712,7 @@ if (MaCf==0){
   }
 
 
-
+// Settaggio della pompa MARIO
   if (PMar != BMar){  
     if ((PMar)&&(!StMar)) { 
       TimePMar=millis();
@@ -732,10 +727,11 @@ if (MaCf==0){
       EEPROM.commit();
     }
     BMar=PMar;
-    digitalWrite(rMar, !PMar);
+    digitalWrite(rMar, PMar);
   }
 
   
+// Settaggio della pompa MAURIZIO
   if (PMau != BMau){  
     if ((PMau)&&(!StMau)) {
       TimePMau=millis();
@@ -750,7 +746,7 @@ if (MaCf==0){
       EEPROM.commit();
     }
     BMau=PMau;
-    digitalWrite(rMau, !PMau);
+    digitalWrite(rMau, PMau);
   }
 
   if (Temp > TMax){

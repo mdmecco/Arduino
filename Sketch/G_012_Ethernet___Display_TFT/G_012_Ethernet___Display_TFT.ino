@@ -1,3 +1,6 @@
+a#include <stdint.h>
+#include <TouchScreen.h>
+
 
 #include "Adafruit_GFX.h"
 #include "MCUFRIEND_kbv.h"
@@ -44,22 +47,20 @@ IPAddress ip(192, 168, 1, 12);
 EthernetServer server(80);
 
 
+#define YP A2  // must be an analog pin, use "An" notation!
+#define XM A3  // must be an analog pin, use "An" notation!
+#define YM 8   // can be a digital pin
+#define XP 9   // can be a digital pin
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
+
+
+
 
 
 
 unsigned long tmi =0;
 
 byte pp = 0 ;
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -168,7 +169,7 @@ void loop() {
           client.println("<!DOCTYPE HTML>");
           client.println("<html>");
           // output the value of each analog input pin
-          for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
+          /*for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
             int sensorReading = analogRead(analogChannel);
             client.print("analog input ");
             client.print(analogChannel);
@@ -176,6 +177,18 @@ void loop() {
             client.print(sensorReading);
             client.println("<br />");
           }
+          */
+          
+          TSPoint p = ts.getPoint();
+          //if (p.z > ts.pressureThreshhold) {
+             client.print("X = "); client.print(p.x);
+             client.println("<br />");
+             client.print("\tY = "); client.print(p.y);
+             client.println("<br />");
+             client.print("\tPressure = "); client.println(p.z);
+             client.println("<br />");
+         // }
+          
           client.println("</html>");
           break;
         }
