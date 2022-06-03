@@ -609,13 +609,10 @@ void SendGMA(byte IpA, String MyCmd){
     while (WcGMA.connected()){
       while (WcGMA.available()){
         char cll=WcGMA.read();
-        //Serial.print(cll);
       }
     }
-    //delay(100);
     WcGMA.flush();
     WcGMA.stop();
-    //Serial.println("--STOP--");
   }
 }
 
