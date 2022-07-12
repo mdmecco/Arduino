@@ -9,7 +9,7 @@
 #include "A:\Sketch\PMF_19_NEW\LiquidCrystal_I2C-1.1.2\LiquidCrystal_I2C.h"
 #include "A:\libraries\TinyGPS\TinyGPS++.h"
 
-//#include "A:\libraries\LiquidCrystal_I2C\LiquidCrystal_I2C.h"
+#include "A:\libraries\LiquidCrystal_I2C\LiquidCrystal_I2C.h"
 
 
 TinyGPSPlus gps;
