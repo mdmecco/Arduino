@@ -511,11 +511,11 @@ void loop() {
   
   // Attiva la pompa se la temperatura è minore, con un ciclo di isteresi di 0.4°C
   
-  if (Tem < (THome + 0.2)){
+  if (Tem < (THome - 0.2)){
     PompaOn=false;    
   }
   
-  if (Tem > (THome - 0.2)){
+  if (Tem > (THome + 0.2)){
     PompaOn=true;    
   }
 
