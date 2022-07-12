@@ -17,7 +17,7 @@ DHT dht(DHTPIN, DHTTYPE);
 #define IPNafta 27
 
 #define WEBTITPAGE "Cella"
-#define PRGVER "2022-07-10 V2.1"
+#define PRGVER "2022-07-12 V2.2"
 #define LogFile "GET /ghelfa/log.php?FileTS=Cella&StatoR="
 #define MySIp 12
 
@@ -103,7 +103,7 @@ void setup() {
   WiFi.hostname("Temp_Maurizio");
   THome = EEPROM.read(0);
   pinMode(16, OUTPUT);
-  digitalWrite(16, true);
+  digitalWrite(16, false);
 //  pinMode(7, OUTPUT);
   PompaOnB=3;
   
@@ -391,25 +391,7 @@ void loop() {
           client.print(F("</form>\r\n")); 
           //**********************************************************
     
-    
-    
-          client.println(F("<hr width=100% size=4 color=FF0000>"));
-          client.println(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""right""> Orario spedizione pompa ON</th><th width=50% align=""left"">"));
-          client.print(STime(LstSentON));
-          client.println(F("</th></tr>"));
-          client.print(F("<tr> <th width=50% align=""right""> Orario spedizione pompa OFF</th><th width=50% align=""left"">"));
-          client.print(STime(LstSentOFF));
-          client.println(F("</th></tr>"));
-          client.print(F("<tr> <th width=50% align=""right""> Stato pompa lato ambiente</th><th width=50% align=""left"">"));
-          if (PompaOn){
-            client.print("ACCESA");
-          }else{
-            client.print("SPENTA");
-          }
-          client.println(F("</th></tr>"));
-          client.print(F("</table>"));
-    
+        
     
           client.println(F("<hr width=100% size=4 color=FF0000>"));
           client.println(F("<table style=""width:100%"" border=1>"));
@@ -418,6 +400,13 @@ void loop() {
           client.println(F("</th></tr>"));
           client.print(F("<tr> <th width=50% align=""right""> Orario pompa OFF</th><th width=50% align=""left"">"));
           client.print(STime(LstOFF));
+          client.println(F("</th></tr>"));
+          client.print(F("<tr> <th width=50% align=""right""> Stato pompa</th><th width=50% align=""left"">"));
+          if (PompaOn){
+            client.print("ACCESA");
+          }else{
+            client.print("SPENTA");
+          }
           client.println(F("</th></tr>"));
           client.print(F("</table>"));
     
