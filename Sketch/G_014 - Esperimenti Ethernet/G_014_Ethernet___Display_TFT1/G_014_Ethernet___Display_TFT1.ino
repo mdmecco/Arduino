@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <SPI.h>
-#include <Ethernet.h>
 #include <TouchScreen.h>
 
+#include <Ethernet.h>
 
 #include "Adafruit_GFX.h"
 #include "MCUFRIEND_kbv.h"
@@ -12,38 +12,16 @@ MCUFRIEND_kbv tft;
 #include "Fonts/FreeSerif12pt7b.h"
 #include "FreeDefaultFonts.h"
 #define PI 3.1415926535897932384626433832795
-int col[8];
+uint16_t col[8];
 
-
-
-/*
-  Web Server
-
- A simple web server that shows the value of the analog input pins.
- using an Arduino Wiznet Ethernet shield.
-
- Circuit:
- * Ethernet shield attached to pins 10, 11, 12, 13
- * Analog inputs attached to pins A0 through A5 (optional)
-
- created 18 Dec 2009
- by David A. Mellis
- modified 9 Apr 2012
- by Tom Igoe
- modified 02 Sept 2015
- by Arturo Guadalupi
- 
- */
-
-// Enter a MAC address and IP address for your controller below.
-// The IP address will be dependent on your local network:
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192, 168, 1, 14);
+byte EtSt = 0;
 
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
 // (port 80 is default for HTTP):
-EthernetServer server(80);
+//EthernetServer server(80);
 
 
 #define YP A2  // must be an analog pin, use "An" notation!
@@ -52,46 +30,35 @@ EthernetServer server(80);
 #define XP 9   // can be a digital pin
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
-
-
-
-
-
-unsigned long tmi =0;
-
-byte pp = 0 ;
-
-
+// Color definitions
+#define BLACK 0x0000
+#define BLUE 0x001F
+#define RED 0xF800
+#define GREEN 0x07E0
+#define CYAN 0x07FF                                                                                                                                                                                                                                                       
+#define YELLOW 0xFFE0
+#define WHITE 0xFFFF
+#define GREY 0x7BEF
 
 
 void setup() {
-  //***************************TFT ********************
-    tft.reset();
     Serial.begin(9600);
+    while (!Serial) {
+      ; // wait for serial port to connect. Needed for native USB port only
+    }
+
+//***************************TFT ********************
+    tft.reset();
     uint16_t ID = tft.readID();
     tft.begin(ID);
     tft.setRotation(1);
-    tft.invertDisplay(true);
-    tft.fillScreen(0xffff);
-    showmsgXY(100, 220, 2, &FreeSans9pt7b, "TFT Display UNO");
-    showmsgXY(170, 265, 2, &FreeSans9pt7b, "Mecco");
-    col[0] = tft.color565(0, 0, 0);           //Nero
-    col[1] = tft.color565(0, 0, 255);         //Blu
-    col[2] = tft.color565(0, 255, 0);         //Verde  
-    col[3] = tft.color565(0, 0xAA, 0xAA);     //Ciano
-    col[4] = tft.color565(255, 0, 0);         //Rosso
-    col[5] = tft.color565(0xAA, 0, 0xAA);     //Magenta
-    col[6] = tft.color565(0xAA, 0x55, 0);     //Marrone
-    col[7] = tft.color565(0xAA, 0xAA, 0xAA);  //Grigio Chiaro
-    col[8] = tft.color565(0x55, 0x55, 0x55);  //Grigio Scuro
-    col[9] = tft.color565(0x55, 0x55, 0xFF);  //Blu Luminoso
-    col[10] = tft.color565(0x55, 0xFF, 0x55); //Verde Luminoso
-    col[11] = tft.color565(0x55, 0xFF, 0xFF); //Ciano Luminoso
-    col[12] = tft.color565(0xFF, 0x55, 0x55); //Rosso Luminoso
-    col[13] = tft.color565(0xFF, 0x55, 0xFF); //Magenta Luminoso
-    col[14] = tft.color565(0xFF, 0xFF, 0x55); //Giallo Luminoso
-    col[15] = tft.color565(255, 255, 255);    //Bianco
+    tft.fillScreen(0x0);
 //********************************************************
+
+    //showmsgXY(100, 220, 2, &FreeSans9pt7b, "TFT Display UNO", RED, 0x0F00);
+
+
+    
   
   // You can use Ethernet.init(pin) to configure the CS pin
   Ethernet.init(10);  // Most Arduino shields
@@ -101,12 +68,6 @@ void setup() {
   //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
   //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
 
-  // Open serial communications and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
-  Serial.println("Ethernet WebServer Example");
 
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);
@@ -131,7 +92,25 @@ void setup() {
 
 void loop() {
 
-    pp=pp+1;
+  switch(EtSt){
+    case 0:
+
+      break; 
+    case 1:
+  }
+
+
+
+
+
+    //showmsgXY(pp+50, 265,  2, &FreeSans9pt7b, "Mecco", GREEN, BLACK);
+    
+    tft.fillRect(1, 240,200,30, WHITE);
+    showmsgXY(50, 265,  2, &FreeSans9pt7b, "Mecco", BLUE, RED);
+
+
+    
+/*
     int i=pp;
 
     //TFT Cercui che ruota
@@ -146,13 +125,10 @@ void loop() {
         tft.fillCircle(240 + 40 * (cos(-(i + 7)*PI / 4)), 120 + 40 * (sin(-(i + 7)*PI / 4)), 10, col[7]); delay(15);
     //}
 
-
-
   
-  
-  showmsgXY(pp+50, 265, 2, &FreeSans9pt7b, "Mecco");
+  */
 
-  
+  /*
   // listen for incoming clients
   EthernetClient client = server.available();
   if (client) {
@@ -185,7 +161,7 @@ void loop() {
             client.println("<br />");
           }
           */
-          
+    /*      
           TSPoint p = ts.getPoint();
           //if (p.z > ts.pressureThreshhold) {
              client.print("X = "); client.print(p.x);
@@ -214,16 +190,16 @@ void loop() {
     client.stop();
     Serial.println("client disconnected");
   }
+
+  */
 }
 
 
 
-void showmsgXY(int x, int y, int sz, const GFXfont *f, const char *msg){
-  int16_t x1, y1;
-  uint16_t wid, ht;
+void showmsgXY(int x, int y, int sz, const GFXfont *f, const char *msg, uint16_t ClrF, uint16_t ClrB ){
   tft.setFont(f);
   tft.setCursor(x, y);
-  tft.setTextColor(0x0000);
+  tft.setTextColor(ClrF, ClrB);
   tft.setTextSize(sz);
   tft.print(msg);
 }
