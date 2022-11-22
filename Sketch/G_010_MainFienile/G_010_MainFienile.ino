@@ -12,7 +12,7 @@
 DHT dht(DHTPIN, DHTTYPE);
 
  
-#define PRGVER "2020-01-07 V1.0"
+#define PRGVER "2022-11-22 V1.5"
 //const String BtnColor[2] = ("green","red");
 
 
@@ -65,7 +65,7 @@ bool DayTimeB=false;
 unsigned long DayTimeR=0;
 
 //--------- definizione orario polli ------
-#define OraApri 57600
+#define OraApri 50400
 #define OraChiudi 82800
 bool APCheck=true;
 bool CPCheck=true;

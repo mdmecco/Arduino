@@ -99,16 +99,13 @@ void loop() {
     case 1:
   }
 
-
-
-
-
+/*
     //showmsgXY(pp+50, 265,  2, &FreeSans9pt7b, "Mecco", GREEN, BLACK);
     
     tft.fillRect(1, 240,200,30, WHITE);
     showmsgXY(50, 265,  2, &FreeSans9pt7b, "Mecco", BLUE, RED);
 
-
+*/
     
 /*
     int i=pp;
