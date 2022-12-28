@@ -4,6 +4,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 #include <EEPROM.h>
+#include <WiFiUdp.h>
 #include "DHT.h"
 #define DHTPIN 0
 #define DHTTYPE DHT11
@@ -130,6 +131,17 @@ unsigned int SPi=0;
 unsigned int SPb=0;
 unsigned int SPKey=0;
 bool SPKeyB=false;
+
+
+//*********************************** UDP ************************************
+WiFiUDP MUdp;
+int localUdpPort=5240;
+int packetSize=0;
+char incomingPacket[256];
+//****************************************************************************
+
+
+
 
 
 
@@ -387,7 +399,7 @@ void loop() {
             rp=false;
           }else{
             if (!OTAActive){
-              client.println(F("Refresh: 5"));
+              //client.println(F("Refresh: 5"));
             }
           }
           client.println();
@@ -490,6 +502,12 @@ void loop() {
         case 513:
           SPKeyB=true;
           SendGMA(10,"<LUCEP-ACT-01>");
+          break;
+        case 1024:
+          SPKeyB=true;
+          MUdp.beginPacket("192.168.1.13",localUdpPort );
+          MUdp.write("L1");
+          MUdp.endPacket();
           break;
         default:
           break;

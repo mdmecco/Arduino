@@ -1,6 +1,7 @@
 #include <ESP_EEPROM.h> //https://github.com/esp8266/Arduino/blob/master/libraries/EEPROM/EEPROM.h
 
 #include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
 
@@ -9,7 +10,7 @@
 
 
 #define WEBTITPAGE "ESP 8 Relè"
-#define PRGVER "2022-04-30 V1.0"
+#define PRGVER "2022-12-28 V2.0 UDP"
 #define MySIp 13
 
 // ********************** DEFINIZIONE MODULO *************************************
@@ -40,6 +41,13 @@ bool VHumid =false;
 String WiFiSt = "";
 char WiFiCh = 0;
 
+//*********************************** UDP ************************************
+WiFiUDP MUdp;
+int localUdpPort=5240;
+int packetSize=0;
+char incomingPacket[256];
+//****************************************************************************
+
 
 // Variabili per gestione rete ed ambiente
 byte NetMas = 0;
@@ -66,24 +74,19 @@ String S3;
 bool rp=false;
 bool OTAActive=false;
 
-/*
-  #define L1 15
-  #define L2 13
-  #define L3 12
-  #define L4 14
-*/
 
-  #define L1 2
-  #define L2 0
-  #define L3 4
-  #define L4 5
-  #define L5 2
-  #define L6 0
-  #define L7 4
-  #define L8 5
+  #define Acceso HIGH
+  #define Spento LOW
 
-  
-  #define Bl 15
+  #define L1 5
+  #define L2 4
+  #define L3 0
+  #define L4 15
+  #define L5 13
+  #define L6 12
+  #define L7 14
+  #define L8 16
+
 
 unsigned long TL1 =0;
 unsigned long TL2 =0;
@@ -94,7 +97,6 @@ unsigned long TL6 =0;
 unsigned long TL7 =0;
 unsigned long TL8 =0;
 
-unsigned long TBl =0; //delay lampeggi
 
 byte BL1=0;
 byte BL2=0;
@@ -106,14 +108,11 @@ byte BL7=0;
 byte BL8=0;
 
 
-unsigned long tBl=0;  //delay lampeggi programmato
-byte mBl=0; // macchina a stati dei lampeggi
-byte nBl=0; // numero di lampeggi da fare
+
 
 void setup() { 
   OTAActive=false;
   WiFi.hostname(WEBTITPAGE);
-//  Serial.begin(9600);
 
   pinMode(L1, OUTPUT);
   pinMode(L2, OUTPUT);
@@ -124,18 +123,17 @@ void setup() {
   pinMode(L7, OUTPUT);
   pinMode(L8, OUTPUT);
   
-  pinMode(Bl, OUTPUT);
-
-  digitalWrite(L1, HIGH);
-  digitalWrite(L2, HIGH);
-  digitalWrite(L3, HIGH);
-  digitalWrite(L4, HIGH);
-  digitalWrite(L5, HIGH);
-  digitalWrite(L6, HIGH);
-  digitalWrite(L7, HIGH);
-  digitalWrite(L8, HIGH);
   
-  digitalWrite(Bl, HIGH);  // Si spegne quando si fa il collegamento con la wifi
+  digitalWrite(L1, Spento);
+  digitalWrite(L2, Spento);
+  digitalWrite(L3, Spento);
+  digitalWrite(L4, Spento);
+  digitalWrite(L5, Spento);
+  digitalWrite(L6, Spento);
+  digitalWrite(L7, Spento);
+  digitalWrite(L8, Spento);
+  
+  MUdp.begin(localUdpPort);
 }
 
 
@@ -192,7 +190,7 @@ void loop() {
       server.begin();
       WifiMas = 100;
       GetTime();
-      digitalWrite(Bl, LOW);   // da qui sono collegato con la wifi
+      //digitalWrite(Bl, Acceso);   // da qui sono collegato con la wifi
       break;
     case 7:
       server.begin(false);
@@ -209,7 +207,6 @@ void loop() {
       break;
     default:
       WifiMas = 0;
-      digitalWrite(Bl, HIGH);      
   }
   //**********************************************************************************
 
@@ -269,9 +266,6 @@ void loop() {
           client.print(">");
           
         }else if (NetCMDS=="L1"){
-          mBl=2;
-          nBl=3;
-          tBl=50;
           if (BL1!=0){
             BL1=7;
           }else{
@@ -279,9 +273,6 @@ void loop() {
             BL1=6;
           }
         }else if (NetCMDS=="L2"){
-          mBl=2;
-          nBl=3;
-          tBl=50;
           if (BL2!=0){
             BL2=7;
           }else{
@@ -289,9 +280,6 @@ void loop() {
             BL2=6;
           }
         }else if (NetCMDS=="L3"){
-          mBl=2;
-          nBl=3;
-          tBl=50;
           if (BL3!=0){
             BL3=7;
           }else{
@@ -299,9 +287,6 @@ void loop() {
             BL3=6;
           }
         }else if (NetCMDS=="L4"){
-          mBl=2;
-          nBl=3;
-          tBl=50;
           if (BL4!=0){
             BL4=7;
           }else{
@@ -352,9 +337,6 @@ void loop() {
 
           //***************************************L1
           io1=NetCMDS.indexOf("/L1 ");
-          mBl=2;
-          nBl=5;
-          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
@@ -368,9 +350,6 @@ void loop() {
           
           //***************************************L2
           io1=NetCMDS.indexOf("/L2 ");
-          mBl=2;
-          nBl=5;
-          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
@@ -385,9 +364,6 @@ void loop() {
 
           //***************************************L3
           io1=NetCMDS.indexOf("/L3 ");
-          mBl=2;
-          nBl=5;
-          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
@@ -401,9 +377,6 @@ void loop() {
 
           //***************************************L4
           io1=NetCMDS.indexOf("/L4 ");
-          mBl=2;
-          nBl=5;
-          tBl=50;
           io2=0;
           if (io1 > 0){
             rp=true;
@@ -485,7 +458,6 @@ void loop() {
             client.println(F("</tr></tbody></table>"));
           //*********************************************************************************************************************            
 
-/*
           //**********************************************  L3  ****************************************************************
             client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
             client.println(F("<tr><td style=\"text-align: center; background-color:"));
@@ -510,11 +482,7 @@ void loop() {
             client.println(F("</tr></tbody></table>"));
           //*********************************************************************************************************************            
 
-  */        
-
-
-
-
+        
             
             client.println(F("</body>\r\n</html>"));
             delay(100);
@@ -538,6 +506,23 @@ void loop() {
       GetTime();
       GetDate();
     }
+
+    packetSize = MUdp.parsePacket();
+    if (packetSize){
+      int len = MUdp.read(incomingPacket, 255);
+      if (len > 0){
+        incomingPacket[len] = '\0';
+            if (BL3!=0){
+              BL3=7;
+            }else{
+              TL3=10000 + millis();
+              BL3=6;
+            }
+      }
+    }
+
+    
+
     
 
   
@@ -547,59 +532,62 @@ void loop() {
 //L1
   if (BL1==5){ //controlla se spegnere
     if ( millis() > TL1 ){
-      digitalWrite(L1, HIGH);
+      digitalWrite(L1, Spento);
       BL1=0;
     }
   }else if (BL1==6){  // Accendi la luce
-    digitalWrite(L1, LOW);
+    digitalWrite(L1, Acceso);
     BL1=5;
   }else if (BL1==7){  // Spegni Subito
-    digitalWrite(L1, HIGH);
+    digitalWrite(L1, Spento);
     BL1=0;
   }
 
 //L2
   if (BL2==5){ //controlla se spegnere
     if ( millis() > TL2 ){
-      digitalWrite(L2, HIGH);
+      digitalWrite(L2, Spento);
       BL2=0;
     }
   }else if (BL2==6){  // Accendi la luce
-    digitalWrite(L2, LOW);
+    digitalWrite(L2, Acceso);
     BL2=5;
   }else if (BL2==7){  // Spegni Subito
-    digitalWrite(L2, HIGH);
+    digitalWrite(L2, Spento);
     BL2=0;
   }
 
-
-
-
-
-// gestore del lampeggio del led di servizio
-  if (mBl != 0){
-    if (millis() > TBl){
-        if (mBl==2){
-          digitalWrite(Bl, HIGH);
-          if (nBl > 0){
-            nBl= nBl-1;
-          }
-          mBl=1;
-          TBl=millis()+tBl;
-        }else if (mBl==1){
-          digitalWrite(Bl, LOW);
-          TBl=millis()+tBl;
-          mBl=2;
-          if (nBl == 0){
-            mBl=0;
-          }
-        }else{
-          mBl=0;
-          nBl=0;
-          tBl=1000;
-        }
+//L3
+  if (BL3==5){ //controlla se spegnere
+    if ( millis() > TL3 ){
+      digitalWrite(L3, Spento);
+      BL3=0;
     }
+  }else if (BL3==6){  // Accendi la luce
+    digitalWrite(L3, Acceso);
+    BL3=5;
+  }else if (BL3==7){  // Spegni Subito
+    digitalWrite(L3, Spento);
+    BL3=0;
   }
+
+//L4
+  if (BL4==5){ //controlla se spegnere
+    if ( millis() > TL4 ){
+      digitalWrite(L4, Spento);
+      BL4=0;
+    }
+  }else if (BL4==6){  // Accendi la luce
+    digitalWrite(L4, Acceso);
+    BL4=5;
+  }else if (BL4==7){  // Spegni Subito
+    digitalWrite(L4, Spento);
+    BL4=0;
+  }
+
+
+
+
 
 
 
