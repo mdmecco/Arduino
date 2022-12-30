@@ -45,6 +45,7 @@ bool WiFiBo=false;
 String WiFiSt="";
 char WiFiCh=0;
 
+String ldl="";
 
 byte NetMas=0;
 unsigned long NetTo=0;
@@ -298,8 +299,10 @@ void loop() {
             client.println(F("<!DOCTYPE HTML>"));
             client.println(F("<html><head><meta http-equiv=""content-type"" content=""text/html; charset=UTF-8""><title>Main Fienile</title></head>"));
             client.println(F("<body>"));
-            client.print(F("<b style=""font-size:10px"">"));
+            client.print(F("<b style=""font-size:20px"">"));
             client.print(PRGVER);
+            client.print("   -   "); 
+            client.print(NetPARS);
             client.print(F("</b>"));
             if (OTAActive){
               client.print(F("<table style=""width:100%"" border=1> <tr><th width=100% align=""center""> OTA Active </th> </tr> </table> <hr width=100% size=4 color=0000FF> "));
@@ -491,14 +494,19 @@ void loop() {
 //*******************************************************************
     
     if (Serial.available()){
+      //ldl="";
       NetCMDS=Serial.readStringUntil('<');//
       NetCMDS=Serial.readStringUntil('-');//
       NetPARS=Serial.readStringUntil('-');//
       NetPARS=Serial.readStringUntil('>');//
+      //ldl=NetCMDS;
+      //ldl.concat(" --  ");
+      //ldl.concat(NetPARS);
       if (NetCMDS=="ET"){
         ETH484Sw(3);
       }else if (NetCMDS=="M1"){
         if (NetCMDS="REQ"){
+          ldl=NetPARS;
           M1Status=NetPARS;
           M1Status.concat(String(BtnColor(0)));
           M1Status.concat(String(BtnColor(1)));
@@ -506,7 +514,6 @@ void loop() {
           M1Status.concat(String(BtnColor(3)));
           //M1Status=NetCMDS;
           M1StatusR=true;
-          
         }
       }
       NetCMDS="";

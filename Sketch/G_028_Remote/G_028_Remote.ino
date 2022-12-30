@@ -163,6 +163,8 @@ void setup() {
   pinMode(12, INPUT);
   pinMode(16, OUTPUT);
   pinMode(15, OUTPUT);
+
+  OTAActive=false;
 }
 
 void loop() {
@@ -465,6 +467,11 @@ void loop() {
     tft.setTextColor(BLACK, 0xBBBBFF);
     tft.setCursor(70,2);
     tft.print(STime(DaySec()));
+    if (OTAActive) {
+      tft.setTextColor(RED, WHITE);
+      tft.print("OTA");
+      tft.setTextColor(BLACK, 0xBBBBFF);
+    }
     tft.setCursor(0,2);
     tft.print (WiFi.SSID());
     tft.setCursor(128,2);
@@ -506,8 +513,9 @@ void loop() {
         case 1024:
           SPKeyB=true;
           MUdp.beginPacket("192.168.1.13",localUdpPort );
-          MUdp.write("L1");
+          MUdp.write("L1-12345");
           MUdp.endPacket();
+          
           break;
         default:
           break;
@@ -536,6 +544,7 @@ void loop() {
         SeqL=3;
         break;
       case 3:
+        tft.setTextSize(2);
         tft.setTextColor(CYAN);
         tft.setCursor(0,40);
         tft.print("H:");
@@ -561,20 +570,23 @@ void loop() {
       tft.setTextColor(WHITE, BLACK);
       tft.print(SPb);
       tft.print("     ");
+      tft.setTextColor(WHITE, BLACK);
+      tft.print("     ");
+      
       digitalWrite(15, false);
-      SPT1=millis()+5;
+      SPT1=millis()+1;
       SPi=1;
       break;
     case 1:
       if (millis() > SPT1){ 
         digitalWrite(15, true);
-        SPT1=millis()+5;
+        SPT1=millis()+1;
         SPi=2;
         SPv=0;  
       }
       break;
     case 2:
-      SPT1=millis()+5;
+      SPT1=millis()+1;
       digitalWrite(16, true);
       SPi=3;
       break;
@@ -607,6 +619,16 @@ void loop() {
 //**************************************************************************************  
 //**************************************************************************************  
 // ************************   Codice fuori rete ****************************************
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -676,7 +698,8 @@ unsigned long DaySec() {
 
 
 
-int WIFIScan() {                                                                           //Scan delle Wifi
+int WIFIScan() {             //Scan delle Wifi
+  InitClear=true;
   int RssV = -1000;
   int H=-1;
   WId = 0;
