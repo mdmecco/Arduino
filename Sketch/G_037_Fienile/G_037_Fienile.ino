@@ -1,5 +1,5 @@
 #define WEBTITPAGE "Fienile"
-#define PRGVER "2022-04-24 V1.2"
+#define PRGVER "2022-12-31 V2.0 - UDP"
 #define MySIp 37
 
 
@@ -104,6 +104,7 @@ void setup() {
   digitalWrite(L[1], Spento);
   digitalWrite(L[2], Spento);
   digitalWrite(L[3], Spento);
+  digitalWrite(L[4], Spento);
   
   MUdp.begin(localUdpPort);
 
