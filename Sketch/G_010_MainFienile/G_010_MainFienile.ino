@@ -12,7 +12,7 @@
 DHT dht(DHTPIN, DHTTYPE);
 
  
-#define PRGVER "2022-11-22 V1.5"
+#define PRGVER "2022-12-31 V1.6"
 //const String BtnColor[2] = ("green","red");
 
 
@@ -46,7 +46,7 @@ String WiFiSt="";
 char WiFiCh=0;
 
 String ldl="";
-
+byte ccc=0;
 byte NetMas=0;
 unsigned long NetTo=0;
 char NetRdC=0;
@@ -302,7 +302,7 @@ void loop() {
             client.print(F("<b style=""font-size:20px"">"));
             client.print(PRGVER);
             client.print("   -   "); 
-            client.print(NetPARS);
+            client.print(ldl);
             client.print(F("</b>"));
             if (OTAActive){
               client.print(F("<table style=""width:100%"" border=1> <tr><th width=100% align=""center""> OTA Active </th> </tr> </table> <hr width=100% size=4 color=0000FF> "));
@@ -495,12 +495,16 @@ void loop() {
     
     if (Serial.available()){
       //ldl="";
+      //ccc=ccc+1;
       NetCMDS=Serial.readStringUntil('<');//
       NetCMDS=Serial.readStringUntil('-');//
       NetPARS=Serial.readStringUntil('-');//
       NetPARS=Serial.readStringUntil('>');//
-      //ldl=NetCMDS;
-      //ldl.concat(" --  ");
+      //ldl.concat("=>");
+      //ldl.concat(ccc);
+      //ldl.concat(" - ");
+      //ldl.concat(NetCMDS);
+      //ldl.concat(" - ");
       //ldl.concat(NetPARS);
       if (NetCMDS=="ET"){
         ETH484Sw(3);

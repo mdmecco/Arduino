@@ -117,67 +117,37 @@ void ProcDigitaIn(){
     ProcBtn(BP1,TP1,TOnActP1, TOnP1);
     if (bitRead(BP1,1)==1){
       bitWrite(BP1,1,0);
-      Serial2.print("<LAM-1>");
+      Serial2.print("<ET-LAM-0>");
     }
     //MSetDigital(1,bitRead(BP1,1));
     
     bitWrite(BP2,0,digitalRead(P2));
     ProcBtn(BP2,TP2,TOnActP2, TOnP2);
     MSetDigital(2,bitRead(BP2,1));
-    if (bitRead(BP2,1)==1){
-      bitWrite(BP2,1,0);
-      Serial2.print("<LAM-2>");
-    }
-
 
     bitWrite(BP3,0,digitalRead(P3));
     ProcBtn(BP3,TP3,TOnActP3, TOnP3);
     MSetDigital(3,bitRead(BP3,1));
-    if (bitRead(BP3,1)==1){
-      bitWrite(BP3,1,0);
-      Serial2.print("<LAM-3>");
-    }
 
     bitWrite(BP4,0,digitalRead(P4));
     ProcBtn(BP4,TP4,TOnActP4, TOnP4);
     MSetDigital(4,bitRead(BP4,1));
-    if (bitRead(BP4,1)==1){
-      bitWrite(BP4,1,0);
-      Serial2.print("<LAM-4>");
-    }
 
     bitWrite(BP5,0,digitalRead(P5));
     ProcBtn(BP5,TP5,TOnActP5, TOnP5);
     MSetDigital(5,bitRead(BP5,1));
-    if (bitRead(BP5,1)==1){
-      bitWrite(BP5,1,0);
-      Serial2.print("<LAM-5>");
-    }
-    
 
     bitWrite(BP6,0,digitalRead(P6));
     ProcBtn(BP6,TP6,TOnActP6, TOnP6);
     MSetDigital(6,bitRead(BP6,1));
-    if (bitRead(BP6,1)==1){
-      bitWrite(BP6,1,0);
-      Serial2.print("<LAM-6>");
-    }
 
     bitWrite(BP7,0,digitalRead(P7));
     ProcBtn(BP7,TP7,TOnActP7, TOnP7);
     MSetDigital(7,bitRead(BP7,1));
-    if (bitRead(BP7,1)==1){
-      bitWrite(BP7,1,0);
-      Serial2.print("<LAM-7>");
-    }
 
     bitWrite(BP8,0,digitalRead(P8));
     ProcBtn(BP8,TP8,TOnActP8, TOnP8);
     MSetDigital(8,bitRead(BP8,1));
-    if (bitRead(BP8,1)==1){
-      bitWrite(BP8,1,0);
-      Serial2.print("<LAM-8>");
-    }
 
 }
 
