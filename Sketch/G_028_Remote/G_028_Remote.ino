@@ -16,8 +16,6 @@ DHT dht(DHTPIN, DHTTYPE);
 #include <ESP8266WiFi.h>
 
 
-
-
 #include <Adafruit_GFX.h>
 // Core graphics library
 //#include <Adafruit_TFTLCD.h>
@@ -74,9 +72,6 @@ bool WiFiBo = false;
 String WiFiSt = "";
 char WiFiCh = 0;
 
-
-
-
 byte NetMas = 0;
 unsigned long NetTo = 0;
 char NetRdC = 0;
@@ -132,18 +127,13 @@ unsigned int SPb=0;
 unsigned int SPKey=0;
 bool SPKeyB=false;
 
-
 //*********************************** UDP ************************************
 WiFiUDP MUdp;
 int localUdpPort=5240;
 int packetSize=0;
 char incomingPacket[256];
+char T[]={0,0,0,0,0};
 //****************************************************************************
-
-
-
-
-
 
 void setup() { 
 
@@ -158,7 +148,6 @@ void setup() {
   tft.print("G028");
   delay(2000);
   tft.fillRect(0,0,160,128, 0);
-
 
   pinMode(12, INPUT);
   pinMode(16, OUTPUT);
@@ -488,35 +477,48 @@ void loop() {
       switch (SPb) { 
         case 2:
           SPKeyB=true;
-          SendGMA(10,"<LAMP-ACT-01>");
+          SendUDP(10,"L1",0);
           break;
         case 8:
           SPKeyB=true;
-          SendGMA(10,"<F2-ACT-01>");
+          SendUDP(10,"L5",0);
           break;
         case 4:
           SPKeyB=true;
-          SendGMA(10,"<F5-ACT-02>");
+          SendUDP(10,"L6",0);
           break;
         case 64:
           SPKeyB=true;
-          SendGMA(10,"<F3-ACT-03>");
+          SendUDP(10,"L7",0);
           break;
         case 32:
           SPKeyB=true;
-          SendGMA(10,"<F6-ACT-04>");
+          SendUDP(10,"L8",0);
           break;
-        case 513:
+        case 512:
           SPKeyB=true;
-          SendGMA(10,"<LUCEP-ACT-01>");
+          SendUDP(10,"L2",0);
           break;
         case 1024:
           SPKeyB=true;
-          MUdp.beginPacket("192.168.1.13",localUdpPort );
-          MUdp.write("L1-12345");
-          MUdp.endPacket();
-          
+          SendUDP(13,"L1",0);
           break;
+        case 2048:
+          SPKeyB=true;
+          SendUDP(37,"L1",0);
+          SendUDP(37,"L2",0);
+          break;
+        case 4096:
+          SPKeyB=true;
+          SendUDP(13,"L2",0);
+          break;
+
+        case 32768:
+          SPKeyB=true;
+          SendUDP(37,"L3",0);
+          SendUDP(37,"L4",0);
+          break;
+          
         default:
           break;
       }
@@ -777,4 +779,22 @@ long int StringToInt( String InS){
   long int dd=0;
   dd=atoi(InS.c_str());
   return dd;
+}
+
+
+void SendUDP(byte ToWho, String Cmd, unsigned long TOnTime){
+  IPAddress IpU=(192,168,1,0);
+  IpU[3]=ToWho;
+  char D[8]={0,0,0,0,0,0,0,0};
+  D[0]=Cmd.charAt(0);
+  D[1]=Cmd.charAt(1);
+  D[2]='-';
+  D[3]='0';
+  D[4]='0';
+  D[5]='0';
+  D[6]='0';
+  D[7]='0';
+  MUdp.beginPacket(IpU, localUdpPort );
+  MUdp.write(D);
+  MUdp.endPacket();
 }

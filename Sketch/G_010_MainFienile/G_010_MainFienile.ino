@@ -12,7 +12,7 @@
 DHT dht(DHTPIN, DHTTYPE);
 
  
-#define PRGVER "2022-12-31 V1.6"
+#define PRGVER "2023-01-01 V2.0  UDP"
 //const String BtnColor[2] = ("green","red");
 
 
@@ -83,6 +83,14 @@ String        M1Status ="";
 bool          M1StatusR=false;
 unsigned long M1StatusT=0;
 
+//*********************************** UDP ************************************
+WiFiUDP MUdp;
+int localUdpPort=5240;
+int packetSize=0;
+char incomingPacket[256];
+char T[]={0,0,0,0,0};
+//****************************************************************************
+
 
 
 
@@ -93,6 +101,7 @@ void setup() {
   delay(200);
   dht.begin();
   OTAActive=false;
+  MUdp.begin(localUdpPort);
 }
 
 void loop() {
@@ -562,6 +571,48 @@ void loop() {
     LogFileTimer=millis()+600000;
     LogCaldaia(SS);
   }
+
+
+//****************   UDP   **********************************************
+    packetSize = MUdp.parsePacket();
+    if (packetSize){
+      int len = MUdp.read(incomingPacket, 255);
+      if (len > 0){
+        char a=incomingPacket[0];
+        if (a='L') {
+          a=incomingPacket[1];
+          T[0]=incomingPacket[3];
+          T[1]=incomingPacket[4];
+          T[2]=incomingPacket[5];
+          T[3]=incomingPacket[6];
+          T[4]=incomingPacket[7];
+          int f=int(a)-48;
+          if (f==1){  //Lampione
+            ETH484Sw(3);
+          }else if (f==2){  //Luce Polli
+            ETH484Sw(2);
+          }else if (f==3){  //Apri Polli
+            ETH484Sw(0);
+          }else if (f==4){  //Chiude Polli
+            ETH484Sw(1);
+          }else if (f==6){  //Luce Fienile
+            Serial.print(F("<M1-ACT-02>"));
+          }else if (f==7){  //Luce Fienile
+            Serial.print(F("<M1-ACT-03>"));
+          }else if (f==8){  //Luce Fienile
+            Serial.print(F("<M1-ACT-05>"));
+          }else if (f==9){  //Luce Fienile
+            Serial.print(F("<M1-ACT-06>"));
+          }
+        }
+      }
+    }
+
+//************************************************************************
+
+
+
+
 
 
 
