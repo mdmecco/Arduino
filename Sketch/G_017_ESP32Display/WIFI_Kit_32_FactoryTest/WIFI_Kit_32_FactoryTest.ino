@@ -1,7 +1,11 @@
+
+#include "heltec.h"
+#include "WiFi.h"
+#include "images.h"
+
 #include <ArduinoJson.h>
 #include "FS.h"
 #include <LittleFS.h>
-#include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
@@ -9,9 +13,9 @@
 #include "a:\libmie\mecco1.h"
 
 
-#define WEBTITPAGE "Abat Jour Daria"
-#define PRGVER "2023-01-17 V1.0 UDP"
-#define MySIp 16
+#define WEBTITPAGE "ESP 8 Relè"
+#define PRGVER "2022-12-30 V2.0 UDP"
+#define MySIp 13
 
 // ********************** DEFINIZIONE MODULO *************************************
 const IPAddress staticIP(192, 168, 1, MySIp);
@@ -80,36 +84,31 @@ bool OTAActive=false;
   #define Acceso HIGH
   #define Spento LOW
 
-int L[9] ={2,16,4,0,15,13,12,14,5};
+byte L[9] ={2,5,4,0,15,13,12,14,16};
 
-unsigned long TL[17] ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+unsigned long TL[9] ={0,0,0,0,0,0,0,0,0};
+
 //Durate di default in millis della accensioni delle singole uscite
-unsigned long TOnAct[5] ={10000,10000,10000,10000,10000};
-byte Bf[5] ={0,0,0,0,0};
+unsigned long DL[9] ={10000,10000,10000,10000,10000,10000,10000,10000,10000};
 
-unsigned long TAct = 20;
-
-byte d =0;
-
-int AdcValue =0;
-
+byte BL[9] ={0,0,0,0,0,0,0,0,0};
 
 void setup() { 
   LittleFS.begin();
-  Serial.begin(9600);
   OTAActive=false;
   WiFi.hostname(WEBTITPAGE);
   pinMode(L[0], OUTPUT);
-  pinMode(L[1], INPUT);
-  pinMode(L[2], INPUT);
-  pinMode(L[3], INPUT);
-  pinMode(L[4], INPUT);
+  pinMode(L[1], OUTPUT);
+  pinMode(L[2], OUTPUT);
+  pinMode(L[3], OUTPUT);
+  pinMode(L[4], OUTPUT);
   pinMode(L[5], OUTPUT);
+  pinMode(L[6], OUTPUT);
+  pinMode(L[7], OUTPUT);
+  pinMode(L[8], OUTPUT);
   
   digitalWrite(L[0], Spento);
-  digitalWrite(L[5], Spento);
-  //digitalWrite(L[1], HIGH);
-  /*
+  digitalWrite(L[1], Spento);
   digitalWrite(L[2], Spento);
   digitalWrite(L[3], Spento);
   digitalWrite(L[4], Spento);
@@ -117,25 +116,20 @@ void setup() {
   digitalWrite(L[6], Spento);
   digitalWrite(L[7], Spento);
   digitalWrite(L[8], Spento);
-  digitalWrite(L[9], Spento);
-  */
+  
+  MUdp.begin(localUdpPort);
+
+  digitalWrite(L[0], Spento);
 
    if (!loadConfig()){
-      TOnAct[1] = 20000;
-      TOnAct[2] = 20000;
-      TOnAct[3] = 20000;
-      TOnAct[4] = 20000;
-      TOnAct[5] = 20000;
-      /*TOnAct[6] = 20;
-      TOnAct[7] = 20;
-      TOnAct[8] = 20;
-      DL[9] = 20;
-      DL[11] = 20;
-      DL[12] = 20;
-      DL[13] = 20;
-      DL[14] = 20;
-      DL[15] = 20;
-      DL[16] = 20;*/
+      DL[1] = 10000;
+      DL[2] = 10000;
+      DL[3] = 10000;
+      DL[4] = 10000;
+      DL[5] = 10000;
+      DL[6] = 10000;
+      DL[7] = 10000;
+      DL[8] = 10000;
    }  
 }
 
@@ -252,23 +246,26 @@ void loop() {
         break;
       case 20:
         if (NetCMDS=="STATUS"){
+          client.print("<STATUS-");
+          client.print(Status(), DEC);
+          client.print(">");
           
         }else if (NetCMDS=="L1"){
-          //Slr(1,GetValue(NetPARS));
+          Slr(1,GetValue(NetPARS));
         }else if (NetCMDS=="L2"){
-          //Slr(2,GetValue(NetPARS));
+          Slr(2,GetValue(NetPARS));
         }else if (NetCMDS=="L3"){
-          //Slr(3,GetValue(NetPARS));
+          Slr(3,GetValue(NetPARS));
         }else if (NetCMDS=="L4"){
-          //Slr(4,GetValue(NetPARS));
+          Slr(4,GetValue(NetPARS));
         }else if (NetCMDS=="L5"){
-          //Slr(5,GetValue(NetPARS));
+          Slr(5,GetValue(NetPARS));
         }else if (NetCMDS=="L6"){
-          //Slr(6,GetValue(NetPARS));
+          Slr(6,GetValue(NetPARS));
         }else if (NetCMDS=="L7"){
-          //Slr(7,GetValue(NetPARS));
+          Slr(7,GetValue(NetPARS));
         }else if (NetCMDS=="L8"){
-          //
+          Slr(8,GetValue(NetPARS));
         }
         NetMas=0;
         client.stop();
@@ -333,6 +330,7 @@ void loop() {
           io2=0;
           if (io1 > 0){
             rp=true;
+            Slr(1,0);
           } // ******************************************************************
           
           //***************************************L2
@@ -340,6 +338,7 @@ void loop() {
           io2=0;
           if (io1 > 0){
             rp=true;
+            Slr(2,0);
           } // ******************************************************************
 
 
@@ -348,13 +347,15 @@ void loop() {
           io2=0;
           if (io1 > 0){
             rp=true;
+            Slr(3,0);
           } // ******************************************************************
 
           //***************************************L4
           io1=NetCMDS.indexOf("/L4 ");
           io2=0;
           if (io1 > 0){
-             rp=true;
+            rp=true;
+            Slr(4,0);
           } // ******************************************************************
 
           //***************************************L5
@@ -362,6 +363,7 @@ void loop() {
           io2=0;
           if (io1 > 0){
             rp=true;
+            Slr(5,0);
           } // ******************************************************************
 
           //***************************************L6
@@ -369,6 +371,7 @@ void loop() {
           io2=0;
           if (io1 > 0){
             rp=true;
+            Slr(6,0);
           } // ******************************************************************
 
           //***************************************L7
@@ -376,6 +379,7 @@ void loop() {
           io2=0;
           if (io1 > 0){
             rp=true;
+            Slr(7,0);
           } // ******************************************************************
 
           //***************************************L8
@@ -383,63 +387,7 @@ void loop() {
           io2=0;
           if (io1 > 0){
             rp=true;
-          } // ******************************************************************
-
-          //***************************************L9
-          io1=NetCMDS.indexOf("/L9 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L10
-          io1=NetCMDS.indexOf("/L10 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L11
-          io1=NetCMDS.indexOf("/L11 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L12
-          io1=NetCMDS.indexOf("/L12 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L13
-          io1=NetCMDS.indexOf("/L13 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L14
-          io1=NetCMDS.indexOf("/L14 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L15
-          io1=NetCMDS.indexOf("/L15 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L16
-          io1=NetCMDS.indexOf("/L16 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-            
+            Slr(8,0);
           } // ******************************************************************
 
 
@@ -468,6 +416,8 @@ void loop() {
           client.println(F("<body>"));
           client.print(F("<b style=""font-size:10px"">"));
           client.print(PRGVER);
+          client.print("  --- Status:");
+          client.print(Status(), BIN);
           client.print(F("</b>"));
           if (OTAActive){
             client.print(F("<table style=""width:100%"" border=1> <tr><th width=100% align=""center""> OTA Active </th> </tr> </table> <hr width=100% size=4 color=0000FF> "));
@@ -499,40 +449,105 @@ void loop() {
             client.print(F("</form>")); 
 
             client.print(F("<hr width=100% size=4 color=FF0000>\r\n"));
+
+
+          //**********************************************  L1  ****************************************************************
             client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
-            client.println(F("<tr>"));
-            TButton(1);
-            TButton(2);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(3);
-            TButton(4);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(5);
-            TButton(6);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(7);
-            TButton(8);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(9);
-            TButton(10);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(11);
-            TButton(12);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(13);
-            TButton(14);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(15);
-            TButton(16);
-            client.println(F("</tr>"));
-            client.println(F("</tbody></table>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL[1]==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L1\" >___L1___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+          //**********************************************  L2  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL[2]==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L2\" >___L2___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+          //**********************************************  L3  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL[3]==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L3\" >___L3___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+          //**********************************************  L4  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL[4]==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L4\" >___L4___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+
+          //**********************************************  L5  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL[5]==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L5\" >___L5___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+          //**********************************************  L6  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL[6]==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L6\" >___L6___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+        
+          //**********************************************  L7  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL[7]==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L7\" >___L7___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+
+          //**********************************************  L8  ****************************************************************
+            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
+            client.println(F("<tr><td style=\"text-align: center; background-color:"));
+            if (BL[8]==5) {
+              client.println(BtnColor(1));
+            }else{
+              client.println(BtnColor(0));
+            }
+            client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L8\" >___L8___</a></td>"));
+            client.println(F("</tr></tbody></table>"));
+          //*********************************************************************************************************************            
+            
             client.println(F("</body>\r\n</html>"));
             delay(100);
             NetMas=0; // funzione del timeout di ricezione
@@ -559,6 +574,8 @@ void loop() {
           client.println(F("<body>"));
           client.print(F("<b style=""font-size:10px"">"));
           client.print(PRGVER);
+          client.print("  --- Status:");
+          client.print(Status(), BIN);
           client.print(F("</b>"));
           client.println(F("<table style=""width:100%"" border=1>"));
           client.print(F("<tr> <th width=50% align=""center"">"));
@@ -580,39 +597,14 @@ void loop() {
           client.print(F("</form>")); 
     
           client.print(F("<hr width=100% size=4 color=FF0000>\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.println(F("<tr>"));
           ClParam(1);
           ClParam(2);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
           ClParam(3);
           ClParam(4);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
           ClParam(5);
           ClParam(6);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
           ClParam(7);
           ClParam(8);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(9); 
-          ClParam(10);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(11);
-          ClParam(12);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(13);
-          ClParam(14);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(15);
-          ClParam(16);
-          client.println(F("</tr>"));
           client.println(F("</body>\r\n</html>"));
           delay(100);
           NetMas=200; // funzione del timeout di ricezione
@@ -646,6 +638,7 @@ void loop() {
           T[4]=incomingPacket[7];
           int f=int(a)-48;
           len=atoi(T);
+          Slr(f,len);
         }
       }
     }
@@ -654,87 +647,16 @@ void loop() {
 
     if (millis() > DayTimeR) {
       GetTime();
-      GetDate();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+      GetDate();
     }
 
-    /*
-
-    bitWrite(Bf[1],0 , (digitalRead(L[1])==0));
-    Serial.println(digitalRead(L[1]));
-    /*
-    if (digitalRead(L[1])==0){
-      Serial.println(L[1]);
-    }else{
-      Serial.println("-");
-    }
-    */
-    //Serial.println(5,BIN);
-    
-    bitWrite(Bf[1],0 , (digitalRead(L[1])==0));
-    ProcBtn(Bf[1], TAct, TOnAct[1], TL[1]);
-     if ((bitRead(Bf[1],7))==1) {
-      MUdp.beginPacket("192.168.1.13",localUdpPort );
-      MUdp.write("L1-00000");
-      MUdp.endPacket();
-    }
-
-    bitWrite(Bf[2],0 , (digitalRead(L[2])==0));
-    ProcBtn(Bf[2], TAct, TOnAct[2], TL[2]);
-     if ((bitRead(Bf[2],7))==1) {
-      MUdp.beginPacket("192.168.1.10",localUdpPort );
-      MUdp.write("L1-00000");
-      MUdp.endPacket();
-    }
-
-    bitWrite(Bf[4],0 , (digitalRead(L[4])==0));
-    ProcBtn(Bf[4], TAct, TOnAct[4], TL[4]);
-    digitalWrite(L[5],(bitRead(Bf[4],1)));
 
 
-
-
-    //}else{
-    //  Bl[17]=0;
-    //}
-    /*
-    if ((digitalRead(L[2]))==Acceso) {
-      if (Bl[16]==0){ //C
-        MUdp.beginPacket("192.168.1.13",localUdpPort );
-        MUdp.write("L2-00000");
-        MUdp.endPacket();
-        Bl[16]=1;
-      }
-    }else{
-      Bl[16]=0;
-    }
-      if ((digitalRead(L[3]))==Acceso) {
-        if (Bl[15]==0){ //B
-          MUdp.beginPacket("192.168.1.13",localUdpPort );
-          MUdp.write("L3-00000");
-          MUdp.endPacket();
-          Bl[15]=1;
-        }
-      }else{
-        Bl[15]=0;
-      }
-      if ((digitalRead(L[4]))==Acceso) {
-        if (Bl[14]==0){ //A
-          MUdp.beginPacket("192.168.1.13",localUdpPort );
-          MUdp.write("L4-00000");
-          MUdp.endPacket();
-          Bl[14]=1;
-        }
-      }else{
-        Bl[14]=0;
-      }
-  
-      */
   
 //**************************************************************************************  
   } //**********************************************************************************
 // ************************   Codice fuori rete ****************************************
 
-/*
   Olr(1);
   Olr(2);
   Olr(3);
@@ -743,47 +665,103 @@ void loop() {
   Olr(6);
   Olr(7);
   Olr(8);
- */
-
-  //AdcValue=analogRead(A0);
-  //Serial.print("ADC Value: ");
-  //Serial.println(AdcValue);
-
-  
-
-
+ 
 //**************************************************************************************
 }
 //********** fine MAIN  ***************************************************************
 //**************************************************************************************
 //------------------------------------------------- Funzioni --------------------------
 
+void Olr(byte Id){
+  if (BL[Id]==5){ //controlla se spegnere
+    if ( millis() > TL[Id] ){
+      digitalWrite(L[Id], Spento);
+      BL[Id]=0;
+    }
+  }else if (BL[Id]==6){  // Accendi la luce
+    digitalWrite(L[Id], Acceso);
+    BL[Id]=5;
+  }else if (BL[Id]==7){  // Spegni Subito
+    digitalWrite(L[Id], Spento);
+    BL[Id]=0;
+  }  
+}
+
+void Slr(byte Id, unsigned long Td){
+  if (BL[Id]!=0){
+    BL[Id]=7;
+  }else{
+    if (Td ==0) {
+      TL[Id]=DL[Id] + millis();
+    }else{
+      TL[Id]=(Td*1000) + millis();
+    }
+    BL[Id]=6;
+  }
+}
+
+byte Status (){
+  byte Stat=0;
+  if (BL[1]!=0){
+    Stat=Stat+1;
+  }
+  if (BL[2]!=0){
+    Stat=Stat+2;
+  }
+  if (BL[3]!=0){
+    Stat=Stat+4;
+  }
+  if (BL[4]!=0){
+    Stat=Stat+8;
+  }
+  if (BL[5]!=0){
+    Stat=Stat+16;
+  }
+  if (BL[6]!=0){
+    Stat=Stat+32;
+  }
+  if (BL[7]!=0){
+    Stat=Stat+64;
+  }
+  if (BL[8]!=0){
+    Stat=Stat+128;
+  }
+  return Stat;
+}
+
 
 void ClParam(byte Id){
-      client.print(F("<td><form action=""/PAR"">\r\n"));
-      client.print(F("<label>Durata Accensione in secondi canale:"));
+      client.print(F("<form action=""/PAR"));
+      client.print(F(">\r\n"));
+      client.print(F("<table style=""width:100%"" border=1>"));
+      client.print(F("<tr> <th width=50% align=""right""><label for=""-PD"));
       client.print(Id);
-      client.print(F("</label><input type=""text"" id=""-PD"));
+      client.print(F("-"">Durata Accensione in secondi canale:"));
+      client.print(Id);
+      client.print(F("</label></th>\r\n"));
+      client.print(F("<th width=50% align=""left""><input type=""text"" id=""-PD"));
       client.print(Id);
       client.print(F("-"" name=""NPPD"));
       client.print(Id);
       client.print(F("X"" value="""));
-      client.print((TOnAct[Id]/1000),DEC);
-      client.print(F(""" >"));
+      client.print((DL[Id]/1000),DEC);
+      client.print(F(""" ></th></tr></table><br>\r\n"));
       client.print(F("<input type=""submit"" value="" Submit"">\r\n"));
-      client.print(F("</form>\r\n</td>\r\n"));
+      client.print(F("</form>\r\n")); 
+      client.println(F("<hr width=100% size=4 color=FF0000>"));
 }
 
 void StParam(){
       int LId=0;
-      int io1=NetCMDS.indexOf("/PAR?NPPD")+9;
-      int io2=NetCMDS.indexOf("X");
-      S1=NetCMDS.substring(io1, io2);
+      int io1=NetCMDS.indexOf("?",io1-1)+1;
+      int io2=NetCMDS.indexOf(" ",io1);
+      io1=NetCMDS.indexOf("X")-1;
+      S1=NetCMDS.substring(io1, io1+1);
       LId=S1.toInt();
       io2=NetCMDS.indexOf("=", io1);
       io1=NetCMDS.indexOf(" ", io2);
       S2=NetCMDS.substring(io2+1,io1);
-      TOnAct[LId]=S2.toInt()*1000 ;
+      DL[LId]=S2.toInt()*1000 ;
       saveConfig();
 }
 
@@ -969,24 +947,13 @@ bool loadConfig() {
     return false;
   }
 
-  TOnAct[1]  =int(doc["DL1"]);
-  TOnAct[2]  =int(doc["DL2"]);
-  TOnAct[3]  =int(doc["DL3"]);
-  TOnAct[4]  =int(doc["DL4"]);
-  /*
-  TOnAct[5]  =int(doc["DL5"]);
+  DL[1]  =int(doc["DL1"]);
+  DL[2]  =int(doc["DL2"]);
+  DL[3]  =int(doc["DL3"]);
+  DL[5]  =int(doc["DL5"]);
   DL[6]  =int(doc["DL6"]);
   DL[7]  =int(doc["DL7"]);
   DL[8]  =int(doc["DL8"]);
-  DL[9]  =int(doc["DL9"]);
-  DL[10]  =int(doc["DL10"]);
-  DL[11]  =int(doc["DL11"]);
-  DL[12]  =int(doc["DL12"]);
-  DL[13]  =int(doc["DL13"]);
-  DL[14]  =int(doc["DL14"]);
-  DL[15]  =int(doc["DL15"]);
-  DL[16]  =int(doc["DL16"]); */
-
 
   // Real world application would store these values in some variables for
   // later use.
@@ -997,15 +964,14 @@ bool loadConfig() {
 bool saveConfig() {
   char cstr[6];
   StaticJsonDocument<200> doc;
-  sprintf(cstr, "%06d", TOnAct[1]);
+  sprintf(cstr, "%06d", DL[1]);
   doc["DL1"] = cstr;
-  sprintf(cstr, "%06d", TOnAct[2]);
+  sprintf(cstr, "%06d", DL[2]);
   doc["DL2"] = cstr;
-  sprintf(cstr, "%06d", TOnAct[3]);
+  sprintf(cstr, "%06d", DL[3]);
   doc["DL3"] = cstr;
-  sprintf(cstr, "%06d", TOnAct[4]);
+  sprintf(cstr, "%06d", DL[4]);
   doc["DL4"] = cstr;
-  /*
   sprintf(cstr, "%06d", DL[5]);
   doc["DL5"] = cstr;
   sprintf(cstr, "%06d", DL[6]);
@@ -1014,39 +980,11 @@ bool saveConfig() {
   doc["DL7"] = cstr;
   sprintf(cstr, "%06d", DL[8]);
   doc["DL8"] = cstr;
-  sprintf(cstr, "%06d", DL[9]);
-  doc["DL9"] = cstr;
-  sprintf(cstr, "%06d", DL[10]);
-  doc["DL10"] = cstr;
-  sprintf(cstr, "%06d", DL[11]);
-  doc["DL11"] = cstr;
-  sprintf(cstr, "%06d", DL[12]);
-  doc["DL12"] = cstr;
-  sprintf(cstr, "%06d", DL[13]);
-  doc["DL13"] = cstr;
-  sprintf(cstr, "%06d", DL[14]);
-  doc["DL14"] = cstr;
-  sprintf(cstr, "%06d", DL[15]);
-  doc["DL15"] = cstr;
-  sprintf(cstr, "%06d", DL[16]);
-  doc["DL16"] = cstr; */
+
   File configFile = LittleFS.open("/config.json", "w");
   if (!configFile) {
     return false;
   }
   serializeJson(doc, configFile);
   return true;
-}
-
-void TButton (byte Id ){
-  String Sid= String(Id, DEC);
-  //**********************************************  L5  ****************************************************************
-    client.println(F("<td style=\"text-align: center; background-color:"));
-    client.println(BtnColor(0));
-    client.println(F(";\"> <font face=\"Times New Roman\" size=\"+5\" >  <a href=\"/L"));
-    client.println(Sid);
-    client.println(F("\" >___L"));
-    client.println(Sid);
-    client.println(F("___</a></td>"));
-  //*********************************************************************************************************************            
 }

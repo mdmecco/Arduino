@@ -1,5 +1,3 @@
-#include <ArduinoOTA.h>
-
 /*
 
  This example polls for sketch updates over Ethernet, sketches
@@ -21,15 +19,13 @@
  
 #include <SPI.h>
 #include <Ethernet.h>
+#include <ArduinoOTA.h>
 
 //#define Serial SerialUSB
 
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-byte MyIp=14;
-IPAddress ip(192, 168, 1, MyIp);
-
 
 void setup() {
   //Initialize serial:
@@ -46,12 +42,12 @@ void setup() {
   }
 
   // start the OTEthernet library with internal (flash) based storage
-  ArduinoOTE.begin();
+  ArduinoOTA.begin(Ethernet.localIP(), "Arduino", "password", InternalStorage);
 }
 
 void loop() {
   // check for updates
-  ArduinoOTE.update();
+  ArduinoOTA.poll();
 
   // add your normal loop code below ...
 }
