@@ -1,5 +1,6 @@
 #include <SPI.h>
 #include <Ethernet.h>
+#include <EthernetUdp.h>
 #include "a:\libmie\mecco1.c"
 //#include <ArduinoOTA.h>
 #include "a:\libmie\pulsanti.c"
@@ -9,18 +10,6 @@
 
 #define WEBTITPAGE "G014"
 #define PRGVER "2023_03_03_19"
-
-/*
-typedef struct {
-  byte IdBoard = 0;                 // Indirizzo IP della scheda
-  byte fL = 0;                      // Byte di funzionamento     
-  unsigned long TOn = 60000;        // Tempo di attività    
-  unsigned long MillFellOff = 0;    // millis del momento di attivazione
-  unsigned long TAct =0 ;           // millis del momento di pressione del pulsante
-  byte IdPin = 0;                   // Id del pin di uscita del segnale
-} SLight;
-
-*/
 
 
 SLight Light[8];
@@ -58,6 +47,16 @@ byte MASEt = 0;  //Macchina a stati della connessione Ethernet, quando il valore
 EthernetServer server(80);
 
 
+//*********************************** UDP ************************************
+EthernetUDP  MUdp;
+int localUdpPort=5240;
+int packetSize=0;
+char incomingPacket[256];
+//****************************************************************************
+
+
+
+
 void setup() {
   Ethernet.init(10);  // Most Arduino shields
 
@@ -81,13 +80,57 @@ void setup() {
   Light[0].TOn = 60000;          // Tempo di attività    
   Light[0].MillFellOff = 0;      // millis del momento di attivazione
   Light[0].TAct =0 ;             // millis del momento di pressione del pulsante
-  Light[0].IdPinI = 22;          // Id del pin di uscita del segnale
-  Light[0].IdPinO = 23;          // Id del pin di uscita del segnale
+  Light[0].IdPinI = 23;          // Id del pin di uscita del segnale
+  Light[0].IdPinO = 22;          // Id del pin di uscita del segnale
   Light[0].Options=3;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
 
   pinMode(Light[0].IdPinI,INPUT);
   pinMode(Light[0].IdPinO,OUTPUT);
   digitalWrite(Light[0].IdPinI, HIGH);
+
+  Light[1].IdBoard = MyIp;       // Indirizzo IP della scheda
+  Light[1].fL = 0;               // Byte di funzionamento     
+  Light[1].TOn = 60000;          // Tempo di attività    
+  Light[1].MillFellOff = 0;      // millis del momento di attivazione
+  Light[1].TAct =0 ;             // millis del momento di pressione del pulsante
+  Light[1].IdPinI = 25;          // Id del pin di uscita del segnale
+  Light[1].IdPinO = 24;          // Id del pin di uscita del segnale
+  Light[1].Options=3;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+
+  pinMode(Light[1].IdPinI,INPUT);
+  pinMode(Light[1].IdPinO,OUTPUT);
+  digitalWrite(Light[1].IdPinI, HIGH);
+
+  Light[2].IdBoard = MyIp;       // Indirizzo IP della scheda
+  Light[2].fL = 0;               // Byte di funzionamento     
+  Light[2].TOn = 60000;          // Tempo di attività    
+  Light[2].MillFellOff = 0;      // millis del momento di attivazione
+  Light[2].TAct =0 ;             // millis del momento di pressione del pulsante
+  Light[2].IdPinI = 25;          // Id del pin di uscita del segnale
+  Light[2].IdPinO = 24;          // Id del pin di uscita del segnale
+  Light[2].Options=3;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+
+  pinMode(Light[2].IdPinI,INPUT);
+  pinMode(Light[2].IdPinO,OUTPUT);
+  digitalWrite(Light[2].IdPinI, HIGH);
+
+  Light[3].IdBoard = MyIp;       // Indirizzo IP della scheda
+  Light[3].fL = 0;               // Byte di funzionamento     
+  Light[3].TOn = 60000;          // Tempo di attività    
+  Light[3].MillFellOff = 0;      // millis del momento di attivazione
+  Light[3].TAct =0 ;             // millis del momento di pressione del pulsante
+  Light[3].IdPinI = 27;          // Id del pin di uscita del segnale
+  Light[3].IdPinO = 26;          // Id del pin di uscita del segnale
+  Light[3].Options=3;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+
+  pinMode(Light[3].IdPinI,INPUT);
+  pinMode(Light[3].IdPinO,OUTPUT);
+  digitalWrite(Light[3].IdPinI, HIGH);
+
+
+
+
+
 
 }
 
@@ -122,6 +165,7 @@ void loop() {
       if (Ethernet.linkStatus() != LinkOFF) {
         MASEt = 20;
       }
+      MUdp.begin(localUdpPort);
       break;
     case 20:
       Serial.println("Ethernet cable is connected.");
@@ -562,11 +606,13 @@ void loop() {
   //******************************************************************************************************
   //************************** Codice da eseguire sempre, dentro e fuori dalla connessione internet ******
 
-  //Serial.print(Light[0].fL, DEC);
+  
   RWIoL(Light[0]);
-  //Serial.print(" - ");
-  //Serial.println(Light[0].Options , BIN);
-  //Serial.println(Light[0].Options, BIN);
+  RWIoL(Light[1]);
+  RWIoL(Light[2]);
+  RWIoL(Light[3]);
+  
+
 }
 //****************************************** FINE LOOP **************************************************
 //*******************************************************************************************************
