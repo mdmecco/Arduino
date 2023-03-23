@@ -40,13 +40,18 @@ bool VHumid =false;
 
 String WiFiSt = "";
 char WiFiCh = 0;
-char T[]={0,0,0,0,0};
+
 
 //*********************************** UDP ************************************
 WiFiUDP MUdp;
 int localUdpPort=5240;
 int packetSize=0;
 char incomingPacket[256];
+int LenUDP=0;
+int IdL=0;
+int Tl=0;
+char InUDPL[2]={0,0};
+char InUDPT[5]={0,0,0,0,0};
 //****************************************************************************
 
 
@@ -634,22 +639,24 @@ void loop() {
 //****************   UDP   **********************************************
     packetSize = MUdp.parsePacket();
     if (packetSize){
-      int len = MUdp.read(incomingPacket, 255);
-      if (len > 0){
-        char a=incomingPacket[0];
-        if (a='L') {
-          a=incomingPacket[1];
-          T[0]=incomingPacket[3];
-          T[1]=incomingPacket[4];
-          T[2]=incomingPacket[5];
-          T[3]=incomingPacket[6];
-          T[4]=incomingPacket[7];
-          int f=int(a)-48;
-          len=atoi(T);
+      LenUDP = MUdp.read(incomingPacket, 255);
+      if (LenUDP > 5){
+        InUDPL[0]=incomingPacket[0];
+        if (InUDPL[0]='L') {
+          InUDPL[0]=incomingPacket[1];
+          InUDPL[1]=incomingPacket[2];
+          InUDPT[0]=incomingPacket[3];
+          InUDPT[1]=incomingPacket[4];
+          InUDPT[2]=incomingPacket[5];
+          InUDPT[3]=incomingPacket[6];
+          Tl=atoi(InUDPT);
+          IdL=atoi(InUDPL);
+          LenUDP=0;
         }
+      }else{
+        LenUDP=0;
       }
     }
-
 //************************************************************************
 
     if (millis() > DayTimeR) {

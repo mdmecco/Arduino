@@ -761,9 +761,9 @@ void StParam(){
       saveConfig();
 }
 
-
+/*
 bool SendGMA(byte IpA, String MyCmd){
-  String SS;
+  String SSd;
   WiFiClient WcGMA;
   GMA[3]=IpA;
   if (WcGMA.connect(GMA, 80)){
@@ -772,14 +772,15 @@ bool SendGMA(byte IpA, String MyCmd){
   WcGMA.flush();
   if (WcGMA){
     while (WcGMA.connected()){
-      SS=WcGMA.readStringUntil('>');//
-      return (SS=="<OK-00");
+      SSd=WcGMA.readStringUntil('>');//
+      return (SSd=="<OK-00");
     }
     WcGMA.flush();
     WcGMA.stop();
   }
 }
 
+*/
 
 void GetTime() {
   WiFiClient WcGMA;

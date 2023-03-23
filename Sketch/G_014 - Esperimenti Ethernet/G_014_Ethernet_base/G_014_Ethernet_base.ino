@@ -52,6 +52,11 @@ EthernetUDP  MUdp;
 int localUdpPort=5240;
 int packetSize=0;
 char incomingPacket[256];
+int LenUDP=0;
+int IdL=0;
+int Tl=0;
+char InUDPL[2];
+char InUDPT[5];
 //****************************************************************************
 
 
@@ -606,6 +611,34 @@ void loop() {
   //******************************************************************************************************
   //************************** Codice da eseguire sempre, dentro e fuori dalla connessione internet ******
 
+  
+  
+//****************   UDP   **********************************************
+    packetSize = MUdp.parsePacket();
+    if (packetSize){
+      LenUDP = MUdp.read(incomingPacket, 255);
+      if (LenUDP > 5){
+        InUDPL[0]=incomingPacket[0];
+        if (InUDPL[0]='L') {
+          InUDPL[0]=incomingPacket[1];
+          InUDPL[1]=incomingPacket[2];
+          InUDPT[0]=incomingPacket[3];
+          InUDPT[1]=incomingPacket[4];
+          InUDPT[2]=incomingPacket[5];
+          InUDPT[3]=incomingPacket[6];
+          Tl=atoi(InUDPT);
+          IdL=atoi(InUDPL);
+          LenUDP=0;
+        }
+      }else{
+        LenUDP=0;
+      }
+    }
+//************************************************************************
+
+  
+  
+  
   
   RWIoL(Light[0]);
   RWIoL(Light[1]);
