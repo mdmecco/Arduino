@@ -1,5 +1,5 @@
 #include <ArduinoJson.h>
-#include "FS.h"
+//#include "FS.h"
 #include <LittleFS.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
@@ -10,7 +10,7 @@
 
 
 #define WEBTITPAGE "Abat Jour Daria"
-#define PRGVER "2023-01-17 V1.0 UDP"
+#define PRGVER "2023-01-17 V1.1 UDP"
 #define MySIp 16
 
 // ********************** DEFINIZIONE MODULO *************************************
@@ -61,6 +61,7 @@ unsigned long NetTo = 0;
 char NetRdC = 0;
 String NetCMDS = "";
 String NetPARS = "";
+
 
 
 unsigned long DayTimeS = 0;
@@ -796,7 +797,7 @@ void StParam(){
 
 
 bool SendGMA(byte IpA, String MyCmd){
-  String SS;
+  String SS="";
   WiFiClient WcGMA;
   GMA[3]=IpA;
   if (WcGMA.connect(GMA, 80)){
@@ -811,6 +812,7 @@ bool SendGMA(byte IpA, String MyCmd){
     WcGMA.flush();
     WcGMA.stop();
   }
+  return false;
 }
 
 
