@@ -1,34 +1,20 @@
-#include <ArduinoJson.h>
-//#include "FS.h"
-#include <LittleFS.h>
-#include <ESP8266WiFi.h>
-#include <WiFiUdp.h>
-#include <ArduinoOTA.h>
-
-#include "a:\libmie\pulsanti.h"
-#include "a:\libmie\mecco1.h"
-
 
 #define WEBTITPAGE "Abat Jour Daria"
 #define PRGVER "2023-01-17 V1.1 UDP"
 #define MySIp 16
 
-// ********************** DEFINIZIONE MODULO *************************************
-const IPAddress staticIP(192, 168, 1, MySIp);
-const char* ssid1 = "GGhelfa";
-const char* password1 = "Supergino";
-const char* ssid2 = "WGhelfa";
-const char* password2 = "Lamborghini";
-const char* ssid3 = "DGhelfa";
-const char* password3 = "Lamborghini";
 
-IPAddress GMA(192, 168, 1, 0);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
+#include "a:\libmie\wifi.h"
+#include "a:\libmie\pulsanti.h"
+#include "a:\libmie\gestore.h"
+#include "a:\libmie\mecco1.h"
+#include "a:\libmie\pulsanti_b.c"
+#include "a:\libmie\PageParameter.c"
 
-IPAddress DNS(8, 8, 8, 8);
-WiFiServer server(80);
-WiFiClient client;
+
+SLight iLight[5] ;
+
+
 byte WifiMas = 0; //Macchina a stati per la connessione WIFI
 unsigned long WifiT0 = 0; // tempi di attesa per la connessione wifi
 unsigned long WifiT1 = 0;
@@ -83,17 +69,11 @@ bool OTAActive=false;
 
 // Lista Uscite utilizzate
 
-  #define Acceso HIGH
-  #define Spento LOW
 
-int L[9] ={2,16,4,0,15,13,12,14,5};
-
-unsigned long TL[17] ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  
+  
 //Durate di default in millis della accensioni delle singole uscite
-unsigned long TOnAct[5] ={10000,10000,10000,10000,10000};
-byte Bf[5] ={0,0,0,0,0};
 
-unsigned long TAct = 20;
 
 byte d =0;
 
@@ -105,28 +85,23 @@ void setup() {
   Serial.begin(9600);
   OTAActive=false;
   WiFi.hostname(WEBTITPAGE);
-  pinMode(L[0], OUTPUT);
-  pinMode(L[1], INPUT);
-  pinMode(L[2], INPUT);
-  pinMode(L[3], INPUT);
-  pinMode(L[4], INPUT);
-  pinMode(L[5], OUTPUT);
   
-  digitalWrite(L[0], Spento);
-  digitalWrite(L[5], Spento);
-  //digitalWrite(L[1], HIGH);
-  /*
-  digitalWrite(L[2], Spento);
-  digitalWrite(L[3], Spento);
-  digitalWrite(L[4], Spento);
-  digitalWrite(L[5], Spento);
-  digitalWrite(L[6], Spento);
-  digitalWrite(L[7], Spento);
-  digitalWrite(L[8], Spento);
-  digitalWrite(L[9], Spento);
-  */
+  //Lammpada locale
+  iLight[0].IdBoard = MySIp;       // Indirizzo IP della scheda
+  iLight[0].fL = 0;               // Byte di funzionamento     
+  iLight[0].TOn = 60000;          // Tempo di attività    
+  iLight[0].MillFellOff = 0;      // millis del momento di attivazione
+  iLight[0].TAct =0 ;             // millis del momento di pressione del pulsante
+  iLight[0].IdPinI = 16;          // Id del pin di uscita del segnale
+  iLight[0].IdPinO = 13;          // Id del pin di uscita del segnale
+  iLight[0].Options=3;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+  SetupSLight(iLight[0]);
+  
 
+
+ 
    if (!loadConfig()){
+  /*
       TOnAct[1] = 20000;
       TOnAct[2] = 20000;
       TOnAct[3] = 20000;
@@ -142,6 +117,8 @@ void setup() {
       DL[14] = 20;
       DL[15] = 20;
       DL[16] = 20;*/
+
+      
    }  
 }
 
@@ -160,7 +137,7 @@ void loop() {
       }
       break;    
     case 0:  
-      digitalWrite(L[0], Spento);
+      //digitalWrite(L[0], Spento);
       WifiMas = 1;
       break;
     case 1:
@@ -200,7 +177,7 @@ void loop() {
       server.begin();
       WifiMas = 100;
       GetTime();
-      digitalWrite(L[0], Acceso);   // da qui sono collegato con la wifi
+      //digitalWrite(L[0], Acceso);   // da qui sono collegato con la wifi
       break;
     case 7:
       server.begin(false);
@@ -209,7 +186,7 @@ void loop() {
       break;
     case 11:
       if (millis() > WifiT0) {
-        digitalWrite(L[0], Acceso);
+        //digitalWrite(L[0], Acceso);
         ArduinoOTA.begin(false);
         server.close();
         WiFi.disconnect();
@@ -307,7 +284,7 @@ void loop() {
 //*************************************** LETTURA VALORE PARAMETRO ***********************************
       io1=NetCMDS.indexOf("NPPD");
       if (io1 > 0){
-        StParam();
+        //StParam();
       }
 
    
@@ -588,6 +565,7 @@ void loop() {
           client.print(F("<hr width=100% size=4 color=FF0000>\r\n"));
           client.print(F("<table style=""width:100%"" border=1>"));
           client.println(F("<tr>"));
+          /*
           ClParam(1);
           ClParam(2);
           client.println(F("</tr>"));
@@ -618,6 +596,8 @@ void loop() {
           client.println(F("<tr>"));
           ClParam(15);
           ClParam(16);
+
+          */
           client.println(F("</tr>"));
           client.println(F("</body>\r\n</html>"));
           delay(100);
@@ -676,6 +656,8 @@ void loop() {
       Serial.println("-");
     }
     */
+    /*
+    
     //Serial.println(5,BIN);
     
     bitWrite(Bf[1],0 , (digitalRead(L[1])==0));
@@ -698,66 +680,15 @@ void loop() {
     ProcBtn(Bf[4], TAct, TOnAct[4], TL[4]);
     digitalWrite(L[5],(bitRead(Bf[4],1)));
 
+    */
 
-
-
-    //}else{
-    //  Bl[17]=0;
-    //}
-    /*
-    if ((digitalRead(L[2]))==Acceso) {
-      if (Bl[16]==0){ //C
-        MUdp.beginPacket("192.168.1.13",localUdpPort );
-        MUdp.write("L2-00000");
-        MUdp.endPacket();
-        Bl[16]=1;
-      }
-    }else{
-      Bl[16]=0;
-    }
-      if ((digitalRead(L[3]))==Acceso) {
-        if (Bl[15]==0){ //B
-          MUdp.beginPacket("192.168.1.13",localUdpPort );
-          MUdp.write("L3-00000");
-          MUdp.endPacket();
-          Bl[15]=1;
-        }
-      }else{
-        Bl[15]=0;
-      }
-      if ((digitalRead(L[4]))==Acceso) {
-        if (Bl[14]==0){ //A
-          MUdp.beginPacket("192.168.1.13",localUdpPort );
-          MUdp.write("L4-00000");
-          MUdp.endPacket();
-          Bl[14]=1;
-        }
-      }else{
-        Bl[14]=0;
-      }
-  
-      */
   
 //**************************************************************************************  
   } //**********************************************************************************
 // ************************   Codice fuori rete ****************************************
 
-/*
-  Olr(1);
-  Olr(2);
-  Olr(3);
-  Olr(4);
-  Olr(5);
-  Olr(6);
-  Olr(7);
-  Olr(8);
- */
 
-  //AdcValue=analogRead(A0);
-  //Serial.print("ADC Value: ");
-  //Serial.println(AdcValue);
-
-  
+  RWIoL(iLight[0]);
 
 
 //**************************************************************************************
@@ -767,33 +698,6 @@ void loop() {
 //------------------------------------------------- Funzioni --------------------------
 
 
-void ClParam(byte Id){
-      client.print(F("<td><form action=""/PAR"">\r\n"));
-      client.print(F("<label>Durata Accensione in secondi canale:"));
-      client.print(Id);
-      client.print(F("</label><input type=""text"" id=""-PD"));
-      client.print(Id);
-      client.print(F("-"" name=""NPPD"));
-      client.print(Id);
-      client.print(F("X"" value="""));
-      client.print((TOnAct[Id]/1000),DEC);
-      client.print(F(""" >"));
-      client.print(F("<input type=""submit"" value="" Submit"">\r\n"));
-      client.print(F("</form>\r\n</td>\r\n"));
-}
-
-void StParam(){
-      int LId=0;
-      int io1=NetCMDS.indexOf("/PAR?NPPD")+9;
-      int io2=NetCMDS.indexOf("X");
-      S1=NetCMDS.substring(io1, io2);
-      LId=S1.toInt();
-      io2=NetCMDS.indexOf("=", io1);
-      io1=NetCMDS.indexOf(" ", io2);
-      S2=NetCMDS.substring(io2+1,io1);
-      TOnAct[LId]=S2.toInt()*1000 ;
-      saveConfig();
-}
 
 
 bool SendGMA(byte IpA, String MyCmd){
@@ -978,6 +882,7 @@ bool loadConfig() {
     return false;
   }
 
+/*
   TOnAct[1]  =int(doc["DL1"]);
   TOnAct[2]  =int(doc["DL2"]);
   TOnAct[3]  =int(doc["DL3"]);
@@ -1006,14 +911,14 @@ bool loadConfig() {
 bool saveConfig() {
   char cstr[6];
   StaticJsonDocument<200> doc;
-  sprintf(cstr, "%06d", TOnAct[1]);
-  doc["DL1"] = cstr;
-  sprintf(cstr, "%06d", TOnAct[2]);
-  doc["DL2"] = cstr;
-  sprintf(cstr, "%06d", TOnAct[3]);
-  doc["DL3"] = cstr;
-  sprintf(cstr, "%06d", TOnAct[4]);
-  doc["DL4"] = cstr;
+  //sprintf(cstr, "%06d", TOnAct[1]);
+  //doc["DL1"] = cstr;
+  //sprintf(cstr, "%06d", TOnAct[2]);
+  //doc["DL2"] = cstr;
+  //sprintf(cstr, "%06d", TOnAct[3]);
+  //doc["DL3"] = cstr;
+  //sprintf(cstr, "%06d", TOnAct[4]);
+  //doc["DL4"] = cstr;
   /*
   sprintf(cstr, "%06d", DL[5]);
   doc["DL5"] = cstr;

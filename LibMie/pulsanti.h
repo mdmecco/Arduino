@@ -6,18 +6,6 @@
 //#define Tar 2000
 
 
-typedef struct {
-  byte IdBoard = 0;                 // Indirizzo IP della scheda
-  byte fL = 0;                      // Byte di funzionamento     
-  unsigned long TOn = 60000;        // Tempo di attività    
-  unsigned long MillFellOff = 0;    // millis del momento di attivazione
-  unsigned long TAct =0 ;           // Id del pin di uscita del segnale
-  byte IdPinI = 0;                  // millis del momento di pressione del pulsante
-  byte IdPinO = 0;                  // Id del pin di uscita del segnale
-  byte Options=0;                   // Opzioni varie
-} SLight;
-
-
 
 //*************************************** Funzione che processa i pulsanti **********************************
 void ProcBtn (byte & Bf, unsigned long & TAct, unsigned long & TOnAct , unsigned long & TOn) {
@@ -58,7 +46,7 @@ void ProcBtn (byte & Bf, unsigned long & TAct, unsigned long & TOnAct , unsigned
   if (bitRead(Bf, 7) == true) {
     bitWrite(Bf, 7, false);
   }
-  
+
   // Gestione della commutazione sequenziale di ingresso:2, bit di uscita:1, bit di gestione:3 e 5
   if (bitRead(Bf, 2) != bitRead(Bf, 5)) {
     //Serial.println("Entro nel processo");
@@ -69,7 +57,7 @@ void ProcBtn (byte & Bf, unsigned long & TAct, unsigned long & TOnAct , unsigned
         bitWrite(Bf, 1, !bitRead(Bf, 1));
         bitWrite(Bf, 7, true);
         if (bitRead(Bf, 1) == true) {
-          
+
           TOn = millis() + TOnAct;
         } else {
           TOn = 0;
