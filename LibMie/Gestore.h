@@ -14,10 +14,11 @@ typedef struct {
   unsigned long TOn = 60000;        // Tempo di attività    
   unsigned long MillFellOff = 0;    // millis del momento di attivazione
   unsigned long TAct =0 ;           // Id del pin di uscita del segnale
-  byte IdPinI = 0;                  // millis del momento di pressione del pulsante
-  byte IdPinO = 0;                  // Id del pin di uscita del segnale
+  byte IdPinI = 0xFF;                  // millis del momento di pressione del pulsante
+  byte IdPinO = 0xFF;                  // Id del pin di uscita del segnale
   byte Options=0;                   // Opzioni varie
 } SLight;
+
 
 
 

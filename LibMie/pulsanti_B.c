@@ -11,12 +11,12 @@
 
 
 void SetupSLight (SLight & DLight) {
-    if (DLight.IdPinI != 0) {
+    if (DLight.IdPinI != 0xFF) {
         pinMode(DLight.IdPinI, INPUT);
         digitalWrite(DLight.IdPinI, HIGH);  //questa attivazione serve per attivare la resistenza di pull-up
     }
     
-    if (DLight.IdPinO != 0) {
+    if (DLight.IdPinO != 0xFF) {
         pinMode(DLight.IdPinO, OUTPUT);
         digitalWrite(DLight.IdPinO, LOW);  
     }

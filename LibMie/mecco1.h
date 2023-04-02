@@ -20,3 +20,15 @@ String STime (unsigned long TTime){  // ****************  Converte in stringa or
   return Tmp;  
 }
 
+
+
+unsigned long DaySec() {
+  if (DayTimeB) {
+    return (((millis() / 1000) + DayTimeS) % 86400);
+  } else {
+    return 0;
+  }
+}
+
+
+
