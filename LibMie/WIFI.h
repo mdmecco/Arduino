@@ -35,7 +35,7 @@ IPAddress DNS(8, 8, 8, 8);
 WiFiServer server(80);
 WiFiClient client;
 
-bool rp=false;
+
 bool OTAActive=false;
 
 byte WifiMas = 0; //Macchina a stati per la connessione WIFI
@@ -49,12 +49,6 @@ unsigned long WiFiClTo = 0;
 String WiFiSt = "";
 char WiFiCh = 0;
 
-
-// funzioni per la gestione della data e ora prese dalla rete internet tramite la wifi
-unsigned long DayTimeS = 0;
-bool DayTimeB = false;
-unsigned long DayTimeR = 0;
-unsigned long DayDate=0;
 
 
 
@@ -139,7 +133,7 @@ void GetTime() {
 
 
 
-bool WifiConn(){
+bool NetConn(){
   //***************** CONNESSIONE WIFI ******************************************************
 
   switch (WifiMas){
@@ -239,8 +233,25 @@ void GetDate() {
 }
 
 
+void OTABegin(){
+    ArduinoOTA.begin(OTAActive);
+}
 
 
 
+void HeaderInfo(){          
+    client.println(F("<table style=""width:100%"" border=1>"));
+    client.print(F("<tr> <th width=50% align=""center"">"));
+    client.print(WiFi.SSID());
+    client.print(F(":"));
+    client.print(WiFi.RSSI());
+    client.println(F("</th>"));
+    client.print(F("<th width=50% align=""center"">"));
+    client.print(DayDate);
+    client.print(" - " );
+    client.print(STime(DaySec()));
+    client.println(F("</th>"));
+    client.print(F("</tr></table>"));
+}
 
 

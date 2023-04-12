@@ -8,6 +8,8 @@
 /* ========================================================================== */
 
 // Variabili per gestione rete ed ambiente
+bool rp=false;
+
 byte NetMas = 0;
 unsigned long NetTo = 0;
 char NetRdC = 0;
@@ -21,13 +23,24 @@ String S3;
 
 
 
+
+String BtnColor(int idCol) {
+  if (idCol == 0) {
+    return "#22ff22";
+  } else {
+    return "red";
+  }
+}
+
+
+
 void WebServer (){
 
 //********** SERVER ****************************************************************
     switch (NetMas){
       case 0:
         client = server.available();
-        client.setNoDelay(true);
+        //client.setNoDelay(true);
         if ((client) & (client.connected())){ // in ricezione
           NetMas=5;
           NetTo=millis()+3000;
@@ -118,7 +131,7 @@ void WebServer (){
           if (io1 > 0){
             rp=true;
             OTAActive= !OTAActive;
-            ArduinoOTA.begin(OTAActive);
+            OTABegin();            
           }
     //**********************************************************************************************      
 
@@ -279,18 +292,7 @@ void WebServer (){
           if (OTAActive){
             client.print(F("<table style=""width:100%"" border=1> <tr><th width=100% align=""center""> OTA Active </th> </tr> </table> <hr width=100% size=4 color=0000FF> "));
           }
-          client.println(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""center"">"));
-          client.print(WiFi.SSID());
-          client.print(F(":"));
-          client.print(WiFi.RSSI());
-          client.println(F("</th>"));
-          client.print(F("<th width=50% align=""center"">"));
-          client.print(DayDate);
-          client.print(" - " );
-          client.print(STime(DaySec()));
-          client.println(F("</th>"));
-          client.print(F("</tr></table>"));
+          
           //************************************************* Fine Header ******************************************************
     
         //tabelle inizio
@@ -372,18 +374,9 @@ void WebServer (){
           client.print(F("<b style=""font-size:10px"">"));
           client.print(PRGVER);
           client.print(F("</b>"));
-          client.println(F("<table style=""width:100%"" border=1>"));
-          client.print(F("<tr> <th width=50% align=""center"">"));
-          client.print(WiFi.SSID());
-          client.print(F(":"));
-          client.print(WiFi.RSSI());
-          client.println(F("</th>"));
-          client.print(F("<th width=50% align=""center"">"));
-          client.print(DayDate);
-          client.print(" - " );
-          client.print(STime(DaySec()));
-          client.println(F("</th>"));
-          client.print(F("</tr></table>"));
+          
+          void HeaderInfo();
+          
           //************************************************* Fine Header ******************************************************
           client.print(F("<hr width=100% size=4 color=FF0000>\r\n"));
           
@@ -446,3 +439,5 @@ void WebServer (){
 
 
 }
+
+

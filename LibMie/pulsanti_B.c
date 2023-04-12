@@ -9,22 +9,29 @@
 
 
 
-
-void SetupSLight (SLight & DLight) {
-    if (DLight.IdPinI != 0xFF) {
-        pinMode(DLight.IdPinI, INPUT);
-        digitalWrite(DLight.IdPinI, HIGH);  //questa attivazione serve per attivare la resistenza di pull-up
-    }
-    
-    if (DLight.IdPinO != 0xFF) {
-        pinMode(DLight.IdPinO, OUTPUT);
-        digitalWrite(DLight.IdPinO, LOW);  
+//*****************************************    SETUP Iniziale degli ingressi e uscite 
+void SetupSLight (SLight & DLight) {        
+    if (DLight.IdBoard == MyISP){
+      if (DLight.IdPinI != 0xFF) {
+          pinMode(DLight.IdPinI, INPUT);
+          digitalWrite(DLight.IdPinI, HIGH);  //questa attivazione serve per attivare la resistenza di pull-up
+      }
+      
+      if (DLight.IdPinO != 0xFF) {
+          pinMode(DLight.IdPinO, OUTPUT);
+          digitalWrite(DLight.IdPinO, LOW);  
+      }
+    }else{
+      if (DLight.LoPinI != 0xFF) {          // Se non è una uscita locale allora imposto l'ingresso del pin locale
+          pinMode(DLight.LoPinI, INPUT);
+          digitalWrite(DLight.LoPinI, HIGH);  //questa attivazione serve per attivare la resistenza di pull-up
+      }
     }
 }
 
 
 
-
+// si attiva per trasmettere il comando verso un UDP Remoto
 bool SendBtn(SLight & DLight){
     if (bitRead(DLight.fL, 7) == true){
         return true;
@@ -142,5 +149,106 @@ void RWIoL(SLight & DLight){
     }else{
         digitalWrite(DLight.IdPinO, !bitRead(DLight.fL, 1));
     }
+}
+
+
+
+
+void SetupChannel(){
+
+
+  //canali
+  iLight[0].IdBoard = 14;       // Indirizzo IP della scheda
+  iLight[0].fL = 0;               // Byte di funzionamento     
+  iLight[0].TOn = 60000;          // Tempo di attività    
+  iLight[0].MillFellOff = 0;      // millis del momento di attivazione
+  iLight[0].TAct =0 ;             // millis del momento di pressione del pulsante
+  iLight[0].IdPinI = 37;          // (Giallo) Id del pin di uscita del segnale
+  iLight[0].IdPinO = 36;          // Id del pin di uscita del segnale
+  iLight[0].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+  SetupSLight(iLight[0]);
+  
+  iLight[1].IdBoard = 14;       // Indirizzo IP della scheda
+  iLight[1].fL = 0;               // Byte di funzionamento     
+  iLight[1].TOn = 60000;          // Tempo di attività    
+  iLight[1].MillFellOff = 0;      // millis del momento di attivazione
+  iLight[1].TAct =0 ;             // millis del momento di pressione del pulsante
+  iLight[1].IdPinI = 35;          // (Giallo) Id del pin di uscita del segnale
+  iLight[1].IdPinO = 34;          // Id del pin di uscita del segnale
+  iLight[1].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+  SetupSLight(iLight[2]);
+
+  iLight[2].IdBoard = 14;       // Indirizzo IP della scheda
+  iLight[2].fL = 0;               // Byte di funzionamento     
+  iLight[2].TOn = 60000;          // Tempo di attività    
+  iLight[2].MillFellOff = 0;      // millis del momento di attivazione
+  iLight[2].TAct =0 ;             // millis del momento di pressione del pulsante
+  iLight[2].IdPinI = 33;          // (Giallo) Id del pin di uscita del segnale
+  iLight[2].IdPinO = 32;          // Id del pin di uscita del segnale
+  iLight[2].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+  SetupSLight(iLight[2]);
+
+  iLight[3].IdBoard = 14;       // Indirizzo IP della scheda
+  iLight[3].fL = 0;               // Byte di funzionamento     
+  iLight[3].TOn = 60000;          // Tempo di attività    
+  iLight[3].MillFellOff = 0;      // millis del momento di attivazione
+  iLight[3].TAct =0 ;             // millis del momento di pressione del pulsante
+  iLight[3].IdPinI = 31;          // (Giallo) Id del pin di uscita del segnale
+  iLight[3].IdPinO = 30;          // Id del pin di uscita del segnale
+  iLight[3].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+  SetupSLight(iLight[3]);
+
+  iLight[4].IdBoard = 14;       // Indirizzo IP della scheda
+  iLight[4].fL = 0;               // Byte di funzionamento     
+  iLight[4].TOn = 60000;          // Tempo di attività    
+  iLight[4].MillFellOff = 0;      // millis del momento di attivazione
+  iLight[4].TAct =0 ;             // millis del momento di pressione del pulsante
+  iLight[4].IdPinI = 29;          // (Giallo) Id del pin di uscita del segnale
+  iLight[4].IdPinO = 28;          // Id del pin di uscita del segnale
+  iLight[4].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+  SetupSLight(iLight[4]);
+
+  iLight[5].IdBoard = 14;       // Indirizzo IP della scheda
+  iLight[5].fL = 0;               // Byte di funzionamento     
+  iLight[5].TOn = 60000;          // Tempo di attività    
+  iLight[5].MillFellOff = 0;      // millis del momento di attivazione
+  iLight[5].TAct =0 ;             // millis del momento di pressione del pulsante
+  iLight[5].IdPinI = 27;          // (Giallo) Id del pin di uscita del segnale
+  iLight[5].IdPinO = 26;          // Id del pin di uscita del segnale
+  iLight[5].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+  SetupSLight(iLight[5]);
+
+  iLight[6].IdBoard = 14;       // Indirizzo IP della scheda
+  iLight[6].fL = 0;               // Byte di funzionamento     
+  iLight[6].TOn = 60000;          // Tempo di attività    
+  iLight[6].MillFellOff = 0;      // millis del momento di attivazione
+  iLight[6].TAct =0 ;             // millis del momento di pressione del pulsante
+  iLight[6].IdPinI = 25;          // (Giallo) Id del pin di uscita del segnale
+  iLight[6].IdPinO = 24;          // Id del pin di uscita del segnale
+  iLight[6].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+  SetupSLight(iLight[6]);
+
+  iLight[7].IdBoard = 14;       // Indirizzo IP della scheda
+  iLight[7].fL = 0;               // Byte di funzionamento     
+  iLight[7].TOn = 60000;          // Tempo di attività    
+  iLight[7].MillFellOff = 0;      // millis del momento di attivazione
+  iLight[7].TAct =0 ;             // millis del momento di pressione del pulsante
+  iLight[7].IdPinI = 23;          // (Giallo) Id del pin di uscita del segnale
+  iLight[7].IdPinO = 22;          // Id del pin di uscita del segnale
+  iLight[7].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+  SetupSLight(iLight[7]);
+
+
+  // abat.jour comando Daria 
+  iLight[8].IdBoard = 16;       // Indirizzo IP della scheda
+  iLight[8].fL = 0;               // Byte di funzionamento     
+  iLight[8].TOn = 60000;          // Tempo di attività    
+  iLight[8].MillFellOff = 0;      // millis del momento di attivazione
+  iLight[8].TAct =0 ;             // millis del momento di pressione del pulsante
+  iLight[8].IdPinI = 15;          // (Giallo) Id del pin di uscita del segnale
+  iLight[8].IdPinO = 13;          // Id del pin di uscita del segnale
+  iLight[8].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
+  SetupSLight(iLight[8]);
+
 }
 

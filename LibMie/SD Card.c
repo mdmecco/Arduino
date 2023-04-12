@@ -8,23 +8,30 @@
 /* ========================================================================== */
 
 
-typedef struct {
-  byte IdBoard = 0;                 // Indirizzo IP della scheda
-  byte fL = 0;                      // Byte di funzionamento     
-  unsigned long TOn = 60000;        // Tempo di attività    
-  unsigned long MillFellOff = 0;    // millis del momento di attivazione
-  unsigned long TAct =0 ;           // Id del pin di uscita del segnale
-  byte IdPinI = 0xFF;                  // millis del momento di pressione del pulsante
-  byte IdPinO = 0xFF;                  // Id del pin di uscita del segnale
-  byte LoPinI = 0xFF;
-  byte Options=0;                   // Opzioni varie
-} SLight;
+#include "SD.h"
 
 
 
-SLight iLight[20] ;
-
-
-
-
+void printDirectory(File dir, int numTabs) {
+  while (true) {
+    File entry =  dir.openNextFile();
+    if (! entry) {
+      // no more files
+      break;
+    }
+    for (uint8_t i = 0; i < numTabs; i++) {
+      client.print('\t');
+    }
+    client.print(entry.name());
+    if (entry.isDirectory()) {
+      client.println("/");
+      printDirectory(entry, numTabs + 1);
+    } else {
+      // files have sizes, directories do not
+      client.print("\t\t");
+      client.println(entry.size(), DEC);
+    }
+    entry.close();
+  }
+}
 

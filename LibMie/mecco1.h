@@ -1,5 +1,13 @@
 
 
+// funzioni per la gestione della data e ora prese dalla rete internet tramite la wifi
+unsigned long DayTimeS = 0;
+bool DayTimeB = false;
+unsigned long DayTimeR = 0;
+unsigned long DayDate=0;
+
+
+
 String STime (unsigned long TTime){  // ****************  Converte in stringa orario il numero di secondi dalla mezzanotte, o in genere un tempo in secondi in HH:MM
   unsigned int HH=(TTime / 3600);
   unsigned int MM=(TTime % 3600)/60;

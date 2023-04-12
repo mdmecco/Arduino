@@ -12,11 +12,8 @@
 #include "a:\libmie\PageParameter.c"
 #include "a:\libmie\Funzioni Rete.c"
 
-SLight iLight[5] ;
-
 
 //*********************************** UDP ************************************
-
 int localUdpPort=5240;
 int packetSize=0;
 char incomingPacket[256];
@@ -26,16 +23,6 @@ int Tl=0;
 char InUDPL[2]={0,0};
 char InUDPT[5]={0,0,0,0,0};
 //****************************************************************************
-
-
-/*
-#define ArrayLenght 255
-float TmpArray[ArrayLenght]={0};
-unsigned long ArrayTime=0;
-unsigned int ArrayI=0;
-#define ArrayRefresh 600000
-*/
-
 
 byte d =0;
 
@@ -53,54 +40,16 @@ void setup() {
   Serial.begin(9600);
   OTAActive=false;
   WiFi.hostname(WEBTITPAGE);
+
   
-  //Lammpada locale
-  iLight[0].IdBoard = MySIp;       // Indirizzo IP della scheda
-  iLight[0].fL = 0;               // Byte di funzionamento     
-  iLight[0].TOn = 60000;          // Tempo di attività    
-  iLight[0].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[0].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[0].IdPinI = 15;          // (Giallo) Id del pin di uscita del segnale
-  iLight[0].IdPinO = 13;          // Id del pin di uscita del segnale
-  iLight[0].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[0]);
+  iLight[1].LoPinI=4;   //Verde
+  iLight[2].LoPinI=16; // Rosso
+  iLight[3].LoPinI=0; // Blue
+  
+  SetupChannel();
   
 
-  //Lammpada locale
-  iLight[1].IdBoard = MySIp;       // Indirizzo IP della scheda
-  iLight[1].fL = 0;               // Byte di funzionamento     
-  iLight[1].TOn = 60000;          // Tempo di attività    
-  iLight[1].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[1].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[1].IdPinI = 0;          // (Blu) Id del pin di ingresso del segnale (Pulsante)
-  iLight[1].IdPinO = 0xFF;          // Id del pin di uscita del segnale (Uscita luce )
-  iLight[1].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[1]);
-
-
-  //Lammpada locale
-  iLight[2].IdBoard = MySIp;       // Indirizzo IP della scheda
-  iLight[2].fL = 0;               // Byte di funzionamento     
-  iLight[2].TOn = 60000;          // Tempo di attività    
-  iLight[2].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[2].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[2].IdPinI = 4;          // (Verde) Id del pin di ingresso del segnale (Pulsante)
-  iLight[2].IdPinO = 0xFF;          // Id del pin di uscita del segnale (Uscita luce )
-  iLight[2].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[2]);
-
-  //Lammpada locale
-  iLight[3].IdBoard = MySIp;       // Indirizzo IP della scheda
-  iLight[3].fL = 0;               // Byte di funzionamento     
-  iLight[3].TOn = 60000;          // Tempo di attività    
-  iLight[3].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[3].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[3].IdPinI = 16;          // (Rosso) Id del pin di ingresso del segnale (Pulsante)
-  iLight[3].IdPinO = 0xFF;          // Id del pin di uscita del segnale (Uscita luce )
-  iLight[3].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[3]);
-
- 
+  
    if (!loadConfig()){
   /*
       TOnAct[1] = 20000;
@@ -127,7 +76,7 @@ void setup() {
 
 void loop() {
   
-  if (WifiConn()){
+  if (NetConn()){
     WebServer();
     
 //*********************** codice dentro rete  ***************************
