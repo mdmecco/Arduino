@@ -8,21 +8,47 @@
 /* ========================================================================== */
 
 
+#include <ArduinoJson.h>
+
+
+
 typedef struct {
   byte IdBoard = 0;                 // Indirizzo IP della scheda
-  byte fL = 0;                      // Byte di funzionamento     
+  byte fl=0;
   unsigned long TOn = 60000;        // Tempo di attività    
   unsigned long MillFellOff = 0;    // millis del momento di attivazione
-  unsigned long TAct =0 ;           // Id del pin di uscita del segnale
-  byte IdPinI = 0xFF;                  // millis del momento di pressione del pulsante
   byte IdPinO = 0xFF;                  // Id del pin di uscita del segnale
-  byte LoPinI = 0xFF;
-  byte Options=0;                   // Opzioni varie
-} SLight;
+  bool ActOption=false;           // Serve per avere pin attivi alto o basso
+} AOut;
 
 
 
-SLight iLight[20] ;
+typedef struct {
+    byte IdBoard = 0;                 // Indirizzo IP della scheda
+    byte Id=0;                      //Id riferimento uscita
+    byte fl=0;                      //Gestione Anti-rimbalzo
+    byte IdPinI = 0xFF;             //Pin di ingresso
+    unsigned long TAct=0;           //gestione dell'antirimbalzo
+    bool ActOption=false;           // Serve per avere pin attivi alto o basso
+}   AIn;
+
+
+
+
+
+AIn   iIn[11];                    //array nr ingressi
+AOut  iOut[9] ;                  //array nr uscite    
+
+
+//*********************************** UDP ************************************
+int UdpPort=5240;
+char incomingPacket[256];
+int LenUDP=0;
+int IdL=0;
+int Tl=0;
+char InUDPL[2];
+char InUDPT[5];
+//****************************************************************************
 
 
 

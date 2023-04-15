@@ -8,7 +8,7 @@
 /* ========================================================================== */
 
 
-
+/*
 
 void ClParam(SLight & DLight){
       client.print(F("<td><form action=""/PAR"">\r\n"));
@@ -25,4 +25,4 @@ void ClParam(SLight & DLight){
       client.print(F("</form>\r\n</td>\r\n"));
 }
 
-
+*/

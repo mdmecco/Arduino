@@ -7,248 +7,304 @@
 
 
 
-
-
 //*****************************************    SETUP Iniziale degli ingressi e uscite 
-void SetupSLight (SLight & DLight) {        
-    if (DLight.IdBoard == MyISP){
-      if (DLight.IdPinI != 0xFF) {
-          pinMode(DLight.IdPinI, INPUT);
-          digitalWrite(DLight.IdPinI, HIGH);  //questa attivazione serve per attivare la resistenza di pull-up
+void SetupIn (byte Id) {          // Funzione Setup In
+    if (iOut[Id].IdBoard == MySIp){
+      if (iIn[Id].IdPinI != 0xFF) {          
+          pinMode(iIn[Id].IdPinI, INPUT);
+          digitalWrite(iIn[Id].IdPinI, HIGH);  //questa attivazione serve per attivare la resistenza di pull-up
+        }
+    }
+}
+
+void SetupOut (byte Id) {       // Funzione Setup Out        
+    if (iOut[Id].IdBoard == MySIp){
+      if (iOut[Id].IdPinO != 0xFF) {
+          pinMode(iOut[Id].IdPinO, OUTPUT);
+          digitalWrite(iOut[Id].IdPinO, LOW);  
       }
-      
-      if (DLight.IdPinO != 0xFF) {
-          pinMode(DLight.IdPinO, OUTPUT);
-          digitalWrite(DLight.IdPinO, LOW);  
-      }
+    }
+}
+
+
+/*
+
+typedef struct {
+  byte IdBoard = 0;                 // Indirizzo IP della scheda
+  bool Status=false;                // indicatore di stato    
+  unsigned long TOn = 60000;        // Tempo di attività    
+  unsigned long MillFellOff = 0;    // millis del momento di attivazione
+  byte IdPinO = 0xFF;                  // Id del pin di uscita del segnale
+  bool ActOption=false;           // Serve per avere pin attivi alto o basso
+} AOut;
+
+
+
+typedef struct {
+    byte IdBoard = 0;                 // Indirizzo IP della scheda
+    byte Id=0;                      //Id riferimento uscita
+    byte fl=0;                      //Gestione Anti-rimbalzo
+    byte IdPinI = 0xFF;             //Pin di ingresso
+    unsigned long TAct=0;           //gestione dell'antirimbalzo
+    bool ActOption=false;           // Serve per avere pin attivi alto o basso
+}   AIn;
+
+
+*/
+
+
+void RWIO(byte Id){
+  if (iIn[Id].ActOption){
+      bitWrite((iIn[Id].fl),0, digitalRead(iIn[Id].IdPinI));
+  }else{
+      bitWrite((iIn[Id].fl),0, !digitalRead(iIn[Id].IdPinI));
+  }
+
+  if (bitRead(iIn[Id].fl, 0) == true) {     //Controllo se il pulsante è nello stato precedente
+    if (bitRead(iIn[Id].fl, 2) == false) {
+        if (millis() > iIn[Id].TAct) {                       //controllo se il tempo di Anti rimbalzo è passato
+            bitWrite(iIn[Id].fl, 2, true);                   //se è passato allora attivo l'uscita
+            if (iOut[iIn[Id].Id].IdBoard != MySIp){
+                MUdp.beginPacket(iOut[iIn[Id].Id].IdBoard, UdpPort);
+                MUdp.write("B");
+                MUdp.write(iIn[Id].Id);
+                MUdp.write("E");
+                MUdp.endPacket();
+            }else{
+                bitWrite(iOut[iIn[Id].Id].fl,0,true);
+            }
+        }
+    }
+  }else{
+    iIn[Id].TAct = millis() + Tar;                         //se è cambiato da prima allora aggiorno il tempo di attivazione
+    bitWrite(iIn[Id].fl, 2, false);
+  }
+
+}
+
+
+void wOut(byte Id){
+    
+    if (bitRead(iOut[Id].fl, 1) == false){
+        if (bitRead(iOut[Id].fl, 0) == true){
+            bitWrite(iOut[Id].fl,1,true);
+            iOut[Id].MillFellOff=millis() + iOut[Id].TOn;
+        }
     }else{
-      if (DLight.LoPinI != 0xFF) {          // Se non è una uscita locale allora imposto l'ingresso del pin locale
-          pinMode(DLight.LoPinI, INPUT);
-          digitalWrite(DLight.LoPinI, HIGH);  //questa attivazione serve per attivare la resistenza di pull-up
-      }
+        if (bitRead(iOut[Id].fl, 0) == true){
+            bitWrite(iOut[Id].fl,1,false);
+        }else{
+            if (millis() > iOut[Id].MillFellOff) {
+                bitWrite(iOut[Id].fl,1,false);
+            }
+        }
+    }
+    
+    if ((bitRead(iOut[Id].fl, 1)) != (bitRead(iOut[Id].fl, 2))) {
+        if (bitRead(iOut[Id].ActOption, 1)==false){
+            digitalWrite(iOut[Id].IdPinO, bitRead(iOut[Id].fl, 1));
+        }else{
+            digitalWrite(iOut[Id].IdPinO, !bitRead(iOut[Id].fl, 1));
+        }
+        if (bitRead(iOut[Id].fl, 1)== false) {
+            bitWrite(iOut[Id].fl,2,false);
+        }else{
+            bitWrite(iOut[Id].fl,2,true);
+        }
     }
 }
-
-
-
-// si attiva per trasmettere il comando verso un UDP Remoto
-bool SendBtn(SLight & DLight){
-    if (bitRead(DLight.fL, 7) == true){
-        return true;
-    }else{
-        return false;
-    }
-}
-
-
-
-
-
-
-bool IfBtn (SLight & DLight) {
-
-  if (bitRead(DLight.Options, 0)==0){
-      bitWrite(DLight.fL,0, digitalRead(DLight.IdPinI));
-  }else{
-      bitWrite(DLight.fL,0, !digitalRead(DLight.IdPinI));
-  }
-
-
-  if (bitRead(DLight.fL, 0) == true) {     //Controllo se il pulsante è nello stato precedente
-    if (bitRead(DLight.fL, 2) == false) {
-      if (millis() > DLight.TAct) {                       //controllo se il tempo di Anti rimbalzo è passato
-          bitWrite(DLight.fL, 2, true);                   //se è passato allora attivo l'uscita
-          return true;
-      }
-    }
-    return false;
-  }else{
-    DLight.TAct = millis() + Tar;                         //se è cambiato da prima allora aggiorno il tempo di attivazione
-    bitWrite(DLight.fL, 2, false);
-    return false;
-  }
-
-}
-
-
-
-void ProcBtn1 (SLight & DLight) {
-  // Gestione meccanismo di antirimbalzo bit di ingresso:0, bit di uscita:2, bit di gestione:4
-  //bit 0 ingresso                                                      Deve essere attivata dall'ingresso
-  //bit 1 uscita                                                        Attiva una uscita con uno stato bistabile
-  //bit 2 stato pulsante con antirimbalzo                               Attiva l'uscita come monostabile però senza il rimbalzo
-  //bit 3 not used
-  //bit 4 stato precedente dinamico
-  //bit 5 gestione stato commutazione
-  //bit 6 Gestione del comando a pulsante da remoto
-  //bit 7 va ad 1 alla attivazione del bit 1 (quindi il pulsante con controllo di stato) solo per 1 ciclo
-
-
-  if (bitRead(DLight.fL, 0) == true) {     //Controllo se il pulsante è nello stato precedente
-    if (bitRead(DLight.fL, 2) == false) {
-      if (millis() > DLight.TAct) {                       //controllo se il tempo di Anti rimbalzo è passato
-          bitWrite(DLight.fL, 2, true);                   //se è passato allora attivo l'uscita
-      }
-    }
-  }else{
-    DLight.TAct = millis() + Tar;                         //se è cambiato da prima allora aggiorno il tempo di attivazione
-    bitWrite(DLight.fL, 2, false);
-  }
 
  
-  // Attivazione da remoto
-  if (bitRead(DLight.fL, 6) == true) {
-    bitWrite(DLight.fL, 6, false);
-    bitWrite(DLight.fL, 2, true);
-  }
-
-  if (bitRead(DLight.fL, 7) == true) {
-    bitWrite(DLight.fL, 7, false);
-  }
-  
-  if (bitRead(DLight.fL, 2) == true) {
-    if (bitRead(DLight.fL, 4)== false ){
-      if (bitRead(DLight.fL, 5)== false ){
-        bitWrite(DLight.fL, 1, true);
-        bitWrite(DLight.fL, 5, true);
-        bitWrite(DLight.fL, 4, true);
-        bitWrite(DLight.fL, 7, true);
-        if (bitRead(DLight.fL, 1) == true){
-            DLight.MillFellOff = millis() + DLight.TOn;
-        }else{
-            DLight.MillFellOff = 0;
-        }
-      }else{
-        bitWrite(DLight.fL, 1, false);
-        bitWrite(DLight.fL, 5, false);
-        bitWrite(DLight.fL, 7, true);
-        bitWrite(DLight.fL, 4, true);
-      }
-    }
-  }else{ 
-    bitWrite(DLight.fL, 4, false);
-    if ((bitRead(DLight.fL, 1) == true) && (DLight.MillFellOff != 0) && (millis() > DLight.MillFellOff)) {
-      bitWrite(DLight.fL, 1, false);
-      bitWrite(DLight.fL, 5, false);
-      DLight.MillFellOff = 0;
-    }
-  }
-}
-
-
-void RWIoL(SLight & DLight){
-    // funzione di lettura ingresso, processo gestione e scrittura uscita
-    if (bitRead(DLight.Options, 0)==0){
-        bitWrite(DLight.fL,0, digitalRead(DLight.IdPinI));
-    }else{
-        bitWrite(DLight.fL,0, !digitalRead(DLight.IdPinI));
-    }
-    ProcBtn1(DLight);
-    if (bitRead(DLight.Options, 1)==0){
-        digitalWrite(DLight.IdPinO, bitRead(DLight.fL, 1));
-    }else{
-        digitalWrite(DLight.IdPinO, !bitRead(DLight.fL, 1));
-    }
-}
-
 
 
 
 void SetupChannel(){
+// qui ci sono tutti i canali usati dalle varie centraline
+// con la configurazione completa
 
+// Scheda nr 16
+    //P Rosso
+    iIn[0].IdBoard = 16;        // Indirizzo IP della schedaiOut
+    iIn[0].Id=3;              //Id riferimento Ingresso
+    iIn[0].fl=0;              //Gestione Anti-rimbalzo
+    iIn[0].IdPinI = 16;       //Pin di ingresso 
+    iIn[0].TAct=0;            //gestione dell'antirimbalzo
+    iIn[0].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(0);
+    
+    //P Verde
+    iIn[1].IdBoard = 16;        // Indirizzo IP della schedaiOut
+    iIn[1].Id=1;              //Id riferimento Ingresso
+    iIn[1].fl=0;              //Gestione Anti-rimbalzo
+    iIn[1].IdPinI = 4;        //Pin di ingresso 
+    iIn[1].TAct=0;            //gestione dell'antirimbalzo
+    iIn[1].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(1);
+    
+    //P Blue
+    iIn[2].IdBoard = 16;        // Indirizzo IP della schedaiOut
+    iIn[2].Id=2;              //Id riferimento Ingresso
+    iIn[2].fl=0;              //Gestione Anti-rimbalzo
+    iIn[2].IdPinI = 0;        //Pin di ingresso 
+    iIn[2].TAct=0;            //gestione dell'antirimbalzo
+    iIn[2].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(2);
+    
+    //P Giallo
+    iIn[3].IdBoard = 16;        // Indirizzo IP della schedaiOut
+    iIn[3].Id=0;              //Id riferimento Ingresso
+    iIn[3].fl=0;              //Gestione Anti-rimbalzo
+    iIn[3].IdPinI = 15;       //Pin di ingresso 
+    iIn[3].TAct=0;            //gestione dell'antirimbalzo
+    iIn[3].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(3);
+    
+    iOut[0].IdBoard = 16;        // Indirizzo IP della schedaiOut
+    iOut[0].TOn = 60000;        // Tempo di attività    
+    iOut[0].MillFellOff = 0;    // millis del momento di attivazione
+    iOut[0].IdPinO = 13;      // Id del pin di uscita del segnale
+    iOut[0].ActOption=false;    // Serve per avere pin attivi alto o basso
+    SetupOut(0);
 
-  //canali
-  iLight[0].IdBoard = 14;       // Indirizzo IP della scheda
-  iLight[0].fL = 0;               // Byte di funzionamento     
-  iLight[0].TOn = 60000;          // Tempo di attività    
-  iLight[0].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[0].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[0].IdPinI = 37;          // (Giallo) Id del pin di uscita del segnale
-  iLight[0].IdPinO = 36;          // Id del pin di uscita del segnale
-  iLight[0].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[0]);
-  
-  iLight[1].IdBoard = 14;       // Indirizzo IP della scheda
-  iLight[1].fL = 0;               // Byte di funzionamento     
-  iLight[1].TOn = 60000;          // Tempo di attività    
-  iLight[1].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[1].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[1].IdPinI = 35;          // (Giallo) Id del pin di uscita del segnale
-  iLight[1].IdPinO = 34;          // Id del pin di uscita del segnale
-  iLight[1].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[2]);
+// Scheda nr 14
+    iIn[4].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iIn[4].Id=2;              //Id riferimento Ingresso
+    iIn[4].fl=0;              //Gestione Anti-rimbalzo
+    iIn[4].IdPinI = 23;       //Pin di ingresso 
+    iIn[4].TAct=0;            //gestione dell'antirimbalzo
+    iIn[4].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(4);
 
-  iLight[2].IdBoard = 14;       // Indirizzo IP della scheda
-  iLight[2].fL = 0;               // Byte di funzionamento     
-  iLight[2].TOn = 60000;          // Tempo di attività    
-  iLight[2].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[2].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[2].IdPinI = 33;          // (Giallo) Id del pin di uscita del segnale
-  iLight[2].IdPinO = 32;          // Id del pin di uscita del segnale
-  iLight[2].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[2]);
+    iIn[5].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iIn[5].Id=3;              //Id riferimento Ingresso
+    iIn[5].fl=0;              //Gestione Anti-rimbalzo
+    iIn[5].IdPinI = 25;       //Pin di ingresso 
+    iIn[5].TAct=0;            //gestione dell'antirimbalzo
+    iIn[5].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(5);
 
-  iLight[3].IdBoard = 14;       // Indirizzo IP della scheda
-  iLight[3].fL = 0;               // Byte di funzionamento     
-  iLight[3].TOn = 60000;          // Tempo di attività    
-  iLight[3].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[3].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[3].IdPinI = 31;          // (Giallo) Id del pin di uscita del segnale
-  iLight[3].IdPinO = 30;          // Id del pin di uscita del segnale
-  iLight[3].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[3]);
+    iIn[6].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iIn[6].Id=4;              //Id riferimento Ingresso
+    iIn[6].fl=0;              //Gestione Anti-rimbalzo
+    iIn[6].IdPinI = 27;       //Pin di ingresso 
+    iIn[6].TAct=0;            //gestione dell'antirimbalzo
+    iIn[6].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(6);
 
-  iLight[4].IdBoard = 14;       // Indirizzo IP della scheda
-  iLight[4].fL = 0;               // Byte di funzionamento     
-  iLight[4].TOn = 60000;          // Tempo di attività    
-  iLight[4].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[4].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[4].IdPinI = 29;          // (Giallo) Id del pin di uscita del segnale
-  iLight[4].IdPinO = 28;          // Id del pin di uscita del segnale
-  iLight[4].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[4]);
+    iIn[7].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iIn[7].Id=5;              //Id riferimento Ingresso
+    iIn[7].fl=0;              //Gestione Anti-rimbalzo
+    iIn[7].IdPinI = 29;       //Pin di ingresso 
+    iIn[7].TAct=0;            //gestione dell'antirimbalzo
+    iIn[7].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(7);
 
-  iLight[5].IdBoard = 14;       // Indirizzo IP della scheda
-  iLight[5].fL = 0;               // Byte di funzionamento     
-  iLight[5].TOn = 60000;          // Tempo di attività    
-  iLight[5].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[5].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[5].IdPinI = 27;          // (Giallo) Id del pin di uscita del segnale
-  iLight[5].IdPinO = 26;          // Id del pin di uscita del segnale
-  iLight[5].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[5]);
+    iIn[8].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iIn[8].Id=6;              //Id riferimento Ingresso
+    iIn[8].fl=0;              //Gestione Anti-rimbalzo
+    iIn[8].IdPinI = 31;       //Pin di ingresso 
+    iIn[8].TAct=0;            //gestione dell'antirimbalzo
+    iIn[8].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(8);
 
-  iLight[6].IdBoard = 14;       // Indirizzo IP della scheda
-  iLight[6].fL = 0;               // Byte di funzionamento     
-  iLight[6].TOn = 60000;          // Tempo di attività    
-  iLight[6].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[6].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[6].IdPinI = 25;          // (Giallo) Id del pin di uscita del segnale
-  iLight[6].IdPinO = 24;          // Id del pin di uscita del segnale
-  iLight[6].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[6]);
+    iIn[9].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iIn[9].Id=7;              //Id riferimento Ingresso
+    iIn[9].fl=0;              //Gestione Anti-rimbalzo
+    iIn[9].IdPinI = 33;       //Pin di ingresso 
+    iIn[9].TAct=0;            //gestione dell'antirimbalzo
+    iIn[9].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(9);
 
-  iLight[7].IdBoard = 14;       // Indirizzo IP della scheda
-  iLight[7].fL = 0;               // Byte di funzionamento     
-  iLight[7].TOn = 60000;          // Tempo di attività    
-  iLight[7].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[7].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[7].IdPinI = 23;          // (Giallo) Id del pin di uscita del segnale
-  iLight[7].IdPinO = 22;          // Id del pin di uscita del segnale
-  iLight[7].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[7]);
+    iIn[10].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iIn[10].Id=8;              //Id riferimento Ingresso
+    iIn[10].fl=0;              //Gestione Anti-rimbalzo
+    iIn[10].IdPinI = 35;       //Pin di ingresso 
+    iIn[10].TAct=0;            //gestione dell'antirimbalzo
+    iIn[10].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(10);
 
+    iIn[11].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iIn[11].Id=9;              //Id riferimento Ingresso
+    iIn[11].fl=0;              //Gestione Anti-rimbalzo
+    iIn[11].IdPinI = 37;       //Pin di ingresso 
+    iIn[11].TAct=0;            //gestione dell'antirimbalzo
+    iIn[11].ActOption=false;   // Serve per avere pin attivi alto o basso
+    SetupIn(11);
 
-  // abat.jour comando Daria 
-  iLight[8].IdBoard = 16;       // Indirizzo IP della scheda
-  iLight[8].fL = 0;               // Byte di funzionamento     
-  iLight[8].TOn = 60000;          // Tempo di attività    
-  iLight[8].MillFellOff = 0;      // millis del momento di attivazione
-  iLight[8].TAct =0 ;             // millis del momento di pressione del pulsante
-  iLight[8].IdPinI = 15;          // (Giallo) Id del pin di uscita del segnale
-  iLight[8].IdPinO = 13;          // Id del pin di uscita del segnale
-  iLight[8].Options=0;            // Indica il tipo di ingresso ed uscita da usare per i canali attivi alto o basso 
-  SetupSLight(iLight[8]);
+    iOut[1].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iOut[1].TOn = 60000;        // Tempo di attività    
+    iOut[1].MillFellOff = 0;    // millis del momento di attivazione
+    iOut[1].IdPinO = 22;      // Id del pin di uscita del segnale
+    iOut[1].ActOption=false;    // Serve per avere pin attivi alto o basso
+    SetupOut(1);
+    
+    iOut[2].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iOut[2].TOn = 60000;        // Tempo di attività    
+    iOut[2].MillFellOff = 0;    // millis del momento di attivazione
+    iOut[2].IdPinO = 24;      // Id del pin di uscita del segnale
+    iOut[2].ActOption=false;    // Serve per avere pin attivi alto o basso
+    SetupOut(2);
+
+    iOut[3].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iOut[3].TOn = 60000;        // Tempo di attività    
+    iOut[3].MillFellOff = 0;    // millis del momento di attivazione
+    iOut[3].IdPinO = 26;      // Id del pin di uscita del segnale
+    iOut[3].ActOption=false;    // Serve per avere pin attivi alto o basso
+    SetupOut(3);
+
+    iOut[4].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iOut[4].TOn = 60000;        // Tempo di attività    
+    iOut[4].MillFellOff = 0;    // millis del momento di attivazione
+    iOut[4].IdPinO = 28;      // Id del pin di uscita del segnale
+    iOut[4].ActOption=false;    // Serve per avere pin attivi alto o basso
+    SetupOut(4);
+
+    iOut[5].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iOut[5].TOn = 60000;        // Tempo di attività    
+    iOut[5].MillFellOff = 0;    // millis del momento di attivazione
+    iOut[5].IdPinO = 30;      // Id del pin di uscita del segnale
+    iOut[5].ActOption=false;    // Serve per avere pin attivi alto o basso
+    SetupOut(5);
+    
+    iOut[6].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iOut[6].TOn = 60000;        // Tempo di attività    
+    iOut[6].MillFellOff = 0;    // millis del momento di attivazione
+    iOut[6].IdPinO = 32;      // Id del pin di uscita del segnale
+    iOut[6].ActOption=false;    // Serve per avere pin attivi alto o basso
+    SetupOut(6);
+
+    iOut[7].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iOut[7].TOn = 60000;        // Tempo di attività    
+    iOut[7].MillFellOff = 0;    // millis del momento di attivazione
+    iOut[7].IdPinO = 34;      // Id del pin di uscita del segnale
+    iOut[7].ActOption=false;    // Serve per avere pin attivi alto o basso
+    SetupOut(7);
+
+    iOut[8].IdBoard = 14;        // Indirizzo IP della schedaiOut
+    iOut[8].TOn = 60000;        // Tempo di attività    
+    iOut[8].MillFellOff = 0;    // millis del momento di attivazione
+    iOut[8].IdPinO = 36;      // Id del pin di uscita del segnale
+    iOut[8].ActOption=false;    // Serve per avere pin attivi alto o basso
+    SetupOut(8);
+   
 
 }
 
+
+void IncomingUDP(){     // Funzione che legge i comandi UDP in arrivo
+  LenUDP = MUdp.parsePacket();
+  if (LenUDP){
+    IdL=0xFF;
+    MUdp.read(incomingPacket, LenUDP);
+    for (int i = 0; i < LenUDP; i++){
+      if (incomingPacket[i]=="B"){
+        i++;
+        IdL=incomingPacket[i];
+      }
+      if (incomingPacket[i]=="E"){
+        // fine lettura pacchetto
+      }
+    }
+    bitWrite(iOut[IdL].fl,0,true);
+  }
+}

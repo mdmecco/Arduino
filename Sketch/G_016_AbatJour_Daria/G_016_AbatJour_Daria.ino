@@ -78,33 +78,8 @@ void loop() {
   
   if (NetConn()){
     WebServer();
+    IncomingUDP();
     
-//*********************** codice dentro rete  ***************************
-//***********************************************************************
-   
-//****************   UDP   **********************************************
-    packetSize = MUdp.parsePacket();
-    if (packetSize){
-      LenUDP = MUdp.read(incomingPacket, 255);
-      if (LenUDP > 5){
-        InUDPL[0]=incomingPacket[0];
-        if (InUDPL[0]='L') {
-          InUDPL[0]=incomingPacket[1];
-          InUDPL[1]=incomingPacket[2];
-          InUDPT[0]=incomingPacket[3];
-          InUDPT[1]=incomingPacket[4];
-          InUDPT[2]=incomingPacket[5];
-          InUDPT[3]=incomingPacket[6];
-          Tl=atoi(InUDPT);
-          IdL=atoi(InUDPL);
-          LenUDP=0;
-        }
-      }else{
-        LenUDP=0;
-      }
-    }
-//************************************************************************
-
     if (millis() > DayTimeR) {
       GetTime();
       GetDate();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
@@ -116,9 +91,13 @@ void loop() {
   } //**********************************************************************************
 // ************************   Codice fuori rete ****************************************
 
+  
+  RWIO(0);
+  RWIO(1);
+  RWIO(2);
+  RWIO(3);
 
-  RWIoL(iLight[0]);
-
+  wOut(0);
 
 //**************************************************************************************
 }
