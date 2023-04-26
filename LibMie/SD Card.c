@@ -35,3 +35,21 @@ void printDirectory(File dir, int numTabs) {
   }
 }
 
+
+void SaveData (byte Id){
+  typedef AOut_Pointer *AOut;  
+  
+  typedef byte_Pointer *byte;
+  
+  AOut_Pointer Indirizzo_iOut_Id;
+  
+  byte_Pointer Indirizzo_comesefosseunarraybyte;
+  
+ int Size = sizeof(AOut); 
+  
+ Indirizzo_iOut_Id = ( & iOut[Id]);                                   \\legge l'idirizzo della struttura
+  
+ Indirizzo_comesefosseunarraybyte = (byte_Pointer) Indirizzo_iOut_Id;  \\questa è la funzione di cast della variabile
+   
+  
+}
