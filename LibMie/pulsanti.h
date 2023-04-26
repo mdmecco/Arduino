@@ -1,4 +1,3 @@
-
 //Versione definita il 04/07/2020
 
 #define Tar 150

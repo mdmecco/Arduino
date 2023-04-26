@@ -1,4 +1,3 @@
-
 //Versione definita il 04/07/2020
 
 #define Tar 150
@@ -21,7 +20,11 @@ void SetupOut (byte Id) {       // Funzione Setup Out
     if (iOut[Id].IdBoard == MySIp){
       if (iOut[Id].IdPinO != 0xFF) {
           pinMode(iOut[Id].IdPinO, OUTPUT);
-          digitalWrite(iOut[Id].IdPinO, LOW);  
+          if (!iOut[Id].ActOption){
+                digitalWrite(iOut[Id].IdPinO, LOW);
+          }else{
+                digitalWrite(iOut[Id].IdPinO, HIGH);
+          }  
       }
     }
 }
@@ -55,23 +58,29 @@ typedef struct {
 
 void RWIO(byte Id){
   if (iIn[Id].ActOption){
-      bitWrite((iIn[Id].fl),0, digitalRead(iIn[Id].IdPinI));
-  }else{
       bitWrite((iIn[Id].fl),0, !digitalRead(iIn[Id].IdPinI));
+      bitWrite(Debug,6,1);
+  }else{
+      bitWrite((iIn[Id].fl),0, digitalRead(iIn[Id].IdPinI));
+      bitWrite(Debug,7,1);
   }
 
-  if (bitRead(iIn[Id].fl, 0) == true) {     //Controllo se il pulsante è nello stato precedente
+
+
+  if (bitRead(iIn[Id].fl, 0) == true) {     //Controllo se il pulsante si è attivato
+    bitWrite(Debug,2,1);
     if (bitRead(iIn[Id].fl, 2) == false) {
         if (millis() > iIn[Id].TAct) {                       //controllo se il tempo di Anti rimbalzo è passato
             bitWrite(iIn[Id].fl, 2, true);                   //se è passato allora attivo l'uscita
             if (iOut[iIn[Id].Id].IdBoard != MySIp){
-                MUdp.beginPacket(iOut[iIn[Id].Id].IdBoard, UdpPort);
-                MUdp.write("B");
-                MUdp.write(iIn[Id].Id);
-                MUdp.write("E");
-                MUdp.endPacket();
+                //MUdp.beginPacket(iOut[iIn[Id].Id].IdBoard, UdpPort);
+                //MUdp.write("B");
+                //MUdp.write(iIn[Id].Id);
+                //MUdp.write("E");
+                //MUdp.endPacket();
+                bitWrite(Debug,0,1);
             }else{
-                bitWrite(iOut[iIn[Id].Id].fl,0,true);
+                bitWrite(iOut[iIn[Id].Id].fl,0,1);
             }
         }
     }
@@ -85,32 +94,32 @@ void RWIO(byte Id){
 
 void wOut(byte Id){
     
-    if (bitRead(iOut[Id].fl, 1) == false){
-        if (bitRead(iOut[Id].fl, 0) == true){
-            bitWrite(iOut[Id].fl,1,true);
+    if (bitRead(iOut[Id].fl, 1) == 0){
+        if (bitRead(iOut[Id].fl, 0) == 1){
+            bitWrite(iOut[Id].fl,1,1);
+            bitWrite(iOut[Id].fl,0,0);
             iOut[Id].MillFellOff=millis() + iOut[Id].TOn;
         }
     }else{
-        if (bitRead(iOut[Id].fl, 0) == true){
-            bitWrite(iOut[Id].fl,1,false);
+        if (bitRead(iOut[Id].fl, 0) == 1){
+            iOut[Id].MillFellOff=0;
+            bitWrite(iOut[Id].fl,1,0);
+            bitWrite(iOut[Id].fl,0,0);
         }else{
-            if (millis() > iOut[Id].MillFellOff) {
-                bitWrite(iOut[Id].fl,1,false);
-            }
+          if (millis() > iOut[Id].MillFellOff) {
+              bitWrite(iOut[Id].fl,1,0);
+          }
         }
     }
     
-    if ((bitRead(iOut[Id].fl, 1)) != (bitRead(iOut[Id].fl, 2))) {
+    
+    if ((bitRead(iOut[Id].fl, 1)) != (bitRead(iOut[Id].fl, 3))) {
         if (bitRead(iOut[Id].ActOption, 1)==false){
             digitalWrite(iOut[Id].IdPinO, bitRead(iOut[Id].fl, 1));
         }else{
             digitalWrite(iOut[Id].IdPinO, !bitRead(iOut[Id].fl, 1));
         }
-        if (bitRead(iOut[Id].fl, 1)== false) {
-            bitWrite(iOut[Id].fl,2,false);
-        }else{
-            bitWrite(iOut[Id].fl,2,true);
-        }
+        bitWrite(iOut[Id].fl,3,(bitRead(iOut[Id].fl, 1)));
     }
 }
 
@@ -125,7 +134,7 @@ void SetupChannel(){
 // Scheda nr 16
     //P Rosso
     iIn[0].IdBoard = 16;        // Indirizzo IP della schedaiOut
-    iIn[0].Id=3;              //Id riferimento Ingresso
+    iIn[0].Id=3;              //Id riferimento Uscita
     iIn[0].fl=0;              //Gestione Anti-rimbalzo
     iIn[0].IdPinI = 16;       //Pin di ingresso 
     iIn[0].TAct=0;            //gestione dell'antirimbalzo
@@ -164,6 +173,9 @@ void SetupChannel(){
     iOut[0].MillFellOff = 0;    // millis del momento di attivazione
     iOut[0].IdPinO = 13;      // Id del pin di uscita del segnale
     iOut[0].ActOption=false;    // Serve per avere pin attivi alto o basso
+    
+    //bitWrite(iOut[0].fl,2,(!bitRead(iOut[0].fl, 1)));
+    //iOut[0].Name="Abat-jour Daria";
     SetupOut(0);
 
 // Scheda nr 14
@@ -235,56 +247,56 @@ void SetupChannel(){
     iOut[1].TOn = 60000;        // Tempo di attività    
     iOut[1].MillFellOff = 0;    // millis del momento di attivazione
     iOut[1].IdPinO = 22;      // Id del pin di uscita del segnale
-    iOut[1].ActOption=false;    // Serve per avere pin attivi alto o basso
+    iOut[1].ActOption=true;    // Serve per avere pin attivi alto o basso
     SetupOut(1);
     
     iOut[2].IdBoard = 14;        // Indirizzo IP della schedaiOut
     iOut[2].TOn = 60000;        // Tempo di attività    
     iOut[2].MillFellOff = 0;    // millis del momento di attivazione
     iOut[2].IdPinO = 24;      // Id del pin di uscita del segnale
-    iOut[2].ActOption=false;    // Serve per avere pin attivi alto o basso
+    iOut[2].ActOption=true;    // Serve per avere pin attivi alto o basso
     SetupOut(2);
 
     iOut[3].IdBoard = 14;        // Indirizzo IP della schedaiOut
     iOut[3].TOn = 60000;        // Tempo di attività    
     iOut[3].MillFellOff = 0;    // millis del momento di attivazione
     iOut[3].IdPinO = 26;      // Id del pin di uscita del segnale
-    iOut[3].ActOption=false;    // Serve per avere pin attivi alto o basso
+    iOut[3].ActOption=true;    // Serve per avere pin attivi alto o basso
     SetupOut(3);
 
     iOut[4].IdBoard = 14;        // Indirizzo IP della schedaiOut
     iOut[4].TOn = 60000;        // Tempo di attività    
     iOut[4].MillFellOff = 0;    // millis del momento di attivazione
     iOut[4].IdPinO = 28;      // Id del pin di uscita del segnale
-    iOut[4].ActOption=false;    // Serve per avere pin attivi alto o basso
+    iOut[4].ActOption=true;    // Serve per avere pin attivi alto o basso
     SetupOut(4);
 
     iOut[5].IdBoard = 14;        // Indirizzo IP della schedaiOut
     iOut[5].TOn = 60000;        // Tempo di attività    
     iOut[5].MillFellOff = 0;    // millis del momento di attivazione
     iOut[5].IdPinO = 30;      // Id del pin di uscita del segnale
-    iOut[5].ActOption=false;    // Serve per avere pin attivi alto o basso
+    iOut[5].ActOption=true;    // Serve per avere pin attivi alto o basso
     SetupOut(5);
     
     iOut[6].IdBoard = 14;        // Indirizzo IP della schedaiOut
     iOut[6].TOn = 60000;        // Tempo di attività    
     iOut[6].MillFellOff = 0;    // millis del momento di attivazione
     iOut[6].IdPinO = 32;      // Id del pin di uscita del segnale
-    iOut[6].ActOption=false;    // Serve per avere pin attivi alto o basso
+    iOut[6].ActOption=true;    // Serve per avere pin attivi alto o basso
     SetupOut(6);
 
     iOut[7].IdBoard = 14;        // Indirizzo IP della schedaiOut
     iOut[7].TOn = 60000;        // Tempo di attività    
     iOut[7].MillFellOff = 0;    // millis del momento di attivazione
     iOut[7].IdPinO = 34;      // Id del pin di uscita del segnale
-    iOut[7].ActOption=false;    // Serve per avere pin attivi alto o basso
+    iOut[7].ActOption=true;    // Serve per avere pin attivi alto o basso
     SetupOut(7);
 
     iOut[8].IdBoard = 14;        // Indirizzo IP della schedaiOut
     iOut[8].TOn = 60000;        // Tempo di attività    
     iOut[8].MillFellOff = 0;    // millis del momento di attivazione
     iOut[8].IdPinO = 36;      // Id del pin di uscita del segnale
-    iOut[8].ActOption=false;    // Serve per avere pin attivi alto o basso
+    iOut[8].ActOption=true;    // Serve per avere pin attivi alto o basso
     SetupOut(8);
    
 
@@ -293,18 +305,23 @@ void SetupChannel(){
 
 void IncomingUDP(){     // Funzione che legge i comandi UDP in arrivo
   LenUDP = MUdp.parsePacket();
-  if (LenUDP){
+  if (LenUDP > 0 ){
+    Serial.print("Incoming UDP:");
     IdL=0xFF;
     MUdp.read(incomingPacket, LenUDP);
     for (int i = 0; i < LenUDP; i++){
-      if (incomingPacket[i]=="B"){
+      Serial.print(incomingPacket[i]);
+      if (incomingPacket[i]=='B'){
         i++;
         IdL=incomingPacket[i];
       }
-      if (incomingPacket[i]=="E"){
+      if (incomingPacket[i]=='E'){
         // fine lettura pacchetto
       }
     }
-    bitWrite(iOut[IdL].fl,0,true);
+    //bitWrite(iOut[IdL].fl,0,true);
+    
+    
+    Serial.println(IdL);
   }
 }

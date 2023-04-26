@@ -10,7 +10,7 @@
 
 #include <ArduinoJson.h>
 
-
+byte Debug=0;
 
 typedef struct {
   byte IdBoard = 0;                 // Indirizzo IP della scheda
@@ -19,6 +19,7 @@ typedef struct {
   unsigned long MillFellOff = 0;    // millis del momento di attivazione
   byte IdPinO = 0xFF;                  // Id del pin di uscita del segnale
   bool ActOption=false;           // Serve per avere pin attivi alto o basso
+  char Name[10] = {0, 0, 0, 0, 0, 0,0,0,0,0};
 } AOut;
 
 
@@ -30,6 +31,7 @@ typedef struct {
     byte IdPinI = 0xFF;             //Pin di ingresso
     unsigned long TAct=0;           //gestione dell'antirimbalzo
     bool ActOption=false;           // Serve per avere pin attivi alto o basso
+    char Name[10] = {0, 0, 0, 0, 0, 0,0,0,0,0};
 }   AIn;
 
 
@@ -50,6 +52,13 @@ char InUDPL[2];
 char InUDPT[5];
 //****************************************************************************
 
+
+
+// funzioni per la gestione della data e ora prese dalla rete internet tramite la wifi
+unsigned long DayTimeS = 0;
+bool DayTimeB = false;
+unsigned long DayTimeR = 0;
+unsigned long DayDate=0;
 
 
 

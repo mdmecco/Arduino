@@ -70,6 +70,7 @@ bool NetConn(){
     case 20:
       Serial.println("Ethernet cable is connected.");
       server.begin();
+      MUdp.begin(UdpPort);
       MASEt = 100;
       //ArduinoOTA.begin(true);
       //ArduinoOTA.begin(Ethernet.localIP(), "Arduino", "password", InternalStorage);

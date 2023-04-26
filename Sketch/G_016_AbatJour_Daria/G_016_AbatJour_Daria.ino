@@ -1,28 +1,17 @@
 
 #define WEBTITPAGE "Abat Jour Daria"
-#define PRGVER "2023-01-17 V1.1 UDP"
+#define PRGVER "2023-04-26 V1.5 UDP"
 #define MySIp 16
 
-
-#include "a:\libmie\wifi.h"
-#include "a:\libmie\pulsanti.h"
 #include "a:\libmie\gestore.h"
 #include "a:\libmie\mecco1.h"
+#include "a:\libmie\wifi.h"
+#include "a:\libmie\pulsanti.h"
 #include "a:\libmie\pulsanti_b.c"
 #include "a:\libmie\PageParameter.c"
 #include "a:\libmie\Funzioni Rete.c"
 
 
-//*********************************** UDP ************************************
-int localUdpPort=5240;
-int packetSize=0;
-char incomingPacket[256];
-int LenUDP=0;
-int IdL=0;
-int Tl=0;
-char InUDPL[2]={0,0};
-char InUDPT[5]={0,0,0,0,0};
-//****************************************************************************
 
 byte d =0;
 
@@ -40,17 +29,10 @@ void setup() {
   Serial.begin(9600);
   OTAActive=false;
   WiFi.hostname(WEBTITPAGE);
-
-  
-  iLight[1].LoPinI=4;   //Verde
-  iLight[2].LoPinI=16; // Rosso
-  iLight[3].LoPinI=0; // Blue
   
   SetupChannel();
-  
 
-  
-   if (!loadConfig()){
+   //if (!loadConfig()){
   /*
       TOnAct[1] = 20000;
       TOnAct[2] = 20000;
@@ -69,7 +51,7 @@ void setup() {
       DL[16] = 20;*/
 
       
-   }  
+   //}  
 }
 
 
@@ -80,11 +62,14 @@ void loop() {
     WebServer();
     IncomingUDP();
     
+    
     if (millis() > DayTimeR) {
       GetTime();
       GetDate();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
     }
 
+    
+    
 
   
 //**************************************************************************************  
@@ -105,28 +90,6 @@ void loop() {
 //**************************************************************************************
 //------------------------------------------------- Funzioni --------------------------
 
-
-
-
-
-
-
-unsigned long GetValue (String Vs){
-  unsigned long dd=0;
-  dd= Vs.toInt();
-  dd=dd*1000;
-  return dd;
-}
-
-
-
-String BtnColor (int idCol){
-  if (idCol == 0){
-    return "#22ff22";
-  }else{
-    return "red";
-  }
-}
 
 //*******************************************************    FILES    ***************************************
 

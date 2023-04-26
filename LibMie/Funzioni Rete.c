@@ -385,9 +385,10 @@ void WebServer (){
           client.print(F("</form>")); 
     
           client.print(F("<hr width=100% size=4 color=FF0000>\r\n"));
-          client.print(F("<table style=""width:100%"" border=1>"));
-          client.println(F("<tr>"));
+          client.print(F("<table style=""width:100%"" border=2>"));
           /*
+          client.println(F("<tr border=1>"));
+          
           ClParam(1);
           ClParam(2);
           client.println(F("</tr>"));
@@ -420,6 +421,23 @@ void WebServer (){
           ClParam(16);
 
           */
+          
+          client.print(F("<tr border=1> iIn[0]:"));
+          client.print(iIn[0].fl);
+          client.println(F("</tr>"));
+          
+          
+          client.print(F("<tr border=1> iOut[0]:"));
+          client.print(iOut[0].fl);
+          client.println(F("</tr>"));
+          
+          client.println(F("<tr border=1> Debug:"));
+          
+          client.println(Debug);
+          
+          //client.println(oOut);
+          
+          
           client.println(F("</tr>"));
           client.println(F("</body>\r\n</html>"));
           delay(100);

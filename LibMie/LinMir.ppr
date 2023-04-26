@@ -1,0 +1,68 @@
+[Config]
+Compilator.SaveAll=0
+Compilator.Capture=0
+Compilator.CompileOnBackground=0
+Compilator.ProgSaveAll=0
+Compilator.ProgRunSelection=0
+Compilator.LogType=0
+Compilator.LogEncoding=0
+DefaultDir=A:\LibMie
+DefaultCP=0
+LogtoEnd=1
+DontOpen=0
+AbsolutePath=1
+FileFormat=0
+ProjectFilesOnly=0
+HTServer=localhost
+[Project tree]
+LinMir
+	+Cartella
+		A:\LibMie\Ethernet.h
+		A:\LibMie\Funzioni Rete.c
+		A:\LibMie\Gestore.h
+		A:\LibMie\mecco1.h
+		A:\LibMie\PageParameter.c
+		A:\LibMie\pulsanti.h
+		A:\LibMie\pulsanti_B.c
+		A:\LibMie\SD Card.c
+		A:\LibMie\WIFI.h
+[Open project files]
+0=A:\LibMie\Ethernet.h
+1=A:\LibMie\Funzioni Rete.c
+2=A:\LibMie\Gestore.h
+3=A:\LibMie\mecco1.h
+4=A:\LibMie\PageParameter.c
+5=A:\LibMie\pulsanti.h
+6=A:\LibMie\pulsanti_B.c
+7=A:\LibMie\SD Card.c
+8=A:\LibMie\WIFI.h
+[Selected Project Files]
+Main=
+Selected=A:\LibMie\pulsanti_B.c
+[Ethernet.h]
+TopLine=1
+Caret=1,1
+[Funzioni Rete.c]
+TopLine=1
+Caret=1,1
+[Gestore.h]
+TopLine=1
+Caret=1,1
+[mecco1.h]
+TopLine=1
+Caret=1,1
+[PageParameter.c]
+TopLine=1
+Caret=1,1
+[pulsanti.h]
+TopLine=1
+Caret=1,1
+[pulsanti_B.c]
+TopLine=63
+Caret=42,78
+[SD Card.c]
+TopLine=2
+Caret=1,1
+[WIFI.h]
+TopLine=1
+Caret=1,1

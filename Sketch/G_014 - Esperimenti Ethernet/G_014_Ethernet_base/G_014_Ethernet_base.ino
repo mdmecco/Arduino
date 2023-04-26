@@ -4,10 +4,9 @@
 #define MySIp 14
 
 
+#include "a:\libmie\gestore.h"
 #include "a:\libmie\mecco1.h"
 #include "a:\libmie\Ethernet.h"
-#include "a:\libmie\gestore.h"
-//#include "a:\libmie\pulsanti.h"
 #include "a:\libmie\pulsanti_b.c"
 #include "a:\libmie\PageParameter.c"
 #include "a:\libmie\Funzioni Rete.c"
@@ -31,9 +30,9 @@ void setup() {
 
   if (!SD.begin(4)) {
     Serial.println("initialization card failed!");
-    //while (1)
-      ;
+    while (1);
   }
+  
   Serial.println("initialization card done.");
 
   SetupChannel();
@@ -46,7 +45,7 @@ void loop() {
     IncomingUDP();
   }
   
-  
+  /*
   RWIO(4);
   RWIO(5);
   RWIO(6);
@@ -64,7 +63,7 @@ void loop() {
   wOut(6);
   wOut(7);
   wOut(8);
-
+*/
 }
 //****************************************** FINE LOOP **************************************************
 //*******************************************************************************************************
