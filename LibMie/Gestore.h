@@ -24,7 +24,8 @@ typedef struct {
   unsigned long MillFellOff = 0;    // millis del momento di attivazione
   byte IdPinO = 0xFF;                  // Id del pin di uscita del segnale
   bool ActOption=false;           // Serve per avere pin attivi alto o basso
-  char Name[10] = {0, 0, 0, 0, 0, 0,0,0,0,0};
+  String Name="";
+  //char Name[10] = {20, 20, 20, 20, 20, 20,20,20,20,20};
 } AOut;
 
 
@@ -32,18 +33,19 @@ typedef struct {
 typedef struct {
     byte IdBoard = 0;                 // Indirizzo IP della scheda
     byte IdOut=0;                      //Id riferimento uscita
-    byte fl=0;                      //Gestione Anti-rimbalzo
+    byte fl=0;                            //Gestione Anti-rimbalzo
     byte IdPinI = 0xFF;             //Pin di ingresso
     unsigned long TAct=0;           //gestione dell'antirimbalzo
     bool ActOption=false;           // Serve per avere pin attivi alto o basso
-    char Name[10] = {0, 0, 0, 0, 0, 0,0,0,0,0};
+    String Name="";
+    //char Name[10] = {20, 20, 20, 20, 20, 20,20,20,20,20};
 }   AIn;
 
 
 
 
 
-AIn   iIn[11];                    //array nr ingressi
+AIn   iIn[12];                    //array nr ingressi
 AOut  iOut[9] ;                  //array nr uscite    
 
 
@@ -66,5 +68,7 @@ unsigned long DayTimeR = 0;
 unsigned long DayDate=0;
 
 
+void WriteTime();
+void ReadTime();
 
 

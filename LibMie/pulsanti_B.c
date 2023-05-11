@@ -253,6 +253,7 @@ void SetupChannel(){
     iOut[1].MillFellOff = 0;    // millis del momento di attivazione
     iOut[1].IdPinO = 22;      // Id del pin di uscita del segnale
     iOut[1].ActOption=true;    // Serve per avere pin attivi alto o basso
+    iOut[1].Name = "Daria room";
     SetupOut(1);
     
     iOut[2].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -303,7 +304,10 @@ void SetupChannel(){
     iOut[8].IdPinO = 36;      // Id del pin di uscita del segnale
     iOut[8].ActOption=true;    // Serve per avere pin attivi alto o basso
     SetupOut(8);
-   
+
+
+
+    ReadTime();   // legge i tempi personalizzati dalla SD
 
 }
 

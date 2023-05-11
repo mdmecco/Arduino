@@ -9,8 +9,9 @@
 #include "a:\libmie\Ethernet.h"
 #include "a:\libmie\pulsanti_b.c"
 #include "a:\libmie\PageParameter.c"
-#include "a:\libmie\Funzioni Rete.c"
+
 #include "a:\libmie\SD Card.c"
+#include "a:\libmie\Funzioni Rete.c"
 
 
 void setup() {

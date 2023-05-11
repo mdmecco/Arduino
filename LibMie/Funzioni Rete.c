@@ -48,27 +48,23 @@ void HTMLButton ( String Actions, String Values ) {
 
 
 void HTMLParameter(){
-    Serial.println("Entrato in parameter");
-    Serial.println(iOut[0].IdBoard);
-    Serial.print("---------");
-    Serial.println(MySIp);
     for (int i=0 ; i <= TotalOut; i++){
         if (MySIp == iOut[i].IdBoard){
-            Serial.print (iOut[i].IdBoard);
-            Serial.print ("--------");
-            client.print(F( "<label for=""lampid"""));
+            client.print(F( "<form><label for=""lampid"""));
             client.print(i);
-            client.print(F( """> minuti di attivazione massima della luce (1-300):</label> <input type=""number"" id=""minutes"" name=""minutes""  min=""10"" max=""300"" value="));
-            client.print (iOut[i].TOn/1000);
-            Serial.print("--");
-            Serial.print(iOut[i].TOn);
-            Serial.print("--");
-            client.println(F(" > <br>"));
-            Serial.println(i);
+            client.print(F( """> minuti di attivazione massima della luce (1-300) Id "));
+            client.print(i);
+            client.print(F( "   "));
+            client.print(iOut[i].Name);
+            client.print(F( ":</label>"));
             
+            client.print(F("<input type=""number"" name=""LL"""));
+            client.print(i);
+            client.print(F("TT"" id=""minutes""  min=""10"" max=""300"" value="));
+            client.print (iOut[i].TOn/1000);
+            client.println(F(" > </form>  <br>"));
         }
     }
-    Serial.println("---------");
 }
 
 
@@ -234,9 +230,28 @@ void WebServer (){
             HPage=1;
           }
     //**********************************************************************************************      
+          io1=NetCMDS.indexOf("/FILES");
+          io2=0;
+          if (io1 > 0){
+            HPage=2;
+          }
           
           
           
+          if (HPage == 1){
+            io1=NetCMDS.indexOf("?LL");
+            io2=NetCMDS.indexOf("TT=");
+            if (io1 > 0) {
+              String io3=NetCMDS.substring(io1+3,io2);
+              byte ioId = io3.toInt();
+              io1=NetCMDS.indexOf(" HT");
+              String iotim=NetCMDS.substring(io2+3,io1);
+              //Serial.println(NetCMDS);
+              io1=iotim.toInt();  
+              iOut[ioId].TOn=((unsigned long) io1 * 1000);
+              WriteTime();
+            }
+          }
           
           //***************************************L1
           io1=NetCMDS.indexOf("/L1 ");
@@ -363,6 +378,8 @@ void WebServer (){
           HTMLHeader();  
           if (HPage ==1) {
             HTMLParameter();
+          }else if (HPage ==2) { 
+            HTMLFileList();
           }
           client.println(F("</body>"));
                 
