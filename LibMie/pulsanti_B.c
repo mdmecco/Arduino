@@ -75,17 +75,17 @@ void RWIO(byte Id){
     if (bitRead(iIn[Id].fl, 2) == true) {
         if (millis() > iIn[Id].TAct) {                       //controllo se il tempo di Anti rimbalzo è passato
             bitWrite(iIn[Id].fl, 2, false);                   //se è passato allora attivo l'uscita
-            if ( MySIp != iOut[iIn[Id].Id].IdBoard){
-                UDPIp[3]=iOut[iIn[Id].Id].IdBoard;
+            if ( MySIp != iOut[iIn[Id].IdOut].IdBoard){
+                UDPIp[3]=iOut[iIn[Id].IdOut].IdBoard;
                 MUdp.beginPacket(UDPIp, UdpPort);
                 MUdp.write("B");
-                MUdp.write(iIn[Id].Id);
+                MUdp.write(iIn[Id].IdOut);
                 MUdp.write("E");
                 MUdp.endPacket();
                 bitWrite(Debug,0,1);
             }else{
-                if (MySIp == iOut[iIn[Id].Id].IdBoard){
-                    bitWrite(iOut[iIn[Id].Id].fl,0,1);
+                if (MySIp == iOut[iIn[Id].IdOut].IdBoard){
+                    bitWrite(iOut[iIn[Id].IdOut].fl,0,1);
                     //bitWrite(Debug,4,1);
                     
                 }
@@ -142,7 +142,7 @@ void SetupChannel(){
 // Scheda nr 16
     //P Rosso
     iIn[0].IdBoard = 16;        // Indirizzo IP della schedaiIn
-    iIn[0].Id=1;              //Id riferimento Uscita
+    iIn[0].IdOut=1;              //Id riferimento Uscita
     iIn[0].fl=0;              //Gestione Anti-rimbalzo
     iIn[0].IdPinI = 16;       //Pin di ingresso 
     iIn[0].TAct=0;            //gestione dell'antirimbalzo
@@ -151,7 +151,7 @@ void SetupChannel(){
     
     //P Verde
     iIn[1].IdBoard = 16;        // Indirizzo IP della schedaiOut
-    iIn[1].Id=2;              //Id riferimento Ingresso
+    iIn[1].IdOut=2;              //Id riferimento Uscita
     iIn[1].fl=0;              //Gestione Anti-rimbalzo
     iIn[1].IdPinI = 4;        //Pin di ingresso 
     iIn[1].TAct=0;            //gestione dell'antirimbalzo
@@ -160,7 +160,7 @@ void SetupChannel(){
     
     //P Blue
     iIn[2].IdBoard = 16;        // Indirizzo IP della schedaiOut
-    iIn[2].Id=3;              //Id riferimento Ingresso
+    iIn[2].IdOut=3;              //Id riferimento Uscita
     iIn[2].fl=0;              //Gestione Anti-rimbalzo
     iIn[2].IdPinI = 0;        //Pin di ingresso 
     iIn[2].TAct=0;            //gestione dell'antirimbalzo
@@ -169,7 +169,7 @@ void SetupChannel(){
     
     //P Giallo
     iIn[3].IdBoard = 16;        // Indirizzo IP della schedaiOut
-    iIn[3].Id=0;              //Id riferimento Ingresso
+    iIn[3].IdOut=0;              //Id riferimento Uscita
     iIn[3].fl=0;              //Gestione Anti-rimbalzo
     iIn[3].IdPinI = 15;       //Pin di ingresso 
     iIn[3].TAct=0;            //gestione dell'antirimbalzo
@@ -185,7 +185,7 @@ void SetupChannel(){
 
 // Scheda nr 14
     iIn[4].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[4].Id=2;              //Id riferimento Ingresso
+    iIn[4].IdOut=2;              //Id riferimento Uscita
     iIn[4].fl=0;              //Gestione Anti-rimbalzo
     iIn[4].IdPinI = 23;       //Pin di ingresso 
     iIn[4].TAct=0;            //gestione dell'antirimbalzo
@@ -193,7 +193,7 @@ void SetupChannel(){
     SetupIn(4);
 
     iIn[5].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[5].Id=3;              //Id riferimento Ingresso
+    iIn[5].IdOut=3;              //Id riferimento Uscita
     iIn[5].fl=0;              //Gestione Anti-rimbalzo
     iIn[5].IdPinI = 25;       //Pin di ingresso 
     iIn[5].TAct=0;            //gestione dell'antirimbalzo
@@ -201,7 +201,7 @@ void SetupChannel(){
     SetupIn(5);
 
     iIn[6].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[6].Id=4;              //Id riferimento Ingresso
+    iIn[6].IdOut=4;              //Id riferimento Uscita
     iIn[6].fl=0;              //Gestione Anti-rimbalzo
     iIn[6].IdPinI = 27;       //Pin di ingresso 
     iIn[6].TAct=0;            //gestione dell'antirimbalzo
@@ -209,7 +209,7 @@ void SetupChannel(){
     SetupIn(6);
 
     iIn[7].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[7].Id=5;              //Id riferimento Ingresso
+    iIn[7].IdOut=5;              //Id riferimento Uscita
     iIn[7].fl=0;              //Gestione Anti-rimbalzo
     iIn[7].IdPinI = 29;       //Pin di ingresso 
     iIn[7].TAct=0;            //gestione dell'antirimbalzo
@@ -217,7 +217,7 @@ void SetupChannel(){
     SetupIn(7);
 
     iIn[8].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[8].Id=6;              //Id riferimento Ingresso
+    iIn[8].IdOut=6;              //Id riferimento Uscita
     iIn[8].fl=0;              //Gestione Anti-rimbalzo
     iIn[8].IdPinI = 31;       //Pin di ingresso 
     iIn[8].TAct=0;            //gestione dell'antirimbalzo
@@ -225,7 +225,7 @@ void SetupChannel(){
     SetupIn(8);
 
     iIn[9].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[9].Id=7;              //Id riferimento Ingresso
+    iIn[9].IdOut=7;              //Id riferimento Uscita
     iIn[9].fl=0;              //Gestione Anti-rimbalzo
     iIn[9].IdPinI = 33;       //Pin di ingresso 
     iIn[9].TAct=0;            //gestione dell'antirimbalzo
@@ -233,7 +233,7 @@ void SetupChannel(){
     SetupIn(9);
 
     iIn[10].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[10].Id=8;              //Id riferimento Ingresso
+    iIn[10].IdOut=8;              //Id riferimento Uscita
     iIn[10].fl=0;              //Gestione Anti-rimbalzo
     iIn[10].IdPinI = 35;       //Pin di ingresso 
     iIn[10].TAct=0;            //gestione dell'antirimbalzo
@@ -241,7 +241,7 @@ void SetupChannel(){
     SetupIn(10);
 
     iIn[11].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[11].Id=9;              //Id riferimento Ingresso
+    iIn[11].IdOut=9;              //Id riferimento Uscita
     iIn[11].fl=0;              //Gestione Anti-rimbalzo
     iIn[11].IdPinI = 37;       //Pin di ingresso 
     iIn[11].TAct=0;            //gestione dell'antirimbalzo

@@ -31,7 +31,7 @@ typedef struct {
 
 typedef struct {
     byte IdBoard = 0;                 // Indirizzo IP della scheda
-    byte Id=0;                      //Id riferimento uscita
+    byte IdOut=0;                      //Id riferimento uscita
     byte fl=0;                      //Gestione Anti-rimbalzo
     byte IdPinI = 0xFF;             //Pin di ingresso
     unsigned long TAct=0;           //gestione dell'antirimbalzo
