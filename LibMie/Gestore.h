@@ -12,6 +12,11 @@
 
 byte Debug=0;
 
+byte DIp=0;
+
+#define TotalOut 8
+
+
 typedef struct {
   byte IdBoard = 0;                 // Indirizzo IP della scheda
   byte fl=0;

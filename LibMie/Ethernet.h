@@ -11,6 +11,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <EthernetUdp.h>
+#include <SD.h>
 
 
 
@@ -23,10 +24,22 @@ byte MASEt=0;
 
 EthernetUDP  MUdp;
 
+IPAddress UDPIp(192, 168, 1, 0);
+
 
 bool OTAActive=false;  // per ora è messo solo per compatibilità
 
 
+
+void InitSetup(){
+  if (!SD.begin(4)) {
+    Serial.println("Errore inizializzazione SD");
+    return;
+  }
+
+    
+
+}
 
 
 

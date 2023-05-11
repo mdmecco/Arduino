@@ -1,6 +1,6 @@
 
 #define WEBTITPAGE "Abat Jour Daria"
-#define PRGVER "2023-04-26 V1.5 UDP"
+#define PRGVER "2023-05-03 V1.5 UDP"
 #define MySIp 16
 
 #include "a:\libmie\gestore.h"
@@ -10,6 +10,7 @@
 #include "a:\libmie\pulsanti_b.c"
 #include "a:\libmie\PageParameter.c"
 #include "a:\libmie\Funzioni Rete.c"
+
 
 
 

@@ -40,14 +40,14 @@ LinMir
 Main=
 Selected=A:\LibMie\pulsanti_B.c
 [Ethernet.h]
-TopLine=1
-Caret=1,1
+TopLine=31
+Caret=39,49
 [Funzioni Rete.c]
-TopLine=1
-Caret=1,1
+TopLine=39
+Caret=33,57
 [Gestore.h]
 TopLine=1
-Caret=1,1
+Caret=17,17
 [mecco1.h]
 TopLine=1
 Caret=1,1
@@ -58,11 +58,11 @@ Caret=1,1
 TopLine=1
 Caret=1,1
 [pulsanti_B.c]
-TopLine=63
-Caret=42,78
+TopLine=57
+Caret=50,80
 [SD Card.c]
-TopLine=2
-Caret=1,1
-[WIFI.h]
 TopLine=1
 Caret=1,1
+[WIFI.h]
+TopLine=4
+Caret=39,22

@@ -53,6 +53,15 @@ char WiFiCh = 0;
 
 
 WiFiUDP MUdp;
+IPAddress UDPIp(192, 168, 1, 0);
+
+
+void InitSetup(){
+    LittleFS.begin();
+    
+
+}
+
 
 
 

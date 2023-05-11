@@ -1,6 +1,6 @@
 //Versione definita il 04/07/2020
 
-#define Tar 150
+#define Tar 80
 
 //#define Tar 2000
 
@@ -8,21 +8,27 @@
 
 //*****************************************    SETUP Iniziale degli ingressi e uscite 
 void SetupIn (byte Id) {          // Funzione Setup In
-    if (iOut[Id].IdBoard == MySIp){
+    if (MySIp == iIn[Id].IdBoard){
       if (iIn[Id].IdPinI != 0xFF) {          
           pinMode(iIn[Id].IdPinI, INPUT);
           digitalWrite(iIn[Id].IdPinI, HIGH);  //questa attivazione serve per attivare la resistenza di pull-up
+          digitalRead(iIn[Id].IdPinI) ; 
         }
     }
 }
 
 void SetupOut (byte Id) {       // Funzione Setup Out        
-    if (iOut[Id].IdBoard == MySIp){
+    if ( MySIp== iOut[Id].IdBoard){
       if (iOut[Id].IdPinO != 0xFF) {
           pinMode(iOut[Id].IdPinO, OUTPUT);
-          if (!iOut[Id].ActOption){
+          Serial.print("IdOut:");
+          Serial.print(Id);
+          Serial.print(" Level:");
+          if (iOut[Id].ActOption == 0){
+                Serial.println("LOW");
                 digitalWrite(iOut[Id].IdPinO, LOW);
           }else{
+                Serial.println("HIGH");
                 digitalWrite(iOut[Id].IdPinO, HIGH);
           }  
       }
@@ -59,34 +65,36 @@ typedef struct {
 void RWIO(byte Id){
   if (iIn[Id].ActOption){
       bitWrite((iIn[Id].fl),0, !digitalRead(iIn[Id].IdPinI));
-      bitWrite(Debug,6,1);
   }else{
       bitWrite((iIn[Id].fl),0, digitalRead(iIn[Id].IdPinI));
-      bitWrite(Debug,7,1);
   }
 
 
 
   if (bitRead(iIn[Id].fl, 0) == true) {     //Controllo se il pulsante si è attivato
-    bitWrite(Debug,2,1);
-    if (bitRead(iIn[Id].fl, 2) == false) {
+    if (bitRead(iIn[Id].fl, 2) == true) {
         if (millis() > iIn[Id].TAct) {                       //controllo se il tempo di Anti rimbalzo è passato
-            bitWrite(iIn[Id].fl, 2, true);                   //se è passato allora attivo l'uscita
-            if (iOut[iIn[Id].Id].IdBoard != MySIp){
-                //MUdp.beginPacket(iOut[iIn[Id].Id].IdBoard, UdpPort);
-                //MUdp.write("B");
-                //MUdp.write(iIn[Id].Id);
-                //MUdp.write("E");
-                //MUdp.endPacket();
+            bitWrite(iIn[Id].fl, 2, false);                   //se è passato allora attivo l'uscita
+            if ( MySIp != iOut[iIn[Id].Id].IdBoard){
+                UDPIp[3]=iOut[iIn[Id].Id].IdBoard;
+                MUdp.beginPacket(UDPIp, UdpPort);
+                MUdp.write("B");
+                MUdp.write(iIn[Id].Id);
+                MUdp.write("E");
+                MUdp.endPacket();
                 bitWrite(Debug,0,1);
             }else{
-                bitWrite(iOut[iIn[Id].Id].fl,0,1);
+                if (MySIp == iOut[iIn[Id].Id].IdBoard){
+                    bitWrite(iOut[iIn[Id].Id].fl,0,1);
+                    //bitWrite(Debug,4,1);
+                    
+                }
             }
         }
     }
   }else{
     iIn[Id].TAct = millis() + Tar;                         //se è cambiato da prima allora aggiorno il tempo di attivazione
-    bitWrite(iIn[Id].fl, 2, false);
+    bitWrite(iIn[Id].fl, 2, true);
   }
 
 }
@@ -114,7 +122,7 @@ void wOut(byte Id){
     
     
     if ((bitRead(iOut[Id].fl, 1)) != (bitRead(iOut[Id].fl, 3))) {
-        if (bitRead(iOut[Id].ActOption, 1)==false){
+        if (iOut[Id].ActOption==false){
             digitalWrite(iOut[Id].IdPinO, bitRead(iOut[Id].fl, 1));
         }else{
             digitalWrite(iOut[Id].IdPinO, !bitRead(iOut[Id].fl, 1));
@@ -133,8 +141,8 @@ void SetupChannel(){
 
 // Scheda nr 16
     //P Rosso
-    iIn[0].IdBoard = 16;        // Indirizzo IP della schedaiOut
-    iIn[0].Id=3;              //Id riferimento Uscita
+    iIn[0].IdBoard = 16;        // Indirizzo IP della schedaiIn
+    iIn[0].Id=1;              //Id riferimento Uscita
     iIn[0].fl=0;              //Gestione Anti-rimbalzo
     iIn[0].IdPinI = 16;       //Pin di ingresso 
     iIn[0].TAct=0;            //gestione dell'antirimbalzo
@@ -143,7 +151,7 @@ void SetupChannel(){
     
     //P Verde
     iIn[1].IdBoard = 16;        // Indirizzo IP della schedaiOut
-    iIn[1].Id=1;              //Id riferimento Ingresso
+    iIn[1].Id=2;              //Id riferimento Ingresso
     iIn[1].fl=0;              //Gestione Anti-rimbalzo
     iIn[1].IdPinI = 4;        //Pin di ingresso 
     iIn[1].TAct=0;            //gestione dell'antirimbalzo
@@ -152,7 +160,7 @@ void SetupChannel(){
     
     //P Blue
     iIn[2].IdBoard = 16;        // Indirizzo IP della schedaiOut
-    iIn[2].Id=2;              //Id riferimento Ingresso
+    iIn[2].Id=3;              //Id riferimento Ingresso
     iIn[2].fl=0;              //Gestione Anti-rimbalzo
     iIn[2].IdPinI = 0;        //Pin di ingresso 
     iIn[2].TAct=0;            //gestione dell'antirimbalzo
@@ -173,9 +181,6 @@ void SetupChannel(){
     iOut[0].MillFellOff = 0;    // millis del momento di attivazione
     iOut[0].IdPinO = 13;      // Id del pin di uscita del segnale
     iOut[0].ActOption=false;    // Serve per avere pin attivi alto o basso
-    
-    //bitWrite(iOut[0].fl,2,(!bitRead(iOut[0].fl, 1)));
-    //iOut[0].Name="Abat-jour Daria";
     SetupOut(0);
 
 // Scheda nr 14
@@ -310,7 +315,7 @@ void IncomingUDP(){     // Funzione che legge i comandi UDP in arrivo
     IdL=0xFF;
     MUdp.read(incomingPacket, LenUDP);
     for (int i = 0; i < LenUDP; i++){
-      Serial.print(incomingPacket[i]);
+      //Serial.print(incomingPacket[i]);
       if (incomingPacket[i]=='B'){
         i++;
         IdL=incomingPacket[i];
@@ -319,9 +324,7 @@ void IncomingUDP(){     // Funzione che legge i comandi UDP in arrivo
         // fine lettura pacchetto
       }
     }
-    //bitWrite(iOut[IdL].fl,0,true);
-    
-    
     Serial.println(IdL);
+    bitWrite(iOut[IdL].fl,0,1);
   }
 }

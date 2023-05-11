@@ -20,7 +20,7 @@ String S1;
 String S2;
 String S3;
 
-
+byte HPage =0;
 
 
 
@@ -34,13 +34,108 @@ String BtnColor(int idCol) {
 
 
 
+
+void HTMLButton ( String Actions, String Values ) {
+    client.print(F("<form action="""));
+    client.print(Actions);
+    client.print(F(""">"));
+    client.print(F("<input type=""submit"" value="""));
+    client.print(Values);
+    client.print(F(""">"));
+    client.print(F("</form>"));
+} 
+
+
+
+void HTMLParameter(){
+    Serial.println("Entrato in parameter");
+    Serial.println(iOut[0].IdBoard);
+    Serial.print("---------");
+    Serial.println(MySIp);
+    for (int i=0 ; i <= TotalOut; i++){
+        if (MySIp == iOut[i].IdBoard){
+            Serial.print (iOut[i].IdBoard);
+            Serial.print ("--------");
+            client.print(F( "<label for=""lampid"""));
+            client.print(i);
+            client.print(F( """> minuti di attivazione massima della luce (1-300):</label> <input type=""number"" id=""minutes"" name=""minutes""  min=""10"" max=""300"" value="));
+            client.print (iOut[i].TOn/1000);
+            Serial.print("--");
+            Serial.print(iOut[i].TOn);
+            Serial.print("--");
+            client.println(F(" > <br>"));
+            Serial.println(i);
+            
+        }
+    }
+    Serial.println("---------");
+}
+
+
+void HTTPHeader(){
+    //********************************************* pagina server inizio  *****************************************************
+    client.println(F("HTTP/1.1 200 OK"));
+    client.println(F("Content-Type: text/html"));
+    client.println(F("Connection: close"));  // the connection will be closed after completion of the response
+    
+    //------------------------------------------- Refresh  ***********************************************************
+    if (rp){
+        client.println(F("Refresh: 0;url=/"));  // reset the pages
+        rp=false;
+    }
+    //****************************************************************************************************************************
+     
+    client.println();
+
+}
+
+
+
+
+
+
+void HTMLHeader(){
+    client.println(F("<!DOCTYPE HTML>"));
+    client.print(F("<html><head><title>"));
+    client.print(WEBTITPAGE);
+    client.println(F("</title></head>"));
+    client.println(F("<body>"));
+    client.print(F("<b style=""font-size:10px"">"));
+    client.print(PRGVER);
+    client.print(F("</b>"));
+    if (OTAActive){
+        client.print(F("<table style=""width:100%"" border=1> <tr><th width=100% align=""center""> OTA Active </th> </tr> </table> <hr width=100% size=4 color=FF0000> "));
+    }
+    
+    client.print(F("<hr width=100% size=4 color=0000FF>\r\n"));   // Linea Separatrice
+    
+    client.println(F("<table style=\"width: 100%\" border=\"0\"><tbody>"));
+    client.println(F("<tr>"));
+    HTMLButton("/PAR", "Parametri");
+    client.println(F("</tr><tr>"));
+    HTMLButton("/OTA", "Firmware OTA");
+    client.println(F("</tr><tr>"));
+    HTMLButton("/FILES", "Lista files SD");
+    client.println(F("</tr></table>"));
+    client.print(F("<hr width=100% size=4 color=00FF00>\r\n"));   // Linea Separatrice
+
+    client.print(F("<hr width=100% size=4 color=FF0000>\r\n"));
+
+}
+    
+
+
+
+
+
+
+
 void WebServer (){
 
 //********** SERVER ****************************************************************
     switch (NetMas){
       case 0:
         client = server.available();
-        //client.setNoDelay(true);
         if ((client) & (client.connected())){ // in ricezione
           NetMas=5;
           NetTo=millis()+3000;
@@ -95,6 +190,7 @@ void WebServer (){
         break;
       case 50:
         {
+          HPage=0;
           NetTo=millis()+500;
           NetCMDS=client.readStringUntil('\r');
           int io1=NetCMDS.indexOf("/SET?");
@@ -118,17 +214,12 @@ void WebServer (){
             }
           }
 
-//*************************************** LETTURA VALORE PARAMETRO ***********************************
-      io1=NetCMDS.indexOf("NPPD");
-      if (io1 > 0){
-        //StParam();
-      }
-
    
     //*****************************************  OTA  attivazione web  *****************************      
           io1=NetCMDS.indexOf("/OTA");
           io2=0;
           if (io1 > 0){
+            HPage=0;
             rp=true;
             OTAActive= !OTAActive;
             OTABegin();            
@@ -140,8 +231,7 @@ void WebServer (){
           io1=NetCMDS.indexOf("/PAR");
           io2=0;
           if (io1 > 0){
-            NetMas=150;
-            break;
+            HPage=1;
           }
     //**********************************************************************************************      
           
@@ -261,194 +351,33 @@ void WebServer (){
             rp=true;
             
           } // ******************************************************************
-
-
           while (client.available()){
             char c = client.read();
           }
-
-
-          //********************************************* pagina server inizio  *****************************************************
-          client.println(F("HTTP/1.1 200 OK"));
-          client.println(F("Content-Type: text/html"));
-          client.println(F("Connection: close"));  // the connection will be closed after completion of the response
-    
-          //------------------------------------------- Refresh  ***********************************************************
-          if (rp){
-              client.println(F("Refresh: 0;url=/"));  // reset the pages
-            rp=false;
-          }
-          //****************************************************************************************************************************
-          
-          client.println();
-          client.println(F("<!DOCTYPE HTML>"));
-          client.print(F("<html><head><title>"));
-          client.print(WEBTITPAGE);
-          client.println(F("</title></head>"));
-          client.println(F("<body>"));
-          client.print(F("<b style=""font-size:10px"">"));
-          client.print(PRGVER);
-          client.print(F("</b>"));
-          if (OTAActive){
-            client.print(F("<table style=""width:100%"" border=1> <tr><th width=100% align=""center""> OTA Active </th> </tr> </table> <hr width=100% size=4 color=0000FF> "));
-          }
-          
-          //************************************************* Fine Header ******************************************************
-    
-        //tabelle inizio
-
-            client.print(F("<hr width=100% size=4 color=FF0000>\r\n"));
-            
-            client.print(F("<form action=""/PAR"">"));
-            client.print(F("<input type=""submit"" value=""Parametri"">"));
-            client.print(F("</form>")); 
-      
-            client.print(F("<form action=""/OTA"">"));
-            client.print(F("<input type=""submit"" value=""OTA"">"));
-            client.print(F("</form>")); 
-
-/*
-            client.print(F("<hr width=100% size=4 color=FF0000>\r\n"));
-            
-            client.println(F("<table style=\"width: 100%\" border=\"1\"><tbody>"));
-            
-            client.println(F("<tr>"));
-            
-            TButton(1);
-            TButton(2);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(3);
-            TButton(4);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(5);
-            TButton(6);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(7);
-            TButton(8);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(9);
-            TButton(10);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(11);
-            TButton(12);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(13);
-            TButton(14);
-            client.println(F("</tr>"));
-            client.println(F("<tr>"));
-            TButton(15);
-            TButton(16);
-            client.println(F("</tr>"));
-            client.println(F("</tbody></table>"));
-            */
-            client.println(F("</body>\r\n</html>"));
-            delay(100);
-            NetMas=0; // funzione del timeout di ricezione
-            client.stop();
+          NetMas=100; // funzione del timeout di ricezione
         }
         break;
-
-      case 150:
-        {
-          while (client.available()){
-            char c = client.read();
+        
+      case 100:
+          HTTPHeader();
+          HTMLHeader();  
+          if (HPage ==1) {
+            HTMLParameter();
           }
-
-          //********************************************   PARAMETRI   *********************************************************    
-          client.println(F("HTTP/1.1 200 OK"));
-          client.println(F("Content-Type: text/html"));
-          client.println(F("Connection: close"));  // the connection will be closed after completion of the response
-          client.println();
-          client.println(F("<!DOCTYPE HTML>"));
-          client.print(F("<html><head><title>"));
-          client.print(WEBTITPAGE);
-          client.print("  Parametri");
-          client.println(F("</title></head>"));
-          client.println(F("<body>"));
-          client.print(F("<b style=""font-size:10px"">"));
-          client.print(PRGVER);
-          client.print(F("</b>"));
-          
-          void HeaderInfo();
-          
-          //************************************************* Fine Header ******************************************************
-          client.print(F("<hr width=100% size=4 color=FF0000>\r\n"));
-          
-          client.print(F("<form action=""/"">"));
-          client.print(F("<input type=""submit"" value=""Main"">"));
-          client.print(F("</form>")); 
-    
-          client.print(F("<hr width=100% size=4 color=FF0000>\r\n"));
-          client.print(F("<table style=""width:100%"" border=2>"));
-          /*
-          client.println(F("<tr border=1>"));
-          
-          ClParam(1);
-          ClParam(2);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(3);
-          ClParam(4);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(5);
-          ClParam(6);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(7);
-          ClParam(8);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(9); 
-          ClParam(10);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(11);
-          ClParam(12);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(13);
-          ClParam(14);
-          client.println(F("</tr>"));
-          client.println(F("<tr>"));
-          ClParam(15);
-          ClParam(16);
-
-          */
-          
-          client.print(F("<tr border=1> iIn[0]:"));
-          client.print(iIn[0].fl);
-          client.println(F("</tr>"));
-          
-          
-          client.print(F("<tr border=1> iOut[0]:"));
-          client.print(iOut[0].fl);
-          client.println(F("</tr>"));
-          
-          client.println(F("<tr border=1> Debug:"));
-          
-          client.println(Debug);
-          
-          //client.println(oOut);
-          
-          
-          client.println(F("</tr>"));
-          client.println(F("</body>\r\n</html>"));
-          delay(100);
-          NetMas=200; // funzione del timeout di ricezione
-          //client.stop();
-        }
-        break;
-
+          client.println(F("</body>"));
+                
+        NetMas=200;
+        break;      
       case 200:
-        client.stop();
-        NetMas=0;
+        NetTo=millis()+200;
+        NetMas=201;
+        break;
+        
+      case 201:
+        if (millis() > NetTo) {
+            client.stop();
+            NetMas=0;
+        }  
         break;
       default:
         NetMas=0;
@@ -457,5 +386,7 @@ void WebServer (){
 
 
 }
+
+
 
 
