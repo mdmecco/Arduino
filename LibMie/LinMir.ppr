@@ -36,19 +36,18 @@ LinMir
 6=A:\LibMie\pulsanti_B.c
 7=A:\LibMie\SD Card.c
 8=A:\LibMie\WIFI.h
-9=E:\DATATIME.BIN
 [Selected Project Files]
 Main=
-Selected=E:\DATATIME.BIN
+Selected=A:\LibMie\SD Card.c
 [Ethernet.h]
-TopLine=5
-Caret=46,49
+TopLine=1
+Caret=1,1
 [Funzioni Rete.c]
-TopLine=217
-Caret=11,262
+TopLine=222
+Caret=11,243
 [Gestore.h]
-TopLine=21
-Caret=1,69
+TopLine=24
+Caret=16,72
 [mecco1.h]
 TopLine=1
 Caret=1,1
@@ -59,14 +58,11 @@ Caret=1,1
 TopLine=1
 Caret=1,1
 [pulsanti_B.c]
-TopLine=271
-Caret=1,309
-[SD Card.c]
-TopLine=16
-Caret=10,34
-[WIFI.h]
 TopLine=1
 Caret=1,1
-[E:\DATATIME.BIN]
-TopLine=1
+[SD Card.c]
+TopLine=21
+Caret=19,43
+[WIFI.h]
+TopLine=7
 Caret=1,1

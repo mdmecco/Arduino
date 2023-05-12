@@ -234,9 +234,12 @@ void WebServer (){
           io2=0;
           if (io1 > 0){
             HPage=2;
+            io1=NetCMDS.indexOf("SHOWFILES=");
+            if (io1 > 0){
+              io2=NetCMDS.indexOf(" HT");
+              ShowFile =NetCMDS.substring(io1+10,io2);
+            }
           }
-          
-          
           
           if (HPage == 1){
             io1=NetCMDS.indexOf("?LL");

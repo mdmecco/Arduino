@@ -19,13 +19,39 @@ void printFiles(File dir, int numTabs)
     {
       break;
     }
-    for (uint8_t i = 0; i < numTabs; i++)
-    {
+    for (uint8_t i = 0; i < numTabs; i++){
       client.print('\t');
     }
+    
+    //<a href="url">Link text or object</a>.
+    client.print(F( "<a href=""?SHOWFILES="));
     client.println(entry.name());
-    client.print(F( "<br>"));
+    client.print(F( """>"));
+    client.println(entry.name());
+    client.print(F( "</a><br>"));
+    //entry.close();
+  }
+  client.print(F( "<br>"));
+  
+  if (ShowFile !=""){
+    File entry =  SD.open(ShowFile, FILE_READ);
+    Serial.println ("FILES PRINT ******************");
+    byte dd =0;
+    char buffer[2];
+    unsigned int vv=0;
+    for (unsigned int i = 0; i < entry.size(); i++ ){
+        entry.read (dd, 1);
+        vv= i << 3;
+        if ((vv & 8) > 0 ) {
+            client.print(F( "<br>"));
+            Serial.println ("a capo");          
+        }
+        itoa (dd,buffer,16);
+        client.print(" ");
+        client.print(buffer);
+    }
     entry.close();
+    ShowFile="";
   }
 }
 
@@ -34,10 +60,7 @@ void HTMLFileList(){
     client.print(F("<hr width=100% size=4 color=0000FF>\r\n"));   // Linea Separatrice
     File root = SD.open("/");
     printFiles(root,0);
-    
-
-
-
+    root.close();
 }
 
 

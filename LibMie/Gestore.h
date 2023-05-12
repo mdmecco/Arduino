@@ -68,6 +68,9 @@ unsigned long DayTimeR = 0;
 unsigned long DayDate=0;
 
 
+//*******************
+String ShowFile="";
+
 void WriteTime();
 void ReadTime();
 
