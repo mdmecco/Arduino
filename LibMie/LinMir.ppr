@@ -43,11 +43,11 @@ Selected=A:\LibMie\SD Card.c
 TopLine=1
 Caret=1,1
 [Funzioni Rete.c]
-TopLine=222
-Caret=11,243
+TopLine=359
+Caret=13,385
 [Gestore.h]
-TopLine=24
-Caret=16,72
+TopLine=1
+Caret=1,1
 [mecco1.h]
 TopLine=1
 Caret=1,1
@@ -61,8 +61,8 @@ Caret=1,1
 TopLine=1
 Caret=1,1
 [SD Card.c]
-TopLine=21
-Caret=19,43
+TopLine=53
+Caret=2,11
 [WIFI.h]
-TopLine=7
-Caret=1,1
+TopLine=31
+Caret=15,52

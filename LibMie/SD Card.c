@@ -7,6 +7,12 @@
 /*                                                                            */
 /* ========================================================================== */
 
+union Data
+{
+  unsigned long l;
+  byte b[4];
+};
+
 
 
 
@@ -37,18 +43,21 @@ void printFiles(File dir, int numTabs)
     File entry =  SD.open(ShowFile, FILE_READ);
     Serial.println ("FILES PRINT ******************");
     byte dd =0;
-    char buffer[2];
+    //char buffer[2];
     unsigned int vv=0;
     for (unsigned int i = 0; i < entry.size(); i++ ){
-        entry.read (dd, 1);
-        vv= i << 3;
-        if ((vv & 8) > 0 ) {
+        dd= entry.read ();
+        
+        if (vv > 31 ) {
             client.print(F( "<br>"));
+            vv=0;
             Serial.println ("a capo");          
         }
-        itoa (dd,buffer,16);
+        vv=vv+1;
+        //itoa (dd,16);
         client.print(" ");
-        client.print(buffer);
+        client.print(String(dd, HEX));
+        Serial.print(String(dd, HEX));
     }
     entry.close();
     ShowFile="";
@@ -65,25 +74,39 @@ void HTMLFileList(){
 
 
 void WriteTime(){
+    Data d;
     Serial.println("WRITE");
     File myFile;
+    SD.remove("DATATIME.BIN");
     myFile = SD.open("DATATIME.BIN", FILE_WRITE);
+    myFile.seek(0);
     for (int i=0 ; i <= TotalOut; i++){
         if (MySIp == iOut[i].IdBoard){
-            myFile.write(iOut[i].TOn );
-            Serial.println(i);
+            d.l=iOut[i].TOn;
+            myFile.write(d.b[0] );
+            myFile.write(d.b[1] );
+            myFile.write(d.b[2] );
+            myFile.write(d.b[3] );
+            Serial.print(i);
+            Serial.print("  --  ");
+            Serial.println(iOut[i].TOn );
         }
     }
     myFile.close();
 }
 
 void ReadTime(){
+    Data d;
     File myFile;
     if (SD.exists("DATATIME.BIN")) {
       myFile = SD.open("DATATIME.BIN", FILE_READ);
       for (int i=0 ; i <= TotalOut; i++){
           if (MySIp == iOut[i].IdBoard){
-              myFile.read(iOut[i].TOn, 4 );
+              d.b[0]=myFile.read();
+              d.b[1]=myFile.read();
+              d.b[2]=myFile.read();
+              d.b[3]=myFile.read();
+              iOut[i].TOn=d.l;
           }
       }
       myFile.close();

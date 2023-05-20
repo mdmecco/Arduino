@@ -6,9 +6,10 @@
 #include "a:\libmie\gestore.h"
 #include "a:\libmie\mecco1.h"
 #include "a:\libmie\wifi.h"
-#include "a:\libmie\pulsanti.h"
+//#include "a:\libmie\pulsanti.h"
 #include "a:\libmie\pulsanti_b.c"
 #include "a:\libmie\PageParameter.c"
+#include "a:\libmie\SD Card.c"
 #include "a:\libmie\Funzioni Rete.c"
 
 

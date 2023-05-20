@@ -49,7 +49,10 @@ unsigned long WiFiClTo = 0;
 String WiFiSt = "";
 char WiFiCh = 0;
 
+#define SD LittleFS
 
+#define FILE_WRITE "w"
+#define FILE_READ "r"
 
 
 WiFiUDP MUdp;
@@ -57,7 +60,7 @@ IPAddress UDPIp(192, 168, 1, 0);
 
 
 void InitSetup(){
-    LittleFS.begin();
+    SD.begin();
     
 
 }
