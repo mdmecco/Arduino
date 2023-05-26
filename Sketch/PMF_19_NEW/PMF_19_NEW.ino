@@ -1,15 +1,16 @@
 #include "A:\libraries\AAMecco\pulsanti.h"
 
 #include <ArduinoOTA.h>
-#include "A:\libraries\ESP8266WiFi\src\ESP8266WiFi.h"
+#include <ESP8266WiFi.h>
 //#include <LiquidCrystal_I2C.h>
 //#include <TinyGPS++.h>
 #include <Wire.h>
 
-#include "A:\Sketch\PMF_19_NEW\LiquidCrystal_I2C-1.1.2\LiquidCrystal_I2C.h"
+#include "A:\libraries\New-LiquidCrystal-master\LiquidCrystal_I2C.h"
+//#include "A:\Sketch\PMF_19_NEW\LCD\LiquidCrystal_I2C.h"
 #include "A:\libraries\TinyGPS\TinyGPS++.h"
 
-#include "A:\libraries\LiquidCrystal_I2C\LiquidCrystal_I2C.h"
+//#include "A:\libraries\LiquidCrystal_I2C\LiquidCrystal_I2C.h"
 
 
 TinyGPSPlus gps;
@@ -50,8 +51,8 @@ unsigned long WifiT1=0;
 #define D6_pin  6
 #define D7_pin  7
 #define INTERRUPT_INPUT 2
-LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin, BACKLIGHT_PIN);
-
+LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin); //, BACKLIGHT_PIN);
+//LiquidCrystal_I2C lcd(0x27,20,4);
 
 unsigned long DelayDateDisplay=0;
 unsigned int WId=0;

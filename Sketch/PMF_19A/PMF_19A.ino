@@ -2,19 +2,14 @@
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
 #include <Wire.h>
-#include "a:\libmie\mecco1.h"
-
-// Librerie specifiche
-//#include <LiquidCrystal_I2C.h>
-//#include "A:\libraries\LiquidCrystal_I2cMario\LiquidCrystal_I2C.h"
-#include "A:\libraries\LiquidCrystal-1.5.0\LiquidCrystal_I2C.h"
+#include "A:\Sketch\PMF_19A\LCD\LiquidCrystal_I2C.h"
 #include "A:\libraries\TinyGPS\TinyGPS++.h"
 #include "A:\libraries\AAMecco\pulsanti.h"
 
 
 
 #define WEBTITPAGE "Flussimetro Mario"
-#define PRGVER "2021-03-21 V1.0"
+#define PRGVER "2023-06-26"
 #define MySIp 19
 
 // ********************** DEFINIZIONE MODULO *************************************
@@ -705,4 +700,26 @@ void EEPW(byte Id, word EvV){
   EEPROM.write(Id,Eby1);
   EEPROM.write(Id+1,Eby2);
   EEPROM.commit();
+}
+
+
+
+String STime (unsigned long TTime){  // ****************  Converte in stringa orario il numero di secondi dalla mezzanotte, o in genere un tempo in secondi in HH:MM
+  unsigned int HH=(TTime / 3600);
+  unsigned int MM=(TTime % 3600)/60;
+  String Tmp="";
+  if (HH<10){
+    Tmp="0";
+    Tmp.concat(String(HH,DEC));
+  }else{
+    Tmp=(String(HH,DEC));
+  }
+  Tmp.concat(":");
+  if (MM<10){
+    Tmp.concat("0");
+    Tmp.concat(String(MM,DEC));
+  }else{
+    Tmp.concat(String(MM,DEC));
+  }
+  return Tmp;  
 }
