@@ -2,15 +2,9 @@
 
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
-//#include <LiquidCrystal_I2C.h>
-//#include <TinyGPS++.h>
 #include <Wire.h>
-
-#include "A:\libraries\New-LiquidCrystal-master\LiquidCrystal_I2C.h"
-//#include "A:\Sketch\PMF_19_NEW\LCD\LiquidCrystal_I2C.h"
-#include "A:\libraries\TinyGPS\TinyGPS++.h"
-
-//#include "A:\libraries\LiquidCrystal_I2C\LiquidCrystal_I2C.h"
+#include "A:\Sketch\G_019_Atomozzatore\TinyGPSPlus-0.94b\TinyGPS++.h"
+#include "A:\Sketch\G_019_Atomozzatore\LCD\LiquidCrystal_I2C.h"
 
 
 TinyGPSPlus gps;
@@ -209,7 +203,7 @@ void loop() {
         WifiMas=0;
       }
     }else if (WifiMas ==100){
-      ArduinoOTA.handle();
+      //ArduinoOTA.handle();
       client = server.available();
       if (WiFi.status() != WL_CONNECTED){
         WifiMas=10;
@@ -271,7 +265,7 @@ void loop() {
        lcd.print(F("    "));
     }else if(iMenu==6){
        lcd.print(F("Distance:"));
-       lcd.print(Distanza(Plat,Plng,gps.location.lat(),gps.location.lng()),1);
+       //lcd.print(Distanza(Plat,Plng,gps.location.lat(),gps.location.lng()),1);
        lcd.print(F("    "));
     }else if(iMenu==7){
        lcd.print(F("Luce Lampione     "));
@@ -441,6 +435,8 @@ int WIFIScan() {                                                                
   }
   return WId;
 }
+
+/*
 double Distanza(double lat1, double long1, double lat2, double long2){                     //Misura della distanza tra due coordinate
   // returns distance in meters between two positions, both specified
   // as signed decimal-degrees latitude and longitude. Uses great-circle
@@ -464,7 +460,7 @@ double Distanza(double lat1, double long1, double lat2, double long2){          
   delta = atan2(delta, denom);
   return delta * 6372795;
 }
-
+*/
 
 void SendButtonM(String StoSend){
   ESPM.connect( E1, 80);
