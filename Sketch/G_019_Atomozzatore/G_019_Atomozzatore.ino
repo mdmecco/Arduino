@@ -3,7 +3,7 @@
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
 #include <Wire.h>
-#include "A:\Sketch\G_019_Atomozzatore\TinyGPSPlus-0.94b\TinyGPS++.h"
+#include "A:\Sketch\G_019_Atomozzatore\TinyGPSPlusmaster\src\TinyGPSPlus.h"
 #include "A:\Sketch\G_019_Atomozzatore\LCD\LiquidCrystal_I2C.h"
 
 
@@ -45,7 +45,7 @@ unsigned long WifiT1=0;
 #define D6_pin  6
 #define D7_pin  7
 #define INTERRUPT_INPUT 2
-LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin); //, BACKLIGHT_PIN);
+LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin, BACKLIGHT_PIN);
 //LiquidCrystal_I2C lcd(0x27,20,4);
 
 unsigned long DelayDateDisplay=0;
@@ -91,8 +91,8 @@ char WiFiCh=0;
 
 bool WiFiEnabled=false;
 
-void ICACHE_RAM_ATTR Contatore(){  //interruupt del contatore
-  PMFContatore++;
+void ICACHE_RAM_ATTR Contatore(){
+  PMFContatore = PMFContatore + 1 ;
 }
 
 void setup() {
@@ -151,7 +151,7 @@ void loop() {
     }else if (WifiMas ==1){
       if (WIFIScan()>0) {
         WiFi.config(staticIP, gateway, subnet);
-        WiFi.hostname("PFM_19");
+        WiFi.hostname("G_019");
         lcd.setCursor (0,3);   
         if (WId==1){
           WiFi.begin(ssid1, password1);
@@ -265,7 +265,7 @@ void loop() {
        lcd.print(F("    "));
     }else if(iMenu==6){
        lcd.print(F("Distance:"));
-       //lcd.print(Distanza(Plat,Plng,gps.location.lat(),gps.location.lng()),1);
+       lcd.print(Distanza(Plat,Plng,gps.location.lat(),gps.location.lng()),1);
        lcd.print(F("    "));
     }else if(iMenu==7){
        lcd.print(F("Luce Lampione     "));
@@ -326,9 +326,9 @@ void loop() {
     }
 
     if (FlowType) {
-      lt_mt=((double)(PMFContatore-pulse_counter2)*((double)60000*(double)TrCal))/(double)(millis()-pulse_counterT); //litri al minuto
+      //lt_mt=((double)(PMFContatore-pulse_counter2)*((double)60000*(double)TrCal))/(double)(millis()-pulse_counterT); //litri al minuto
     }else{
-      lt_mt=((double)(PMFContatore-pulse_counter2)*((double)1000*(double)TrCal))/(double)((double)(millis()-pulse_counterT)*(double)gps.speed.mps())*1000;   //cc al metro
+      //lt_mt=((double)(PMFContatore-pulse_counter2)*((double)1000*(double)TrCal))/(double)((double)(millis()-pulse_counterT)*(double)gps.speed.mps())*1000;   //cc al metro
     }
     if (lt_mt<0.01){
       lt_mt=0;
@@ -436,7 +436,7 @@ int WIFIScan() {                                                                
   return WId;
 }
 
-/*
+
 double Distanza(double lat1, double long1, double lat2, double long2){                     //Misura della distanza tra due coordinate
   // returns distance in meters between two positions, both specified
   // as signed decimal-degrees latitude and longitude. Uses great-circle
@@ -460,13 +460,12 @@ double Distanza(double lat1, double long1, double lat2, double long2){          
   delta = atan2(delta, denom);
   return delta * 6372795;
 }
-*/
+
 
 void SendButtonM(String StoSend){
   ESPM.connect( E1, 80);
-  while (ESPM.connected()){
-    ESPM.print(StoSend);  
-    delay(50);
-    ESPM.stop();
-  }
+  ESPM.connected();
+  ESPM.print(StoSend);  
+  delay(50);
+  ESPM.stop();
 }
