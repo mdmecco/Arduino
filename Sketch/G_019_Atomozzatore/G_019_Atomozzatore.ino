@@ -3,9 +3,9 @@
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
 #include <Wire.h>
-#include "A:\Sketch\G_019_Atomozzatore\TinyGPSPlusmaster\src\TinyGPSPlus.h"
+//#include "A:\Sketch\G_019_Atomozzatore\TinyGPSPlusmaster\src\TinyGPSPlus.h"
 #include "A:\Sketch\G_019_Atomozzatore\LCD\LiquidCrystal_I2C.h"
-
+#include <TinyGPSPlus.h>
 
 TinyGPSPlus gps;
 
@@ -45,7 +45,8 @@ unsigned long WifiT1=0;
 #define D6_pin  6
 #define D7_pin  7
 #define INTERRUPT_INPUT 2
-LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin, BACKLIGHT_PIN);
+//LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin, BACKLIGHT_PIN);
+LiquidCrystal_I2C lcd(I2C_ADDR, En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin, BACKLIGHT_PIN, POSITIVE);
 //LiquidCrystal_I2C lcd(0x27,20,4);
 
 unsigned long DelayDateDisplay=0;
