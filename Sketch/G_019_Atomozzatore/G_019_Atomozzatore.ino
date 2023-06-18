@@ -1,7 +1,5 @@
 #include "A:\libraries\AAMecco\pulsanti.h"
 
-#include <ArduinoOTA.h>
-#include <ESP8266WiFi.h>
 #include <Wire.h>
 //#include "A:\Sketch\G_019_Atomozzatore\TinyGPSPlusmaster\src\TinyGPSPlus.h"
 #include "A:\Sketch\G_019_Atomozzatore\LCD\LiquidCrystal_I2C.h"
@@ -53,16 +51,20 @@ unsigned long DelayDateDisplay=0;
 unsigned int WId=0;
 
 
-#define PRosso 14
+#define PRosso 3 //14
 unsigned long TARR=0;              //momento di pressione antirimbalzo in millis()
 byte SPR=B00000000;                       //Stato 
 unsigned long TATR=0;         //Tempo start attivazione
 
-#define PGiallo 12
+#define PGiallo 4 //12
 unsigned long TARG=0;              //tempo antirimbalzo in millis()
 byte SPG=B00000000;                       //Stato 
 unsigned long TATG=0;         //Tempo start attivazione
 unsigned long TOnActP=180;   //Tempo massimo acceso
+
+
+
+#define PinInterrupt 2  //esp era 13
 
 int iMenu= 1 ;
 
@@ -92,7 +94,7 @@ char WiFiCh=0;
 
 bool WiFiEnabled=false;
 
-void ICACHE_RAM_ATTR Contatore(){
+void  Contatore(){
   PMFContatore = PMFContatore + 1 ;
 }
 
@@ -101,7 +103,7 @@ void setup() {
     pinMode(PRosso, INPUT_PULLUP); //Pulsante Rosso
     pinMode(PGiallo, INPUT_PULLUP); //Pulsante Giallo
     //pinMode(LED_BUILTIN, OUTPUT);
-    attachInterrupt(digitalPinToInterrupt(13), Contatore, RISING);
+    attachInterrupt(digitalPinToInterrupt(PinInterrupt), Contatore, RISING);
     Serial.begin(9600);
     Wire.begin();
    lcd.begin(20,4);        // 20 columns by 4 rows on display

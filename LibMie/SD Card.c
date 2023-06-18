@@ -67,7 +67,7 @@ void printFiles(File dir, int numTabs)
 
 void HTMLFileList(){
     client.print(F("<hr width=100% size=4 color=0000FF>\r\n"));   // Linea Separatrice
-    File root = SD.open("/");
+    File root = SD.open("/", "r");
     printFiles(root,0);
     root.close();
 }
