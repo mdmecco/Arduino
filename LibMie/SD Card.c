@@ -93,9 +93,11 @@ void WriteTime(){
         }
     }
     myFile.close();
+    //SD.close();
 }
 
 void ReadTime(){
+    Serial.println ("************Read Time in");
     Data d;
     File myFile;
     if (SD.exists("DATATIME.BIN")) {
@@ -111,6 +113,7 @@ void ReadTime(){
       }
       myFile.close();
     }
+    Serial.println ("************Read Time out");
 }
 
 

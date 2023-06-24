@@ -66,6 +66,15 @@ void InitSetup(){
 }
 
 
+// ******************************* Funzione che indica la connessione di rete ************************
+String NetConnW(){
+    String D;
+    D= WiFi.SSID();
+    D.concat (" : ");
+    D.concat (WiFi.RSSI());
+    return D ;
+}
+
 
 
 int WIFIScan() {                                                                           //Scan delle Wifi

@@ -31,6 +31,16 @@ bool OTAActive=false;  // per ora è messo solo per compatibilità
 
 
 
+// ******************************* Funzione che indica la connessione di rete ************************
+String NetConnW(){
+    String D;
+    D= "Cable Connction";
+    return D ;
+}
+
+
+
+
 void InitSetup(){
   if (!SD.begin(4)) {
     Serial.println("Errore inizializzazione SD");
@@ -47,6 +57,43 @@ void InitSetup(){
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 const IPAddress staticIP(192, 168, 1, MySIp);
+
+
+
+
+
+void GetTime() {
+  EthernetClient WcGMA;
+  String Ln1 = "";
+  unsigned long TT = 0;
+  if (WcGMA.connect("www.mdmecco.it", 80)) {
+    WcGMA.print(F("GET /ghelfa/time.php HTTP/1.1 \r\nHost: www.mdmecco.it\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n"));
+    WcGMA.flush();
+    //delay(150);
+    Ln1 = WcGMA.readStringUntil('<');
+    Ln1 = WcGMA.readStringUntil('>');
+    TT = atol(Ln1.c_str());
+    if (TT > 0) {
+      DayTimeB = true;
+      DayTimeR = millis() + 28800000;
+    } else {
+      DayTimeB = false;
+      DayTimeR = millis() + 600000;
+    }
+  } else {
+    if (DayTimeS = 0) {
+      DayTimeB = false;
+      DayTimeR = millis() + 600000;
+    } else {
+      DayTimeB = true;
+      DayTimeR = millis() + 600000;
+    }
+  }
+  WcGMA.stop();
+  DayTimeS = TT - ((millis() / 1000) % 86400);
+}
+
+
 
 
 bool NetConn(){
@@ -87,6 +134,7 @@ bool NetConn(){
       MASEt = 100;
       //ArduinoOTA.begin(true);
       //ArduinoOTA.begin(Ethernet.localIP(), "Arduino", "password", InternalStorage);
+      GetTime();
       break;
     case 100:
       //***************************** FINE CODICE CONNESSO *************************************************
@@ -98,6 +146,8 @@ bool NetConn(){
       break;
     case 200:
       Serial.println("Ethernet ERROR");
+      client.stop();
+      //server.close();
       MASEt = 0;
       break;
     default:
@@ -125,36 +175,6 @@ void HeaderInfo(){
 
 }
 
-void GetTime() {
-  EthernetClient WcGMA;
-  String Ln1 = "";
-  unsigned long TT = 0;
-  if (WcGMA.connect("www.mdmecco.it", 80)) {
-    WcGMA.print(F("GET /ghelfa/time.php HTTP/1.1 \r\nHost: www.mdmecco.it\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n"));
-    WcGMA.flush();
-    //delay(150);
-    Ln1 = WcGMA.readStringUntil('<');
-    Ln1 = WcGMA.readStringUntil('>');
-    TT = atol(Ln1.c_str());
-    if (TT > 0) {
-      DayTimeB = true;
-      DayTimeR = millis() + 28800000;
-    } else {
-      DayTimeB = false;
-      DayTimeR = millis() + 600000;
-    }
-  } else {
-    if (DayTimeS = 0) {
-      DayTimeB = false;
-      DayTimeR = millis() + 600000;
-    } else {
-      DayTimeB = true;
-      DayTimeR = millis() + 600000;
-    }
-  }
-  WcGMA.stop();
-  DayTimeS = TT - ((millis() / 1000) % 86400);
-}
 
 
 

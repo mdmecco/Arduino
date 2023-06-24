@@ -61,7 +61,7 @@ void HTMLParameter(){
             client.print(F("<input type=""number"" name=""LL"""));
             client.print(i);
             client.print(F("TT"" id=""minutes""  min=""10"" max=""300"" value="));
-            client.print (iOut[i].TOn/1000);
+            client.print (iOut[i].TOn/60000);
             client.println(F(" > </form>  <br>"));
         }
     }
@@ -98,6 +98,19 @@ void HTMLHeader(){
     client.println(F("<body>"));
     client.print(F("<b style=""font-size:10px"">"));
     client.print(PRGVER);
+  
+  
+    client.println(F("<table style=""width:100%"" border=1>"));
+    client.print(F("<tr> <th width=50% align=""center"">"));
+    client.println(NetConnW());
+    client.println(F("</th>"));
+    client.print(F("<th width=50% align=""center"">"));
+    client.print(STime(DaySec()));
+    client.println(F("</th>"));
+    client.print(F("</tr></table>"));
+
+    
+    
     client.print(F("</b>"));
     if (OTAActive){
         client.print(F("<table style=""width:100%"" border=1> <tr><th width=100% align=""center""> OTA Active </th> </tr> </table> <hr width=100% size=4 color=FF0000> "));
@@ -122,6 +135,10 @@ void HTMLHeader(){
 
 
 
+  
+
+
+
 
 
 
@@ -132,7 +149,9 @@ void WebServer (){
     switch (NetMas){
       case 0:
         client = server.available();
+        
         if ((client) & (client.connected())){ // in ricezione
+            Serial.println ("************ InServer ");
           NetMas=5;
           NetTo=millis()+3000;
         }
@@ -251,7 +270,7 @@ void WebServer (){
               String iotim=NetCMDS.substring(io2+3,io1);
               //Serial.println(NetCMDS);
               io1=iotim.toInt();  
-              iOut[ioId].TOn=((unsigned long) io1 * 1000);
+              iOut[ioId].TOn=((unsigned long) io1 * 60000);
               WriteTime();
             }
           }
