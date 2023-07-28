@@ -10,7 +10,8 @@
 // Variabili per gestione rete ed ambiente
 bool rp=false;
 
-byte NetMas = 0;
+
+byte NetMasb = 252;
 unsigned long NetTo = 0;
 char NetRdC = 0;
 String NetCMDS = "";
@@ -134,28 +135,50 @@ void HTMLHeader(){
     
 
 
-
-  
-
-
-
-
-
-
-
 void WebServer (){
 
 //********** SERVER ****************************************************************
+      if (NetMas != NetMasb) {
+        Serial.print ("************ Server NetMas =");
+        Serial.println (NetMas);
+        NetMasb=NetMas ;
+      }
+
+
+    //#if defined (__AVR_ATmega2560__) 
+        if (MASEt != 100){
+            return;
+            Serial.println ("************ NOT RUNNING ");
+        }
+    
+    
+    //Serial.println ("************ WEB RUNNING ");
+    
+    /*
+    #else
+        if (WifiMas != 100 ) {
+            return;
+        }
+    #endif
+*/
     switch (NetMas){
+      
       case 0:
+        
         client = server.available();
         
-        if ((client) & (client.connected())){ // in ricezione
-            Serial.println ("************ InServer ");
+        //if ((client) && (client.connected())){ // in ricezione
+        if ( (client)){ // in ricezione
+          Serial.println ("************ InServer B");
           NetMas=5;
           NetTo=millis()+3000;
         }
         break;
+        
+      case 1:
+        NetMas=200;
+        break;
+        
       case 5:
         if (client.available()){
           NetRdC=client.read();
@@ -167,6 +190,7 @@ void WebServer (){
           }else if(NetRdC=='P'){
             NetMas=50;     
           }
+          
         }
         if (millis()>NetTo){
           NetMas=200; // funzione del timeout di ricezione
@@ -274,125 +298,13 @@ void WebServer (){
               WriteTime();
             }
           }
-          
-          //***************************************L1
-          io1=NetCMDS.indexOf("/L1 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-          
-          //***************************************L2
-          io1=NetCMDS.indexOf("/L2 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
 
-
-          //***************************************L3
-          io1=NetCMDS.indexOf("/L3 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L4
-          io1=NetCMDS.indexOf("/L4 ");
-          io2=0;
-          if (io1 > 0){
-             rp=true;
-          } // ******************************************************************
-
-          //***************************************L5
-          io1=NetCMDS.indexOf("/L5 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L6
-          io1=NetCMDS.indexOf("/L6 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L7
-          io1=NetCMDS.indexOf("/L7 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L8
-          io1=NetCMDS.indexOf("/L8 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L9
-          io1=NetCMDS.indexOf("/L9 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L10
-          io1=NetCMDS.indexOf("/L10 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L11
-          io1=NetCMDS.indexOf("/L11 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L12
-          io1=NetCMDS.indexOf("/L12 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L13
-          io1=NetCMDS.indexOf("/L13 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L14
-          io1=NetCMDS.indexOf("/L14 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L15
-          io1=NetCMDS.indexOf("/L15 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-          } // ******************************************************************
-
-          //***************************************L16
-          io1=NetCMDS.indexOf("/L16 ");
-          io2=0;
-          if (io1 > 0){
-            rp=true;
-            
-          } // ******************************************************************
           while (client.available()){
             char c = client.read();
           }
           NetMas=100; // funzione del timeout di ricezione
         }
+
         break;
         
       case 100:

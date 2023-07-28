@@ -26,10 +26,13 @@ void setup() {
 }
 
 void loop() {
-  if (NetConn()){
-    WebServer();
+  if ( NetConn()==1 ){
+
     IncomingUDP();
-    
+    WebServer();
+  }else{
+    Serial.println("**NetConn == 0 ");
+    NetMas=1;
   }
   
   

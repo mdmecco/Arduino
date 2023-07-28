@@ -19,8 +19,10 @@
 EthernetClient client;
 EthernetServer server(80);
 
-byte MASEt=0;
+byte NetMas = 0;
 
+byte MASEt=0;
+byte MASEtB=252;
 
 EthernetUDP  MUdp;
 
@@ -96,16 +98,28 @@ void GetTime() {
 
 
 
-bool NetConn(){
+byte NetConn(){
+
+    byte MiaFine=0;
+
+  if (MASEt != MASEtB){
+    //Serial.println ((sprintf("MASEt= %d", MASEt) ));
+    Serial.print ("MASEt=");
+    Serial.println (MASEt);
+    MASEtB = MASEt;
+  }
+
   //Innanzitutto la macchina a stati della connessione di rete
   switch (MASEt) {
     case 0:
+      
       Ethernet.begin(mac, staticIP);
       if (Ethernet.hardwareStatus() != EthernetNoHardware) {
         MASEt = 10;
       }
       break;
     case 10:
+        
       if (Ethernet.linkStatus() == LinkOFF) {
         Serial.println("Ethernet cable is NOT connected.");
         MASEt = 15;
@@ -123,7 +137,7 @@ bool NetConn(){
       }
       break;
     case 15:
-      if (Ethernet.linkStatus() != LinkOFF) {
+      if (Ethernet.linkStatus() == LinkON) {
         MASEt = 20;
       }
       break;
@@ -141,13 +155,15 @@ bool NetConn(){
       //****************************************************************************************************
       if (Ethernet.linkStatus() == LinkOFF) {
         MASEt = 200;
-        
+        Serial.println("Ethernet cable whent  DIconnected.");
+        NetMas=10;  
       }
       break;
     case 200:
       Serial.println("Ethernet ERROR");
-      client.stop();
-      //server.close();
+      
+      //client.stop();
+      //server.end();
       MASEt = 0;
       break;
     default:
@@ -155,13 +171,12 @@ bool NetConn(){
       //Ethernet.end();
   }
   
-    if (MASEt == 100){
-        return true;
-    }else{
-        return false;
-    }
-  
-
+  if (MASEt == 100){
+      MiaFine=1;
+  }else{
+      MiaFine=0;
+  }
+  return MiaFine ;  
 }
 
 
