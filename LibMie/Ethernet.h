@@ -154,9 +154,9 @@ byte NetConn(){
       //***************************** FINE CODICE CONNESSO *************************************************
       //****************************************************************************************************
       if (Ethernet.linkStatus() == LinkOFF) {
-        MASEt = 200;
+//        MASEt = 200;
         Serial.println("Ethernet cable whent  DIconnected.");
-        NetMas=10;  
+//        NetMas=10;  
       }
       break;
     case 200:
@@ -188,7 +188,7 @@ void OTABegin(){
 
 void HeaderInfo(){
 
-}
+} 
 
 
 

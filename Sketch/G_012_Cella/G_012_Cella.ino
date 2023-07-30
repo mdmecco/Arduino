@@ -1,25 +1,25 @@
-#include <ESP_EEPROM.h>
-#include <ArduinoOTA.h>
+
+#include <ArduinoJson.h>
+#include <LittleFS.h>
 #include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+#include <ESP_EEPROM.h>
+#include <DHT.h>
 
-#include "DHT.h"
-#include "a:\libmie\mecco1.h"
 
-// Declare which fonts we will be using
-extern uint8_t SmallFont[];
+
+#define WEBTITPAGE "Cella"
+#define PRGVER "2022-07-30 V3"
+#define LogFile "GET /ghelfa/log.php?FileTS=Cella&StatoR="
+#define MySIp 12
 
 
 #define DHTPIN 2     // Digital pin connected to the DHT sensor
 #define DHTTYPE DHT21   // DHT 21 (AM2301)
 DHT dht(DHTPIN, DHTTYPE);
 
-#define IPFienile 10
-#define IPNafta 27
 
-#define WEBTITPAGE "Cella"
-#define PRGVER "2022-07-12 V2.2"
-#define LogFile "GET /ghelfa/log.php?FileTS=Cella&StatoR="
-#define MySIp 12
 
 
 const IPAddress staticIP(192, 168, 1, MySIp);
@@ -52,6 +52,15 @@ unsigned long LstON=0;
 unsigned long LstOFF=0;
 
 
+// funzioni per la gestione della data e ora prese dalla rete internet tramite la wifi
+unsigned long DayTimeS = 0;
+bool DayTimeB = false;
+unsigned long DayTimeR = 0;
+unsigned long DayDate=0;
+
+
+unsigned long ArrayTime=0;
+
 
 byte NetMas = 0;
 unsigned long NetTo = 0;
@@ -60,9 +69,6 @@ String NetCMDS = "";
 String NetPARS = "";
 
 
-unsigned long DayTimeS = 0;
-bool DayTimeB = false;
-unsigned long DayTimeR = 0;
 
 float TMin=0;
 float TMax=0;
@@ -82,11 +88,12 @@ bool PompaOnS=false;
 unsigned long PompaRefresh=0;
 unsigned long RefreshHeater=60000;
 
-#define ArrayLenght 255
-float TmpArray[ArrayLenght]={0};
-unsigned long ArrayTime=0;
-unsigned int ArrayI=0;
-#define ArrayRefresh 60000
+
+unsigned long RicircoloAria=0;
+unsigned long AriaON=1800000;
+unsigned long AriaOFF=1800000;
+bool AriaP = false;
+bool AriaB = true;
 
 
 String S1;
@@ -100,11 +107,13 @@ void setup() {
   EEPROM.begin(512);
   dht.begin();
   OTAActive=false;
-  WiFi.hostname("Temp_Maurizio");
+  WiFi.hostname("Cella Frigo");
   THome = EEPROM.read(0);
-  pinMode(16, OUTPUT);
+  pinMode(16, OUTPUT);    //Pompa Frigo
   digitalWrite(16, false);
-//  pinMode(7, OUTPUT);
+  pinMode(5, OUTPUT);     // Ricircolo Aria
+  digitalWrite(5, false);
+
   PompaOnB=3;
   
 }
@@ -299,8 +308,6 @@ void loop() {
             EEPROM.write(0,THome);
             EEPROM.commit();
             PompaRefresh=0;
-    
-            SendGMA(30,"<OFFMAURIZIO-000>");
           }
           
           io1=NetCMDS.indexOf("/CLEAR?");
@@ -362,6 +369,8 @@ void loop() {
           client.println(F("</th>"));
           client.print(F("<th width=50% align=""center"">"));
           client.print(STime(DaySec()));
+          client.print("  --  ");
+          client.print(DaySec());
           client.println(F("</th>"));
           client.print(F("</tr></table>"));
           //************************************************* Fine Header ******************************************************
@@ -408,6 +417,26 @@ void loop() {
             client.print("SPENTA");
           }
           client.println(F("</th></tr>"));
+
+          client.print(F("<tr> <th width=50% align=""right""> Ventola Aria</th><th width=50% align=""left"">"));
+          if (AriaP){
+            client.print("ACCESA");
+          }else{
+            client.print("SPENTA");
+          }
+
+          client.print("  --> da:");
+          if (AriaP){
+            client.print(((AriaON - (RicircoloAria - millis())) / 60000));
+          }else{
+            client.print(((AriaOFF - (RicircoloAria - millis())) / 60000));
+          }
+          
+          client.print(" Minuti");
+          
+          client.println(F("</th></tr>"));
+          
+          
           client.print(F("</table>"));
     
     
@@ -448,7 +477,7 @@ void loop() {
     }else{
       SS.concat(";0");
     }
-    ArrayTime=millis()+ArrayRefresh;
+    ArrayTime=millis()+3600000  ;
     LogCaldaia(SS);
   }
     
@@ -458,34 +487,6 @@ void loop() {
     }
 
 
-/*  
-  if (millis()>RefreshTemp){
-  
-    RefreshTemp=millis()+3000;    
-    ReadTempTime0=millis();
-
-    Hum = dht.readHumidity();
-    Tem = dht.readTemperature();
-    
-    TmpArray[ArrayI]=Tem;
-    ArrayI++;
-    TTT=0;
-    
-    if (ArrayI > 255){
-      ArrayI=0;
-    }
-    int i2=0;
-    for (int i=0; i<=255; i++){
-      if (TmpArray[i]!=0){
-        TTT= TTT + TmpArray[i];
-        i2++;
-      }
-    }
-    Tem=TTT/i2;
-    ReadTempTime1=millis();
-    ReadTempTime=ReadTempTime1-ReadTempTime0;
-  }
-*/
 
   
 //**************************************************************************************  
@@ -499,17 +500,20 @@ void loop() {
 
   
   // Attiva la pompa se la temperatura è minore, con un ciclo di isteresi di 0.4°C
+  if ((DaySec() > 28800 ) && (DaySec() < 79200 )) {
+    if (Tem < (THome - 0.2)){
+      PompaOn=false;    
+    }
+    
+    if (Tem > (THome + 0.2)){
+      PompaOn=true;    
+    }
   
-  if (Tem < (THome - 0.2)){
+  }else{
     PompaOn=false;    
-  }
-  
-  if (Tem > (THome + 0.2)){
-    PompaOn=true;    
   }
 
   if (PompaOn != PompaOnB){
-    ArrayTime=0;
     PompaOnB=PompaOn;
     if (PompaOn){
       LstON=DaySec();
@@ -522,6 +526,25 @@ void loop() {
 
 
 
+//**** Aria 
+  if (millis() > RicircoloAria) {
+    if (AriaP){
+      AriaP = false;
+      RicircoloAria = millis() + AriaOFF ;
+    }else{
+      AriaP = true;
+      RicircoloAria = millis() + AriaON ;
+    }
+  }
+
+  if (AriaP != AriaB) {
+    AriaB=AriaP;
+    if (AriaP){
+      digitalWrite(5, false);
+    }else{
+      digitalWrite(5, true);
+    }
+  }
 
 
 //**************************************************************************************
@@ -531,23 +554,6 @@ void loop() {
 //------------------------------------------------- Funzioni --------------------------
 
 
-bool SendGMA(byte IpA, String MyCmd){
-  String SS;
-  WiFiClient WcGMA;
-  GMA[3]=IpA;
-  if (WcGMA.connect(GMA, 80)){
-    WcGMA.print(MyCmd);
-  }
-  WcGMA.flush();
-  if (WcGMA){
-    while (WcGMA.connected()){
-      SS=WcGMA.readStringUntil('>');
-      return (SS=="<OK-00");
-    }
-    WcGMA.flush();
-    WcGMA.stop();
-  }
-}
 
 void LogCaldaia(String TT){
   WiFiClient WcGMA;
@@ -592,15 +598,6 @@ void GetTime() {
   DayTimeS = TT - ((millis() / 1000) % 86400);
 }
 
-unsigned long DaySec() {
-  if (DayTimeB) {
-    return (((millis() / 1000) + DayTimeS) % 86400);
-  } else {
-    return 0;
-  }
-}
-
-
 int WIFIScan() {                                                                           //Scan delle Wifi
   int RssV = -1000;
   int H=-1;
@@ -641,4 +638,32 @@ int WIFIScan() {                                                                
   }
  
   return WId;
+}
+
+unsigned long DaySec() {
+  if (DayTimeB) {
+    return (((millis() / 1000) + DayTimeS) % 86400);
+  } else {
+    return 0;
+  }
+}
+
+String STime (unsigned long TTime){  // ****************  Converte in stringa orario il numero di secondi dalla mezzanotte, o in genere un tempo in secondi in HH:MM
+  unsigned int HH=(TTime / 3600);
+  unsigned int MM=(TTime % 3600)/60;
+  String Tmp="";
+  if (HH<10){
+    Tmp="0";
+    Tmp.concat(String(HH,DEC));
+  }else{
+    Tmp=(String(HH,DEC));
+  }
+  Tmp.concat(":");
+  if (MM<10){
+    Tmp.concat("0");
+    Tmp.concat(String(MM,DEC));
+  }else{
+    Tmp.concat(String(MM,DEC));
+  }
+  return Tmp;  
 }
