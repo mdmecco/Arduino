@@ -500,7 +500,7 @@ void loop() {
 
   
   // Attiva la pompa se la temperatura è minore, con un ciclo di isteresi di 0.4°C
-  if ((DaySec() > 28800 ) && (DaySec() < 79200 )) {
+  if ((DaySec() > 25200 ) && (DaySec() < 79200 )) {
     if (Tem < (THome - 0.2)){
       PompaOn=false;    
     }
