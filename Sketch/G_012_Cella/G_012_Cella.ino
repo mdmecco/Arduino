@@ -1,4 +1,15 @@
 
+/*
+  Note:
+      - Occorre inserire due sensori per registrare l'apertura delle porte
+      - Quando va il compressore occorre che le ventola giri in continuo    (dal 31/07/2023)
+
+
+
+
+
+*/
+
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 #include <ESP8266WiFi.h>
@@ -10,7 +21,7 @@
 
 
 #define WEBTITPAGE "Cella"
-#define PRGVER "2022-07-30 V3"
+#define PRGVER "2023-07-31 V3.1"
 #define LogFile "GET /ghelfa/log.php?FileTS=Cella&StatoR="
 #define MySIp 12
 
@@ -536,6 +547,9 @@ void loop() {
       RicircoloAria = millis() + AriaON ;
     }
   }
+
+
+  AriaP = AriaP || PompaOn ;    // Serve per tenere avviata la ventola insieme alla pompa
 
   if (AriaP != AriaB) {
     AriaB=AriaP;
