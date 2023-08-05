@@ -12,6 +12,8 @@ bool rp=false;
 
 
 byte NetMasb = 252;
+byte NetMas = 0;
+byte MASEt = 0;
 unsigned long NetTo = 0;
 char NetRdC = 0;
 String NetCMDS = "";
@@ -123,6 +125,9 @@ void HTMLHeader(){
     client.println(F("<tr>"));
     HTMLButton("/PAR", "Parametri");
     client.println(F("</tr><tr>"));
+    HTMLButton("/STATUS", "STATUS");
+        
+    client.println(F("</tr><tr>"));
     HTMLButton("/OTA", "Firmware OTA");
     client.println(F("</tr><tr>"));
     HTMLButton("/FILES", "Lista files SD");
@@ -138,56 +143,23 @@ void HTMLHeader(){
 void WebServer (){
 
 //********** SERVER ****************************************************************
+      /*
       if (NetMas != NetMasb) {
         Serial.print ("************ Server NetMas =");
         Serial.println (NetMas);
         NetMasb=NetMas ;
       }
+      */
+        
 
-
-    //#if defined (__AVR_ATmega2560__) 
+    #if defined (__AVR_ATmega2560__)  
         if (MASEt != 100){
             return;
-            Serial.println ("************ NOT RUNNING ");
+            // Serial.println ("************ NOT RUNNING ");
         }
+    #endif    
     
-/*
-  client = server.available();
-  if (client) {
-    Serial.println("new client");
-    // an http request ends with a blank line
-    boolean currentLineIsBlank = true;
-    while (client.connected()) {
-      if (client.available()) {
-        char c = client.read();
-        NetRdC= NetRdC & c;
-        Serial.write(c);
-        // if you've gotten to the end of the line (received a newline
-        // character) and the line is blank, the http request has ended,
-        // so you can send a reply
-        if (c == '\n' && currentLineIsBlank) {
-
-          break;
-        }
-        if (c == '\n') {
-          // you're starting a new line
-          currentLineIsBlank = true;
-        } else if (c != '\r') {
-          // you've gotten a character on the current line
-          currentLineIsBlank = false;
-        }
-      }
-    }
-    // give the web browser time to receive the data
-    delay(1);
-    // close the connection:
-    client.stop();
-    Serial.println("client disconnected");
-  }
-
-*/
-
-   
+    
 
     switch (NetMas){
       
@@ -195,9 +167,10 @@ void WebServer (){
         
         client = server.available();
         
-        //if ((client) && (client.connected())){ // in ricezione
-        if ( (client)){ // in ricezione
-          Serial.println ("************ InServer B");
+        if ((client) && (client.connected())){ // in ricezione
+        //if (client.available()){
+        //if ( (client)){ // in ricezione
+          // Serial.println ("************ InServer B");
           NetMas=5;
           NetTo=millis()+3000;
         }
@@ -299,6 +272,18 @@ void WebServer (){
           io2=0;
           if (io1 > 0){
             HPage=1;
+            io1=NetCMDS.indexOf("?LL");
+            io2=NetCMDS.indexOf("TT=");
+            if (io1 > 0) {
+              String io3=NetCMDS.substring(io1+3,io2);
+              byte ioId = io3.toInt();
+              io1=NetCMDS.indexOf(" HT");
+              String iotim=NetCMDS.substring(io2+3,io1);
+              //// Serial.println(NetCMDS);
+              io1=iotim.toInt();  
+              iOut[ioId].TOn=((unsigned long) io1 * 60000);
+              WriteTime();
+            }
           }
     //**********************************************************************************************      
           io1=NetCMDS.indexOf("/FILES");
@@ -311,21 +296,18 @@ void WebServer (){
               ShowFile =NetCMDS.substring(io1+10,io2);
             }
           }
-          
-          if (HPage == 1){
-            io1=NetCMDS.indexOf("?LL");
-            io2=NetCMDS.indexOf("TT=");
-            if (io1 > 0) {
-              String io3=NetCMDS.substring(io1+3,io2);
-              byte ioId = io3.toInt();
-              io1=NetCMDS.indexOf(" HT");
-              String iotim=NetCMDS.substring(io2+3,io1);
-              //Serial.println(NetCMDS);
-              io1=iotim.toInt();  
-              iOut[ioId].TOn=((unsigned long) io1 * 60000);
-              WriteTime();
-            }
+     //***************************************************************************************************     
+
+    //**********************************************************************************************      
+          io1=NetCMDS.indexOf("/STATUS");
+          io2=0;
+          if (io1 > 0){
+            HPage=3;
           }
+     //***************************************************************************************************     
+
+
+
 
           while (client.available()){
             char c = client.read();
@@ -342,6 +324,8 @@ void WebServer (){
             HTMLParameter();
           }else if (HPage ==2) { 
             HTMLFileList();
+          }else if (HPage ==3) {
+            HTMLStatus();
           }
           client.println(F("</body>"));
                 

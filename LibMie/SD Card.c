@@ -41,7 +41,7 @@ void printFiles(File dir, int numTabs)
   
   if (ShowFile !=""){
     File entry =  SD.open(ShowFile, FILE_READ);
-    Serial.println ("FILES PRINT ******************");
+    // Serial.println ("FILES PRINT ******************");
     byte dd =0;
     //char buffer[2];
     unsigned int vv=0;
@@ -51,13 +51,13 @@ void printFiles(File dir, int numTabs)
         if (vv > 31 ) {
             client.print(F( "<br>"));
             vv=0;
-            Serial.println ("a capo");          
+            // Serial.println ("a capo");          
         }
         vv=vv+1;
         //itoa (dd,16);
         client.print(" ");
         client.print(String(dd, HEX));
-        Serial.print(String(dd, HEX));
+        // Serial.print(String(dd, HEX));
     }
     entry.close();
     ShowFile="";
@@ -75,7 +75,7 @@ void HTMLFileList(){
 
 void WriteTime(){
     Data d;
-    Serial.println("WRITE");
+    // Serial.println("WRITE");
     File myFile;
     SD.remove("DATATIME.BIN");
     myFile = SD.open("DATATIME.BIN", FILE_WRITE);
@@ -87,9 +87,9 @@ void WriteTime(){
             myFile.write(d.b[1] );
             myFile.write(d.b[2] );
             myFile.write(d.b[3] );
-            Serial.print(i);
-            Serial.print("  --  ");
-            Serial.println(iOut[i].TOn );
+            // Serial.print(i);
+            // Serial.print("  --  ");
+            // Serial.println(iOut[i].TOn );
         }
     }
     myFile.close();
@@ -97,7 +97,7 @@ void WriteTime(){
 }
 
 void ReadTime(){
-    Serial.println ("************Read Time in");
+    // Serial.println ("************Read Time in");
     Data d;
     File myFile;
     if (SD.exists("DATATIME.BIN")) {
@@ -113,7 +113,7 @@ void ReadTime(){
       }
       myFile.close();
     }
-    Serial.println ("************Read Time out");
+    // Serial.println ("************Read Time out");
 }
 
 

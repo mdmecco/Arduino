@@ -45,7 +45,7 @@ String NetConnW(){
 
 void InitSetup(){
   if (!SD.begin(4)) {
-    Serial.println("Errore inizializzazione SD");
+    // Serial.println("Errore inizializzazione SD");
     return;
   }
 
@@ -103,9 +103,9 @@ byte NetConn(){
     byte MiaFine=0;
 
   if (MASEt != MASEtB){
-    //Serial.println ((sprintf("MASEt= %d", MASEt) ));
-    Serial.print ("MASEt=");
-    Serial.println (MASEt);
+    //// Serial.println ((sprintf("MASEt= %d", MASEt) ));
+    // Serial.print ("MASEt=");
+    // Serial.println (MASEt);
     MASEtB = MASEt;
   }
 
@@ -121,19 +121,19 @@ byte NetConn(){
     case 10:
         
       if (Ethernet.linkStatus() == LinkOFF) {
-        Serial.println("Ethernet cable is NOT connected.");
+        // Serial.println("Ethernet cable is NOT connected.");
         MASEt = 15;
       } else {
         MASEt = 20;
       }
       if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-        Serial.println("Ethernet shield was not found.");
+        // Serial.println("Ethernet shield was not found.");
       } else if (Ethernet.hardwareStatus() == EthernetW5100) {
-        Serial.println("W5100 Ethernet controller detected.");
+        // Serial.println("W5100 Ethernet controller detected.");
       } else if (Ethernet.hardwareStatus() == EthernetW5200) {
-        Serial.println("W5200 Ethernet controller detected.");
+        // Serial.println("W5200 Ethernet controller detected.");
       } else if (Ethernet.hardwareStatus() == EthernetW5500) {
-        Serial.println("W5500 Ethernet controller detected.");
+        // Serial.println("W5500 Ethernet controller detected.");
       }
       break;
     case 15:
@@ -142,7 +142,7 @@ byte NetConn(){
       }
       break;
     case 20:
-      Serial.println("Ethernet cable is connected.");
+      // Serial.println("Ethernet cable is connected.");
       server.begin();
       MUdp.begin(UdpPort);
       MASEt = 100;
@@ -155,12 +155,12 @@ byte NetConn(){
       //****************************************************************************************************
       if (Ethernet.linkStatus() == LinkOFF) {
 //        MASEt = 200;
-        Serial.println("Ethernet cable whent  DIconnected.");
+        // Serial.println("Ethernet cable whent  DIconnected.");
 //        NetMas=10;  
       }
       break;
     case 200:
-      Serial.println("Ethernet ERROR");
+      // Serial.println("Ethernet ERROR");
       
       //client.stop();
       //server.end();

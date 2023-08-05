@@ -21,14 +21,14 @@ void SetupOut (byte Id) {       // Funzione Setup Out
     if ( MySIp== iOut[Id].IdBoard){
       if (iOut[Id].IdPinO != 0xFF) {
           pinMode(iOut[Id].IdPinO, OUTPUT);
-          Serial.print("IdOut:");
-          Serial.print(Id);
-          Serial.print(" Level:");
+          // Serial.print("IdOut:");
+          // Serial.print(Id);
+          // Serial.print(" Level:");
           if (iOut[Id].ActOption == 0){
-                Serial.println("LOW");
+                // Serial.println("LOW");
                 digitalWrite(iOut[Id].IdPinO, LOW);
           }else{
-                Serial.println("HIGH");
+                // Serial.println("HIGH");
                 digitalWrite(iOut[Id].IdPinO, HIGH);
           }  
       }
@@ -106,7 +106,7 @@ void wOut(byte Id){
         if (bitRead(iOut[Id].fl, 0) == 1){
             bitWrite(iOut[Id].fl,1,1);
             bitWrite(iOut[Id].fl,0,0);
-            iOut[Id].MillFellOff=millis() + iOut[Id].TOn;
+            iOut[Id].MillFellOff = millis() + iOut[Id].TOn;
         }
     }else{
         if (bitRead(iOut[Id].fl, 0) == 1){
@@ -122,16 +122,112 @@ void wOut(byte Id){
     
     
     if ((bitRead(iOut[Id].fl, 1)) != (bitRead(iOut[Id].fl, 3))) {
-        if (iOut[Id].ActOption==false){
-            digitalWrite(iOut[Id].IdPinO, bitRead(iOut[Id].fl, 1));
-        }else{
+        if (iOut[Id].ActOption){
             digitalWrite(iOut[Id].IdPinO, !bitRead(iOut[Id].fl, 1));
+        }else{
+            digitalWrite(iOut[Id].IdPinO, bitRead(iOut[Id].fl, 1));
         }
         bitWrite(iOut[Id].fl,3,(bitRead(iOut[Id].fl, 1)));
     }
 }
 
  
+void HTMLStatus(){   //Costruzione della tabello con gli stati di input e di output immediati della scheda
+    //****************   INPUT  ******************************************    
+    client.println(F("<table style=""width:100%"" border=1>"));
+    client.print(F("<tr> <th align=""center"" >"));
+    client.print(F("INPUT </th> </tr> </table>"));
+    
+    client.println(F("<table style=""width:100%"" border=1>"));
+    client.print(F("<tr>"));
+    for(byte x = 0; x < vIn; x++) {
+        if (iIn[x].IdBoard == MySIp){        
+          if (digitalRead(iIn[x].IdPinI ) ) {          
+            if (iIn[x].ActOption){
+                client.print(F("<td align=""center""  bgcolor=""F0F0F0"" >"));
+            }else{
+                client.print(F("<td align=""center""  bgcolor=""F06060"" >"));
+            }
+          }else{
+            if (iIn[x].ActOption){
+                client.print(F("<td align=""center""  bgcolor=""F06060"" >"));
+            }else{
+                client.print(F("<td align=""center""  bgcolor=""F0F0F0"" >"));
+            }
+          }
+          client.print(x);
+          client.print(F(" > "));
+          client.print(iIn[x].IdOut);
+          client.print(F(" ["));
+          client.print(iOut[iIn[x].IdOut].IdBoard);
+          client.print(F("] "));
+          client.print(F("<br>"));
+          client.print(iIn[x].IdPinI);
+          client.print(F(" > "));
+          client.print(iIn[x].Name);
+          client.print(F("<br>"));
+          client.print(iOut[iIn[x].IdOut].Name);
+          client.print(F("</td>"));
+        }
+    }
+    
+    client.println(F("</tr>"));
+    client.print(F("</table>"));
+
+    //****************   OUTPUT  ******************************************
+    client.println(F("<table style=""width:100%"" border=1>"));
+    client.print(F("<tr> <th align=""center"" >"));
+    client.print(F("OUTPUT </th> </tr> </table>"));
+    
+    client.println(F("<table style=""width:100%"" border=1>"));
+    client.print(F("<tr>"));
+    unsigned long trest=0;
+    for(byte x = 0; x < vOut; x++) {
+        trest=0;    
+      if (iOut[x].IdBoard == MySIp){        
+        if (digitalRead(iOut[x].IdPinO ) ) {          
+          if (iOut[x].ActOption){
+            client.print(F("<td align=""center""  bgcolor=""F0F0F0"" >"));
+            trest=0;
+          }else{
+            client.print(F("<td align=""center""  bgcolor=""F01010"" >"));
+            if (millis() < iOut[x].MillFellOff) {
+                  trest =((iOut[x].MillFellOff - millis() ) / 60000);
+            }
+          }  
+        }else{
+          if (!iOut[x].ActOption){
+            client.print(F("<td align=""center""  bgcolor=""F0F0F0"" >"));
+            trest=0;
+          }else{
+            client.print(F("<td align=""center""  bgcolor=""F01010"" >"));
+            if (millis() < iOut[x].MillFellOff) {
+                  trest =((iOut[x].MillFellOff - millis() ) / 60000);
+            }
+          }  
+        }
+        client.print(x);
+        client.print(F("<br>"));
+        client.print(iOut[x].IdPinO);
+        client.print(F(" > "));
+        client.print(iOut[x].Name);
+        client.print(F("<br>"));
+        client.print(trest);
+        client.print(F("</td>"));
+      }
+    }
+    
+    client.println(F("</tr>"));
+    client.print(F("</table>"));
+
+
+
+
+}
+
+
+
+
 
 
 
@@ -147,6 +243,7 @@ void SetupChannel(){
     iIn[0].IdPinI = 16;       //Pin di ingresso 
     iIn[0].TAct=0;            //gestione dell'antirimbalzo
     iIn[0].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[0].Name ="cam Alle";
     SetupIn(0);
     
     //P Verde
@@ -156,15 +253,17 @@ void SetupChannel(){
     iIn[1].IdPinI = 4;        //Pin di ingresso 
     iIn[1].TAct=0;            //gestione dell'antirimbalzo
     iIn[1].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[1].Name ="cam 2 Daria";
     SetupIn(1);
     
     //P Blue
     iIn[2].IdBoard = 16;        // Indirizzo IP della schedaiOut
     iIn[2].IdOut=3;              //Id riferimento Uscita
     iIn[2].fl=0;              //Gestione Anti-rimbalzo
-    iIn[2].IdPinI = 0;        //Pin di ingresso 
+    iIn[2].IdPinI = 5;        //Pin di ingresso 
     iIn[2].TAct=0;            //gestione dell'antirimbalzo
     iIn[2].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[2].Name ="cam 1 Daria";
     SetupIn(2);
     
     //P Giallo
@@ -174,6 +273,7 @@ void SetupChannel(){
     iIn[3].IdPinI = 15;       //Pin di ingresso 
     iIn[3].TAct=0;            //gestione dell'antirimbalzo
     iIn[3].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[3].Name ="Paralume Daria";
     SetupIn(3);
     
     iOut[0].IdBoard = 16;        // Indirizzo IP della schedaiOut
@@ -181,23 +281,26 @@ void SetupChannel(){
     iOut[0].MillFellOff = 0;    // millis del momento di attivazione
     iOut[0].IdPinO = 13;      // Id del pin di uscita del segnale
     iOut[0].ActOption=false;    // Serve per avere pin attivi alto o basso
+    iOut[0].Name ="paralume Daria";
     SetupOut(0);
 
 // Scheda nr 14
     iIn[4].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[4].IdOut=2;              //Id riferimento Uscita
+    iIn[4].IdOut=1;              //Id riferimento Uscita
     iIn[4].fl=0;              //Gestione Anti-rimbalzo
     iIn[4].IdPinI = 23;       //Pin di ingresso 
     iIn[4].TAct=0;            //gestione dell'antirimbalzo
     iIn[4].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[4].Name ="camera Alle";
     SetupIn(4);
 
     iIn[5].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[5].IdOut=3;              //Id riferimento Uscita
+    iIn[5].IdOut=2;              //Id riferimento Uscita
     iIn[5].fl=0;              //Gestione Anti-rimbalzo
     iIn[5].IdPinI = 25;       //Pin di ingresso 
     iIn[5].TAct=0;            //gestione dell'antirimbalzo
     iIn[5].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[5].Name ="camera Daria";
     SetupIn(5);
 
     iIn[6].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -206,6 +309,7 @@ void SetupChannel(){
     iIn[6].IdPinI = 27;       //Pin di ingresso 
     iIn[6].TAct=0;            //gestione dell'antirimbalzo
     iIn[6].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[6].Name ="Antistalla";
     SetupIn(6);
 
     iIn[7].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -214,14 +318,16 @@ void SetupChannel(){
     iIn[7].IdPinI = 29;       //Pin di ingresso 
     iIn[7].TAct=0;            //gestione dell'antirimbalzo
     iIn[7].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[7].Name ="Corridoio stalla";
     SetupIn(7);
 
     iIn[8].IdBoard = 14;        // Indirizzo IP della schedaiOut
-    iIn[8].IdOut=6;              //Id riferimento Uscita
+    iIn[8].IdOut=3;              //Id riferimento Uscita
     iIn[8].fl=0;              //Gestione Anti-rimbalzo
     iIn[8].IdPinI = 31;       //Pin di ingresso 
     iIn[8].TAct=0;            //gestione dell'antirimbalzo
     iIn[8].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[8].Name ="camera Daria 2";
     SetupIn(8);
 
     iIn[9].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -230,6 +336,7 @@ void SetupChannel(){
     iIn[9].IdPinI = 33;       //Pin di ingresso 
     iIn[9].TAct=0;            //gestione dell'antirimbalzo
     iIn[9].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[9].Name ="";
     SetupIn(9);
 
     iIn[10].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -238,6 +345,7 @@ void SetupChannel(){
     iIn[10].IdPinI = 35;       //Pin di ingresso 
     iIn[10].TAct=0;            //gestione dell'antirimbalzo
     iIn[10].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[10].Name ="";
     SetupIn(10);
 
     iIn[11].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -246,6 +354,7 @@ void SetupChannel(){
     iIn[11].IdPinI = 37;       //Pin di ingresso 
     iIn[11].TAct=0;            //gestione dell'antirimbalzo
     iIn[11].ActOption=false;   // Serve per avere pin attivi alto o basso
+    iIn[11].Name ="stalla 1";
     SetupIn(11);
 
     iOut[1].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -253,7 +362,7 @@ void SetupChannel(){
     iOut[1].MillFellOff = 0;    // millis del momento di attivazione
     iOut[1].IdPinO = 22;      // Id del pin di uscita del segnale
     iOut[1].ActOption=true;    // Serve per avere pin attivi alto o basso
-    iOut[1].Name = "Daria room";
+    iOut[1].Name = "Camera Alle";
     SetupOut(1);
     
     iOut[2].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -261,6 +370,7 @@ void SetupChannel(){
     iOut[2].MillFellOff = 0;    // millis del momento di attivazione
     iOut[2].IdPinO = 24;      // Id del pin di uscita del segnale
     iOut[2].ActOption=true;    // Serve per avere pin attivi alto o basso
+    iOut[2].Name = "Camera Daria";
     SetupOut(2);
 
     iOut[3].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -268,6 +378,7 @@ void SetupChannel(){
     iOut[3].MillFellOff = 0;    // millis del momento di attivazione
     iOut[3].IdPinO = 26;      // Id del pin di uscita del segnale
     iOut[3].ActOption=true;    // Serve per avere pin attivi alto o basso
+    iOut[3].Name = "Camera Daria 2";
     SetupOut(3);
 
     iOut[4].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -275,6 +386,7 @@ void SetupChannel(){
     iOut[4].MillFellOff = 0;    // millis del momento di attivazione
     iOut[4].IdPinO = 28;      // Id del pin di uscita del segnale
     iOut[4].ActOption=true;    // Serve per avere pin attivi alto o basso
+    iOut[4].Name = "Antistalla";
     SetupOut(4);
 
     iOut[5].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -282,6 +394,7 @@ void SetupChannel(){
     iOut[5].MillFellOff = 0;    // millis del momento di attivazione
     iOut[5].IdPinO = 30;      // Id del pin di uscita del segnale
     iOut[5].ActOption=true;    // Serve per avere pin attivi alto o basso
+    iOut[5].Name = "Corridoio";
     SetupOut(5);
     
     iOut[6].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -315,11 +428,11 @@ void SetupChannel(){
 void IncomingUDP(){     // Funzione che legge i comandi UDP in arrivo
   LenUDP = MUdp.parsePacket();
   if (LenUDP > 0 ){
-    Serial.print("Incoming UDP:");
+    // Serial.print("Incoming UDP:");
     IdL=0xFF;
     MUdp.read(incomingPacket, LenUDP);
     for (int i = 0; i < LenUDP; i++){
-      //Serial.print(incomingPacket[i]);
+      //// Serial.print(incomingPacket[i]);
       if (incomingPacket[i]=='B'){
         i++;
         IdL=incomingPacket[i];
@@ -328,7 +441,7 @@ void IncomingUDP(){     // Funzione che legge i comandi UDP in arrivo
         // fine lettura pacchetto
       }
     }
-    Serial.println(IdL);
+    // Serial.println(IdL);
     bitWrite(iOut[IdL].fl,0,1);
   }
 }

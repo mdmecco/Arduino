@@ -1,6 +1,6 @@
 
 #define WEBTITPAGE "Abat Jour Daria"
-#define PRGVER "2023-05-03 V1.5 UDP"
+#define PRGVER "2023-08-06 V3 UDP"
 #define MySIp 16
 
 #include "a:\libmie\gestore.h"
@@ -29,6 +29,9 @@ int AdcValue =0;
 void setup() { 
   LittleFS.begin();
   Serial.begin(9600);
+
+  delay(2000);
+  
   OTAActive=false;
   WiFi.hostname(WEBTITPAGE);
   
@@ -63,7 +66,7 @@ void loop() {
   if (NetConn()){
     WebServer();
     IncomingUDP();
-    
+
     
     if (millis() > DayTimeR) {
       GetTime();

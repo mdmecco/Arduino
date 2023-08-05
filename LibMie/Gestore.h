@@ -42,11 +42,11 @@ typedef struct {
 }   AIn;
 
 
+#define vIn 12
+#define vOut 9
 
-
-
-AIn   iIn[12];                    //array nr ingressi
-AOut  iOut[9] ;                  //array nr uscite    
+AIn   iIn[vIn];                    //array nr ingressi
+AOut  iOut[vOut] ;                  //array nr uscite    
 
 
 //*********************************** UDP ************************************
@@ -73,5 +73,8 @@ String ShowFile="";
 
 void WriteTime();
 void ReadTime();
+
+
+void HTMLStatus();
 
 

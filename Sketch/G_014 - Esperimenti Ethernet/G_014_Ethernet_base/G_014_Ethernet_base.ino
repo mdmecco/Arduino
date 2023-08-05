@@ -1,6 +1,6 @@
 
 #define WEBTITPAGE "Ghelfa giu Casa II"
-#define PRGVER "2023-05-17 V1 UDP"
+#define PRGVER "2023-08-05 V2 UDP"
 #define MySIp 14
 
 
@@ -16,11 +16,9 @@
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial) {
-    ;  // wait for serial port to connect. Needed for native USB port only
-  }
+
+  delay (2000);
   Ethernet.init(10);  // Most Arduino shields
-  Serial.println("RUN Ethernet");
    InitSetup();
   SetupChannel();
 }
@@ -31,7 +29,7 @@ void loop() {
     IncomingUDP();
     WebServer();
   }else{
-    Serial.println("**NetConn == 0 ");
+    //Serial.println("**NetConn == 0 ");
     NetMas=1;
   }
   

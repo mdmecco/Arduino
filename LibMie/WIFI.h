@@ -39,6 +39,8 @@ WiFiClient client;
 bool OTAActive=false;
 
 byte WifiMas = 0; //Macchina a stati per la connessione WIFI
+byte WifiMasb=255;
+
 unsigned long WifiT0 = 0; // tempi di attesa per la connessione wifi
 unsigned long WifiT1 = 0;
 unsigned int WId = 0;
@@ -157,10 +159,18 @@ void GetTime() {
 bool NetConn(){
   //***************** CONNESSIONE WIFI ******************************************************
 
+  
+  if (WifiMas != WifiMasb){
+    Serial.print("***** WifiMas ---"); 
+    Serial.println(WifiMas);
+    WifiMasb = WifiMas;
+  }
+  
+  
   switch (WifiMas){
     case 100:
       if (OTAActive){
-      ArduinoOTA.handle();  
+        ArduinoOTA.handle();  
       }
       if (WiFi.status() != WL_CONNECTED) {
         WifiMas = 10;
