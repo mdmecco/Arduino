@@ -12,8 +12,13 @@ bool rp=false;
 
 
 byte NetMasb = 252;
-byte NetMas = 0;
-byte MASEt = 0;
+
+
+#if not defined (__AVR_ATmega2560__)  
+    byte NetMas = 0;
+    byte MASEt = 0;
+#endif
+
 unsigned long NetTo = 0;
 char NetRdC = 0;
 String NetCMDS = "";

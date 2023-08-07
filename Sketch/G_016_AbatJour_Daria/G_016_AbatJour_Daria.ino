@@ -22,7 +22,7 @@ int AdcValue =0;
 //Pulsanti
 //16 Rosso
 // 4 Verde
-// 0 Blue
+// 5 Blue
 //15 Giallo
 
 

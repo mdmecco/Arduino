@@ -1,6 +1,6 @@
 
 #define WEBTITPAGE "Ghelfa giu Casa II"
-#define PRGVER "2023-08-05 V2 UDP"
+#define PRGVER "2023-08-07 V3 UDP"
 #define MySIp 14
 
 
