@@ -336,7 +336,7 @@ void SetupChannel(){
     iIn[9].IdPinI = 33;       //Pin di ingresso 
     iIn[9].TAct=0;            //gestione dell'antirimbalzo
     iIn[9].ActOption=false;   // Serve per avere pin attivi alto o basso
-    iIn[9].Name ="";
+    iIn[9].Name ="Specchio Daria";
     SetupIn(9);
 
     iIn[10].IdBoard = 14;        // Indirizzo IP della schedaiOut
@@ -402,6 +402,7 @@ void SetupChannel(){
     iOut[6].MillFellOff = 0;    // millis del momento di attivazione
     iOut[6].IdPinO = 32;      // Id del pin di uscita del segnale
     iOut[6].ActOption=true;    // Serve per avere pin attivi alto o basso
+    iOut[6].Name = "Specchio Daria";
     SetupOut(6);
 
     iOut[7].IdBoard = 14;        // Indirizzo IP della schedaiOut
