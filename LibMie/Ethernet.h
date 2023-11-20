@@ -26,6 +26,12 @@ byte MASEtB=252;
 
 EthernetUDP  MUdp;
 
+
+//MAC Address
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+
+
+IPAddress staticIP(192, 168, 1, MySIp);
 IPAddress UDPIp(192, 168, 1, 0);
 
 
@@ -41,24 +47,6 @@ String NetConnW(){
 }
 
 
-
-
-void InitSetup(){
-  if (!SD.begin(4)) {
-    // Serial.println("Errore inizializzazione SD");
-    return;
-  }
-
-    
-
-}
-
-
-
-//MAC Address
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-
-const IPAddress staticIP(192, 168, 1, MySIp);
 
 
 

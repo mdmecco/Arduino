@@ -61,13 +61,6 @@ WiFiUDP MUdp;
 IPAddress UDPIp(192, 168, 1, 0);
 
 
-void InitSetup(){
-    SD.begin();
-    
-
-}
-
-
 // ******************************* Funzione che indica la connessione di rete ************************
 String NetConnW(){
     String D;
