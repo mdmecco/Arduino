@@ -14,12 +14,19 @@
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 
-#include <Adafruit_MAX31865.h>
+#include "A:\Lib\MAX31865\Adafruit_MAX31865.h"
+//#include "C:\#MyProg\Arduino\Lib\MAX31865\Adafruit_MAX31865.h"
+
 
 // Use software SPI: CS, DI, DO, CLK
-Adafruit_MAX31865 thermo = Adafruit_MAX31865(10, 11, 12, 13);
+//Adafruit_MAX31865 thermo = Adafruit_MAX31865(10, 11, 12, 13);
 // use hardware SPI, just pass in the CS pin
-//Adafruit_MAX31865 thermo = Adafruit_MAX31865(10);
+Adafruit_MAX31865 thermo = Adafruit_MAX31865(44);
+
+
+//SPI uses the SCK, MOSI, MISO and CS (or SS) pins. Those pins are 52, 51, 50 and 53 (defalut) on a Mega.
+
+
 
 // The value of the Rref resistor. Use 430.0 for PT100 and 4300.0 for PT1000
 #define RREF      430.0

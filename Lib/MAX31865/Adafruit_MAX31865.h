@@ -52,7 +52,7 @@
 #include "WProgram.h"
 #endif
 
-#include <Adafruit_SPIDevice.h>
+#include "A:\Lib\Adafruit_BusIO-master\Adafruit_SPIDevice.h"
 
 typedef enum max31865_numwires {
   MAX31865_2WIRE = 0,
