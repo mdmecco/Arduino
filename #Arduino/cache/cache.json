@@ -1,0 +1,55 @@
+{
+  "files" : [ {
+    "remoteURL" : "https://downloads.arduino.cc/libraries/library_index.json.gz",
+    "localPath" : "A:\\#Arduino\\cache\\downloads.arduino.cc\\libraries\\library_index.json.gz",
+    "eTag" : "947406ae49f8abbdfecf9978b41a6ec3",
+    "md5" : "MD5:947406ae49f8abbdfecf9978b41a6ec3",
+    "createdAt" : "2023-11-27T20:49:18.09",
+    "cacheControl" : {
+      "maxAge" : 14400,
+      "noStore" : false,
+      "mustRevalidate" : false,
+      "noCache" : false
+    },
+    "expires" : "2023-11-28T00:49:18.090"
+  }, {
+    "remoteURL" : "https://downloads.arduino.cc/packages/package_index.json.sig",
+    "localPath" : "A:\\#Arduino\\cache\\downloads.arduino.cc\\packages\\package_index.json.sig",
+    "eTag" : "64e4332d235b540a408420aeafe9ec21",
+    "md5" : "MD5:64e4332d235b540a408420aeafe9ec21",
+    "createdAt" : "2023-11-27T20:49:17.021",
+    "cacheControl" : {
+      "maxAge" : 3600,
+      "noStore" : false,
+      "mustRevalidate" : false,
+      "noCache" : false
+    },
+    "expires" : "2023-11-27T21:49:17.021"
+  }, {
+    "remoteURL" : "https://downloads.arduino.cc/libraries/library_index.json.sig",
+    "localPath" : "A:\\#Arduino\\cache\\downloads.arduino.cc\\libraries\\library_index.json.sig",
+    "eTag" : "5a9b6977c753c212cbda58fe630fae32",
+    "md5" : "MD5:5a9b6977c753c212cbda58fe630fae32",
+    "createdAt" : "2023-11-27T20:49:18.513",
+    "cacheControl" : {
+      "maxAge" : 14400,
+      "noStore" : false,
+      "mustRevalidate" : false,
+      "noCache" : false
+    },
+    "expires" : "2023-11-28T00:49:18.513"
+  }, {
+    "remoteURL" : "https://downloads.arduino.cc/packages/package_index.json",
+    "localPath" : "A:\\#Arduino\\cache\\downloads.arduino.cc\\packages\\package_index.json",
+    "eTag" : "e8ed5da4bf3684f470af884b6cfef3fd",
+    "md5" : "MD5:e8ed5da4bf3684f470af884b6cfef3fd",
+    "createdAt" : "2023-11-27T20:49:16.801",
+    "cacheControl" : {
+      "maxAge" : 3600,
+      "noStore" : false,
+      "mustRevalidate" : false,
+      "noCache" : false
+    },
+    "expires" : "2023-11-27T21:49:16.801"
+  } ]
+}
