@@ -1,4 +1,4 @@
-#include <Adafruit_BusIO_Register.h>
+#include "A:\Lib\Adafruit_BusIO-master\Adafruit_BusIO_Register.h"
 
 #if !defined(SPI_INTERFACES_COUNT) ||                                          \
     (defined(SPI_INTERFACES_COUNT) && (SPI_INTERFACES_COUNT > 0))

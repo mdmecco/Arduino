@@ -1,4 +1,4 @@
-#include "Adafruit_SPIDevice.h"
+#include "A:\Lib\Adafruit_BusIO-master\Adafruit_SPIDevice.h"
 
 //#define DEBUG_SERIAL Serial
 

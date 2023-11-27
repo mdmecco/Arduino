@@ -48,7 +48,7 @@
 
 # if you don't want settings to go into "application data" on windows
 # and "library" on macosx, set this to the alternate location.
-#settings.path=data
+settings.path=A:/#Arduino/libraries
 
 # temporary build path, normally this goes into the default
 # "temp" folder for that platform (as defined by java)

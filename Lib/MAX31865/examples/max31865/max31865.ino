@@ -13,7 +13,7 @@
   Written by Limor Fried/Ladyada for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
  ****************************************************/
-
+#include <spi.h>
 #include "A:\Lib\MAX31865\Adafruit_MAX31865.h"
 //#include "C:\#MyProg\Arduino\Lib\MAX31865\Adafruit_MAX31865.h"
 
