@@ -1,0 +1,11 @@
+
+
+1> Uscita Stufa         3 Fili
+2> Tubo uscita stufa    4 Fili
+3> Accumulatore Alto    3 Fili
+4> Accumulatore Basso   3 Fili
+5> Tubo Ritorno Termosifoni Su  4 Fili
+6> Tubo Ritorno Termosifoni Giu 4 Fili
+7> Tubo Ritorno Termosifoni For 4 Fili
+8> Accumulatore Su              4 Fili
+
