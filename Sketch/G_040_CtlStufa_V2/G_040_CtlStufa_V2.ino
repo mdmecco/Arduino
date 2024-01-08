@@ -28,7 +28,7 @@ byte MAS =0;
 
 // Modifica con i dettagli della tua rete
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-IPAddress ip(192, 168, 1, 30);
+IPAddress ip(192, 168, 1, 40);
 EthernetServer server(80);
 byte EthMAS=0;
 unsigned long EthTimeDisconnect=0;
@@ -67,9 +67,11 @@ void loop() {
     // Attendere se il client ha inviato dati
     while (client.connected()) {
       if (client.available()) {
+        String getmystring = ""
         char c = client.read();
         Serial.print(c);
         if ((c == '\n') || (c == '\r')) {
+          getmystring="";
           Serial.print("BackC_r_n=");
           Serial.println(BackC);
           BackC = BackC + 1;
@@ -78,7 +80,7 @@ void loop() {
             // Invia la risposta HTTP con il codice HTML e CSS
             client.println("HTTP/1.1 200 OK");
             client.println("Content-Type: text/html");
-            //client.println("Connection: close");
+            client.println("Connection: close");
             client.println();
             client.print("<!DOCTYPE html>");
             client.print("<html lang=\"it\">");
@@ -131,6 +133,8 @@ void loop() {
          }
         }else{
           BackC = 0;
+          getmystring = getmystring + c;
+          //GET /
         }
       }
     }
