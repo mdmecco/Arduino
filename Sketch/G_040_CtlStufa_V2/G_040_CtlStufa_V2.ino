@@ -1,8 +1,6 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include "A:\Sketch\G_040_CtlStufa_V2\temperatura.h"
-
-
 #include "A:\Sketch\G_040_CtlStufa_V2\temperatura.c"
 
 
@@ -29,6 +27,10 @@ unsigned long EthTimeDisconnect=0;
 
 byte BackC=0;
 
+byte CPGiu=0;  // Variabile usata per il ciclo di funzionamento della pompa giu
+
+
+
 void setup() {
   Serial.begin(9600);
 
@@ -42,8 +44,8 @@ void setup() {
   // Avvia il server
   //server.begin();
 
-  digitalWrite ( 34, sOFF);
-  digitalWrite ( 35, sOFF);
+  digitalWrite ( PStufa, sOFF);
+  digitalWrite ( PGiu, sOFF);
   digitalWrite ( 36, sOFF);
   digitalWrite ( 37, sOFF);
   digitalWrite ( 38, sOFF);
@@ -52,8 +54,8 @@ void setup() {
   digitalWrite ( 41, sOFF);
 
 
-  pinMode(34, OUTPUT);
-  pinMode(35, OUTPUT);
+  pinMode(PStufa, OUTPUT);
+  pinMode(PGiu, OUTPUT);
   pinMode(36, OUTPUT);
   pinMode(37, OUTPUT);
   pinMode(38, OUTPUT);
@@ -62,28 +64,54 @@ void setup() {
   pinMode(41, OUTPUT);
   
 
-  TCN1.begin(MAX31865_4WIRE); //Stufa
-  TCN2.begin(MAX31865_4WIRE); //Accumulatore basso
-  TCN3.begin(MAX31865_4WIRE); //Accumulatore medio
-  TCN4.begin(MAX31865_4WIRE); //Accumulatore alto
-  TCN5.begin(MAX31865_4WIRE); //Accumulatore su
-  TCN6.begin(MAX31865_4WIRE); //Pannello solare
-  TCN7.begin(MAX31865_4WIRE); //Ritorno termosifoni giu
-  TCN8.begin(MAX31865_4WIRE); //Ritorno termosifoni su
+  TCN1.begin(MAX31865_4WIRE); 
+  TCN2.begin(MAX31865_4WIRE); 
+  TCN3.begin(MAX31865_4WIRE); 
+  TCN4.begin(MAX31865_4WIRE); //Stufa
+  TCN5.begin(MAX31865_4WIRE); 
+  TCN6.begin(MAX31865_4WIRE); //Accumulatore alto
+  TCN7.begin(MAX31865_4WIRE); //Accumulatore basso
+  TCN8.begin(MAX31865_4WIRE); 
   
 }
 
 void loop() {
   
   ReadTemp();
-  
-  if (tT5 > 30) {
-    digitalWrite ( 34, sON);
+
+  // se la temperatura della stufa è maggiore dell'accumulatore alto la pompa parte
+  if (tT4 > 50) {
+    if (tT4 > tT6) {
+      digitalWrite ( PStufa, sON);
+    }else{
+      if (tT4 < tT7) {
+        digitalWrite ( PStufa, sOFF);
+      }
+    }
   }else{
-    digitalWrite ( 34, sOFF);
+    if (tT4 < 45) {  
+      digitalWrite ( PStufa, sOFF);
+    }
   }
 
 
- 
+  // Gestione della pompa termosifoni
+  if (tT7 > 55) {
+    if (TbMax > TbMab) {
+      digitalWrite ( PGiu, sON);
+      TbMab=TbMax;
+    }
+    if (tT7 < (TbMax-Ci)) {
+        digitalWrite ( PGiu, sOFF);
+        TbMab=TbMax;
+        TbMax=tT7;
+    }
+  }else{
+    digitalWrite ( PGiu, sOFF);
+    TbMax=tT7;
+    TbMab=tT7;
+  }
+
+
  
 }

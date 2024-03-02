@@ -34,7 +34,7 @@ void ReadTemp () {
             IdT=IdT+1;
             break;
         case 3:
-            TCN4.readRTD();
+            TCN4.readRTD();       // Sensore della stufa
             tT4=TCN4.temperature(RNOMINAL, RREF);
             Serial.print("  T4=");
             Serial.println(tT4);
@@ -55,8 +55,12 @@ void ReadTemp () {
             IdT=IdT+1;
             break;
         case 6:
-            TCN7.readRTD();
+            TCN7.readRTD();     // Sensore dell'accumulo basso
             tT7=TCN7.temperature(RNOMINAL, RREF);
+            if (tT7 > TbMax){
+              TbMax=tT7;
+            }
+            
             Serial.print("  T7=");
             Serial.println(tT7);
             IdT=IdT+1;
@@ -74,4 +78,3 @@ void ReadTemp () {
     }
             
 }
-
