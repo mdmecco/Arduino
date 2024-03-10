@@ -30,6 +30,7 @@ byte BackC=0;
 byte CPGiu=0;  // Variabile usata per il ciclo di funzionamento della pompa giu
 
 
+unsigned long STimeLog=0;
 
 void setup() {
   Serial.begin(9600);
@@ -84,7 +85,7 @@ void loop() {
     if (tT4 > tT6) {
       digitalWrite ( PStufa, sON);
     }else{
-      if (tT4 < tT7) {
+      if (tT4 < tT6) {
         digitalWrite ( PStufa, sOFF);
       }
     }
@@ -113,5 +114,40 @@ void loop() {
   }
 
 
+
+//Logger
+  if (millis() > STimeLog) {
+    STimeLog = millis()+ 10000;  
+
+    Serial.print (tT1);
+    Serial.print (';');
+    Serial.print (tT2);
+    Serial.print (';');
+    Serial.print (tT3);
+    Serial.print (';');
+    Serial.print (tT4);
+    Serial.print (';');
+    Serial.print (tT5);
+    Serial.print (';');
+    Serial.print (tT6);
+    Serial.print (';');
+    Serial.print (tT7);
+    Serial.print (';');
+    Serial.print (tT8);
+    Serial.print (';');
+    if (digitalRead(PStufa)) {
+      Serial.print ("OFF");
+    }else{
+      Serial.print ("ON");  
+    }
+    Serial.print (';');
+    if (digitalRead(PGiu)) {
+      Serial.print ("OFF");
+    }else{
+      Serial.print ("ON");  
+    }
+    Serial.println ();
+  
+  }
  
 }

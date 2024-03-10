@@ -18671,61 +18671,6 @@
         },
         {
           "name": "serial-monitor",
-          "version": "0.12.0",
-          "systems": [
-            {
-              "host": "i686-pc-linux-gnu",
-              "archiveFileName": "serial-monitor_v0.12.0_Linux_32bit.tar.gz",
-              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.12.0_Linux_32bit.tar.gz",
-              "size": 1934394,
-              "checksum": "SHA-256:f18534d1d2ea14652313ca1446be7534f0631b5f809700321f29ec480a1390f7"
-            },
-            {
-              "host": "x86_64-pc-linux-gnu",
-              "archiveFileName": "serial-monitor_v0.12.0_Linux_64bit.tar.gz",
-              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.12.0_Linux_64bit.tar.gz",
-              "size": 1983898,
-              "checksum": "SHA-256:1e138a76448e5518261fac970e2a5d25b6a5ddd983a0150e4d1ea910f4f35bf0"
-            },
-            {
-              "host": "i686-mingw32",
-              "archiveFileName": "serial-monitor_v0.12.0_Windows_32bit.zip",
-              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.12.0_Windows_32bit.zip",
-              "size": 1961809,
-              "checksum": "SHA-256:2ffb8fcefe5268ca8439f5a84a333d75d5e428e511d418f9984c669ea58c7d30"
-            },
-            {
-              "host": "x86_64-mingw32",
-              "archiveFileName": "serial-monitor_v0.12.0_Windows_64bit.zip",
-              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.12.0_Windows_64bit.zip",
-              "size": 1992025,
-              "checksum": "SHA-256:91c9d424c28ad4ef8c82e825593214efc238bf2098e944a7e89203bf2820f772"
-            },
-            {
-              "host": "x86_64-apple-darwin",
-              "archiveFileName": "serial-monitor_v0.12.0_macOS_64bit.tar.gz",
-              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.12.0_macOS_64bit.tar.gz",
-              "size": 1881420,
-              "checksum": "SHA-256:49739e06b31a2c612f08f7169d8be5f2a7a7217a924309b06fa3f25414be1dca"
-            },
-            {
-              "host": "arm-linux-gnueabihf",
-              "archiveFileName": "serial-monitor_v0.12.0_Linux_ARMv6.tar.gz",
-              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.12.0_Linux_ARMv6.tar.gz",
-              "size": 1865868,
-              "checksum": "SHA-256:9130f75c2f48c3aadfb3290a453f448dfa708007de26900d1bda81555403c1b6"
-            },
-            {
-              "host": "arm64-linux-gnueabihf",
-              "archiveFileName": "serial-monitor_v0.12.0_Linux_ARM64.tar.gz",
-              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.12.0_Linux_ARM64.tar.gz",
-              "size": 1865881,
-              "checksum": "SHA-256:93f0be57463169e7c79739d9d56c28e3892d4696803752269660b6a1cae5acf2"
-            }
-          ]
-        },
-        {
-          "name": "serial-monitor",
           "version": "0.13.0",
           "systems": [
             {
@@ -18776,6 +18721,68 @@
               "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.13.0_Linux_ARM64.tar.gz",
               "size": 1865413,
               "checksum": "SHA-256:7604ba7b3eca774fb104e6e7e861f0b5d314999a2cdcc51a24a761958695e6df"
+            }
+          ]
+        },
+        {
+          "name": "serial-monitor",
+          "version": "0.14.1",
+          "systems": [
+            {
+              "host": "i686-pc-linux-gnu",
+              "archiveFileName": "serial-monitor_v0.14.1_Linux_32bit.tar.gz",
+              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.14.1_Linux_32bit.tar.gz",
+              "size": 2060544,
+              "checksum": "SHA-256:74909a6df79463dcef302aae055004eee8024e3d3ad1bf20f633fb86089d5717"
+            },
+            {
+              "host": "x86_64-pc-linux-gnu",
+              "archiveFileName": "serial-monitor_v0.14.1_Linux_64bit.tar.gz",
+              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.14.1_Linux_64bit.tar.gz",
+              "size": 2145727,
+              "checksum": "SHA-256:a646500ca2e719cd41eadd9ce3987d94a9bf232beb5b345e767fc2f48ccfbb5b"
+            },
+            {
+              "host": "i686-mingw32",
+              "archiveFileName": "serial-monitor_v0.14.1_Windows_32bit.zip",
+              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.14.1_Windows_32bit.zip",
+              "size": 2180623,
+              "checksum": "SHA-256:f52cf6edb94868f44e9953c6967b1b403ea94d3d716e3963ea1e21038860e30d"
+            },
+            {
+              "host": "x86_64-mingw32",
+              "archiveFileName": "serial-monitor_v0.14.1_Windows_64bit.zip",
+              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.14.1_Windows_64bit.zip",
+              "size": 2263204,
+              "checksum": "SHA-256:5ff8690843d9b11be35f7a8ee6e2dec94a9c4b92bc61eb65e5797bdcbbbb1af8"
+            },
+            {
+              "host": "x86_64-apple-darwin",
+              "archiveFileName": "serial-monitor_v0.14.1_macOS_64bit.tar.gz",
+              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.14.1_macOS_64bit.tar.gz",
+              "size": 2061766,
+              "checksum": "SHA-256:e002bfb25093a45911f9903ed6e99ad56d6cafc07fc7e77800e3afda9316e050"
+            },
+            {
+              "host": "arm64-apple-darwin",
+              "archiveFileName": "serial-monitor_v0.14.1_macOS_ARM64.tar.gz",
+              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.14.1_macOS_ARM64.tar.gz",
+              "size": 1993967,
+              "checksum": "SHA-256:724f5343a2e74d22866de39b16729ab1b37dc2178b01e83a51d2d3e429150ba4"
+            },
+            {
+              "host": "arm-linux-gnueabihf",
+              "archiveFileName": "serial-monitor_v0.14.1_Linux_ARMv6.tar.gz",
+              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.14.1_Linux_ARMv6.tar.gz",
+              "size": 1998034,
+              "checksum": "SHA-256:607e3ae03c40bba77724b5f0370c8e6d84e1d590d66f8adeb0572ee6dd8b135f"
+            },
+            {
+              "host": "arm64-linux-gnueabihf",
+              "archiveFileName": "serial-monitor_v0.14.1_Linux_ARM64.tar.gz",
+              "url": "https://downloads.arduino.cc/monitor/serial-monitor/serial-monitor_v0.14.1_Linux_ARM64.tar.gz",
+              "size": 2025298,
+              "checksum": "SHA-256:e8c2627e7b99c18fb5b77e735b76ac9d4529b04f3ecaf8fcd706963117b88d4a"
             }
           ]
         },
